@@ -1,0 +1,16 @@
+<component name="libraryTable">
+  <library name="paper-1.17.1">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/Downloads/spigot-1.17.1.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/ExoticGarden.jar!/" />
+      <root url="jar://$USER_HOME$/Desktop/Plugin testing/plugins/Slimefun.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="https://hub.spigotmc.org/javadocs/spigot/" />
+      <root url="https://slimefun.github.io/javadocs/Slimefun4/docs/index-all.html" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$USER_HOME$/Downloads/spigot-1.17.1.jar!/" />
+    </SOURCES>
+  </library>
+</component>

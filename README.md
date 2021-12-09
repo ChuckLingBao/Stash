@@ -1,0 +1,2 @@
+# Stash
+ Stash Minecraft Plugin
