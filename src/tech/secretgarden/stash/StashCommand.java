@@ -11,10 +11,22 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Set;
+
 public class StashCommand implements CommandExecutor {
+
+    private Main plugin;
+    public StashCommand(Main instance) {
+        this.plugin = instance;
+    }
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String args[]) {
+
+        LocalDateTime date = LocalDateTime.now();
+        String dateStr = date.format(DateTimeFormatter.ofPattern("EEEE MMMM dd yyyy hh:mm:ss a"));
 
 
 
@@ -25,6 +37,9 @@ public class StashCommand implements CommandExecutor {
             if (args.length == 0) {
                 player.openInventory(MapConversion.map.get(player.getUniqueId().toString()));
             } else if (args[0].equals("giveall") && player.hasPermission("stash.a")) {
+
+                Set<String> keys = plugin.getConfig().getKeys(false);
+
 
 
                 /*
@@ -67,6 +82,14 @@ public class StashCommand implements CommandExecutor {
                         if (args.length == 2) {
                             player.sendMessage("this is an item");
                             stash.addItem(item);
+
+                            for (String p : keys) {
+                                plugin.getConfig().createSection(p + ".Added Items." + "- " + item);
+                                plugin.getConfig().set(p + ".Added Items." + "- " + item, dateStr);
+                                plugin.saveConfig();
+                            }
+
+
                         }
                         else if (args.length == 3) {
                             //checking if int arg is an Integer

@@ -16,7 +16,7 @@ public class Main extends JavaPlugin {
         System.out.println("Stash plugin has loaded");
 
         Bukkit.getPluginManager().registerEvents(new EventListener(this), this);
-        getCommand("stash").setExecutor(new StashCommand());
+        getCommand("stash").setExecutor(new StashCommand(this));
 
         getConfig().options().copyDefaults();
         saveDefaultConfig();
