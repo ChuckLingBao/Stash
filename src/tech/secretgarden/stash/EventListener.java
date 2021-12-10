@@ -28,7 +28,7 @@ public class EventListener implements Listener {
             String uuid = e.getPlayer().getUniqueId().toString();
             String player = e.getPlayer().getName();
             LocalDateTime date = LocalDateTime.now();
-            String dateStr = date.format(DateTimeFormatter.ofPattern("EEEE MMMM dd yyyy hh:mm:ss a"));
+            String dateStr = date.format(DateTimeFormatter.ofPattern("EEEE MMMM dd yyyy hh,mm,ss a"));
 
             MapConversion.map.put(uuid, inv);
 

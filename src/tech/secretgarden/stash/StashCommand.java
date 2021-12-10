@@ -13,11 +13,13 @@ import org.bukkit.inventory.ItemStack;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Map;
 import java.util.Set;
 
 public class StashCommand implements CommandExecutor {
 
     private Main plugin;
+
     public StashCommand(Main instance) {
         this.plugin = instance;
     }
@@ -26,40 +28,55 @@ public class StashCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command cmd, String label, String args[]) {
 
         LocalDateTime date = LocalDateTime.now();
-        String dateStr = date.format(DateTimeFormatter.ofPattern("EEEE MMMM dd yyyy hh:mm:ss a"));
-
+        String dateStr = date.format(DateTimeFormatter.ofPattern("EEEE MMMM dd yyyy hh,mm,ss a"));
+        Set<String> keys = plugin.getConfig().getKeys(false);
 
 
         if (sender instanceof Player) {
             Player player = (Player) sender;
             Inventory stash = MapConversion.map.get(player.getUniqueId().toString());
-            //args check below
+
+            //opens your own stash
             if (args.length == 0) {
                 player.openInventory(MapConversion.map.get(player.getUniqueId().toString()));
-            } else if (args[0].equals("giveall") && player.hasPermission("stash.a")) {
 
-                Set<String> keys = plugin.getConfig().getKeys(false);
+                //GIVE ARG
+            } else if (args[0].equals("give") && player.hasPermission("stash.a")) {
 
-
-
-                /*
-                SLIMEFUN ARGUMENTS BELOW
-                 */
-
-                if (args[1].equals("sf")) {
-                    SlimefunItem sfItem = SlimefunItem.getById(args[2].toUpperCase());
+                //ALL ARG
+                if (args[1].equals("all") && (args[2].equals("sf"))) {
+                    //ALL SF ARGS
+                    //this only executes if argument "all" is used
+                    //this will be repeated
+                    SlimefunItem sfItem = SlimefunItem.getById(args[3].toUpperCase());
                     ItemStack sfItemStack = sfItem.getItem();
-                    if (args.length == 3) {
+                    if (args.length == 4) {
                         player.sendMessage("this is an sf item");
-                        stash.addItem(sfItemStack);
-                    } else if (args.length == 4) {
+                        for (Map.Entry entry : MapConversion.map.entrySet()) {
+                            Inventory stashInv = (Inventory) entry.getValue();
+                            stashInv.addItem(sfItemStack);
+                        }
+                        for (String p : keys) {
+                            plugin.getConfig().createSection(p + ".Added Items." + "- " + sfItemStack);
+                            plugin.getConfig().set(p + ".Added Items." + "- " + sfItemStack, dateStr);
+                            plugin.saveConfig();
+                        }
+                    } else if (args.length == 5) {
                         //checking if int arg is an Integer
                         try {
-                            Integer.parseInt(args[3]);
-                            int integer = Integer.parseInt(args[3]);
+                            Integer.parseInt(args[4]);
+                            int integer = Integer.parseInt(args[4]);
                             if (integer <= sfItemStack.getMaxStackSize()) {
                                 for (int i = 0; i < integer; i++) {
-                                    stash.addItem(sfItemStack);
+                                    for (Map.Entry entry : MapConversion.map.entrySet()) {
+                                        Inventory stashInv = (Inventory) entry.getValue();
+                                        stashInv.addItem(sfItemStack);
+                                    }
+                                }
+                                for (String p : keys) {
+                                    plugin.getConfig().createSection(p + ".Added Items." + "- " + sfItemStack);
+                                    plugin.getConfig().set(p + ".Added Items." + "- " + "x" + integer + sfItemStack, dateStr);
+                                    plugin.saveConfig();
                                 }
                                 player.sendMessage("these are items");
                             }
@@ -68,34 +85,120 @@ public class StashCommand implements CommandExecutor {
                         }
 
                     }
+                    //COMPLETED SF ALL ARGS
 
-                    /*
-                    VANILLA ARGS BELOW
+                } else if (args[1].equals("all")) {
+                    if (args.length == 3) {
+                        Material mat = Material.getMaterial(args[2].toUpperCase());
+                        ItemStack item = new ItemStack(mat);
+                        //argument 0 for a vanilla material
+                        //This is argument 1
+                        for (Map.Entry entry : MapConversion.map.entrySet()) {
+                            Inventory stashInv = (Inventory) entry.getValue();
+                            stashInv.addItem(item);
+                        }
+                        for (String p : keys) {
+                            plugin.getConfig().createSection(p + ".Added Items." + "- " + item);
+                            plugin.getConfig().set(p + ".Added Items." + "- " + item, dateStr);
+                            plugin.saveConfig();
+                        }
+
+
+
+                    } else if (args.length == 4) {
+                        Material mat = Material.getMaterial(args[2].toUpperCase());
+                        ItemStack item = new ItemStack(mat);
+                        try {
+                            Integer.parseInt(args[3]);
+                            int integer = Integer.parseInt(args[3]);
+                            if (integer <= item.getMaxStackSize()) {
+                                ItemStack items = new ItemStack(mat, integer);
+                                player.sendMessage("these are items");
+                                stash.addItem(items);
+                                for (String p : keys) {
+                                    plugin.getConfig().createSection(p + ".Added Items." + "- " + item);
+                                    plugin.getConfig().set(p + ".Added Items." + "- " + item, dateStr);
+                                    plugin.saveConfig();
+                                }
+                            } else {
+                                player.sendMessage("There has been an error");
+                            }
+                        } catch (NumberFormatException nfe) {
+                            player.sendMessage("This argument must be an integer");
+                        }
+                    }
+                }
+                /*
+                    BELOW IS FOR GIVING ITEMS TO A SINGLE PLAYER
                      */
-                } else {
-                    //argument 0 for a vanilla material
-                    Material mat = Material.getMaterial(args[1].toUpperCase());
-                    //This is argument 1
-                    ItemStack item = new ItemStack(mat);
-                    if (mat.isItem()) {
+                else {
+                    Player target = Bukkit.getPlayer(args[1]);
+                    if (args.length == 3) {
+                        if (target != null) {
+                            Material mat = Material.getMaterial(args[2].toUpperCase());
+                            ItemStack item = new ItemStack(mat);
+                            //opens online player's inventory
+                            String argPlayer = target.getPlayer().getPlayer().getUniqueId().toString();
+                            Inventory targetStash = MapConversion.map.get(target.getUniqueId().toString());
+                            targetStash.addItem(item);
 
-                        if (args.length == 2) {
-                            player.sendMessage("this is an item");
-                            stash.addItem(item);
 
-                            for (String p : keys) {
-                                plugin.getConfig().createSection(p + ".Added Items." + "- " + item);
-                                plugin.getConfig().set(p + ".Added Items." + "- " + item, dateStr);
-                                plugin.saveConfig();
+                        } else if (target == null) {
+                            Material mat = Material.getMaterial(args[2].toUpperCase());
+                            ItemStack item = new ItemStack(mat);
+                            //checking if argument == offline player
+                            if (Bukkit.getOfflinePlayer(args[1]).hasPlayedBefore() == true) {
+                                OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[1]);
+                                String offlinePlayerId = offlinePlayer.getUniqueId().toString();
+                                Inventory offlineStash = MapConversion.map.get(offlinePlayerId);
+                                //Now see if offlinePlayer String matches map key.
+                                if (MapConversion.map.containsKey(offlinePlayerId)) {
+                                    offlineStash.addItem(item);
+                                } else {
+                                    player.sendMessage("This player has not logged in before");
+                                }
+                            } else {
+                                player.sendMessage("This player has not logged in before");
                             }
 
-
+                        } else {
+                            player.sendMessage("Player could not be found");
                         }
-                        else if (args.length == 3) {
+                    } else if (args[2].equals("sf")) {
+                        SlimefunItem sfItem = SlimefunItem.getById(args[3].toUpperCase());
+                        ItemStack sfItemStack = sfItem.getItem();
+                        if (args.length == 4) {
+                            player.sendMessage("this is an sf item");
+                            stash.addItem(sfItemStack);
+                        } else if (args.length == 5) {
                             //checking if int arg is an Integer
                             try {
-                                Integer.parseInt(args[2]);
-                                int integer = Integer.parseInt(args[2]);
+                                Integer.parseInt(args[4]);
+                                int integer = Integer.parseInt(args[4]);
+                                if (integer <= sfItemStack.getMaxStackSize()) {
+                                    for (int i = 0; i < integer; i++) {
+                                        stash.addItem(sfItemStack);
+                                    }
+                                    player.sendMessage("these are items");
+                                }
+                            } catch (NumberFormatException nfe) {
+                                player.sendMessage("This argument must be an integer");
+                            }
+
+                        }
+                    }
+
+                    else {
+                        if (target != null) {
+                            Material mat = Material.getMaterial(args[2].toUpperCase());
+                            ItemStack item = new ItemStack(mat);
+                            //opens online player's inventory
+                            String argPlayer = target.getPlayer().getPlayer().getUniqueId().toString();
+                            Inventory targetStash = MapConversion.map.get(target.getUniqueId().toString());
+                            //ADD INT PARSING HERE
+                            try {
+                                Integer.parseInt(args[3]);
+                                int integer = Integer.parseInt(args[3]);
                                 if (integer <= item.getMaxStackSize()) {
                                     ItemStack items = new ItemStack(mat, integer);
                                     player.sendMessage("these are items");
@@ -106,49 +209,32 @@ public class StashCommand implements CommandExecutor {
                             } catch (NumberFormatException nfe) {
                                 player.sendMessage("This argument must be an integer");
                             }
+                            targetStash.addItem(item);
+                        } else if (target == null) {
+                            Material mat = Material.getMaterial(args[2].toUpperCase());
+                            ItemStack item = new ItemStack(mat);
+                            //checking if argument == offline player
+                            if (Bukkit.getOfflinePlayer(args[1]).hasPlayedBefore() == true) {
+                                OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[1]);
+                                String offlinePlayerId = offlinePlayer.getUniqueId().toString();
+                                Inventory offlineStash = MapConversion.map.get(offlinePlayerId);
+                                //Now see if offlinePlayer String matches map key.
+                                if (MapConversion.map.containsKey(offlinePlayerId)) {
+                                    offlineStash.addItem(item);
+                                } else {
+                                    player.sendMessage("This player has not logged in before");
+                                }
+                            } else {
+                                player.sendMessage("This player has not logged in before");
+                            }
 
                         } else {
-                            player.sendMessage("There has been an error");
+                            player.sendMessage("Player could not be found");
                         }
-
                     }
 
                 }
-
-                /*
-                OTHER PLAYER STASH BELOW
-                 */
-            } else if (args[0].length() > 0 && player.hasPermission("stash.a")) {
-                //checking if command has an argument
-                Player target = Bukkit.getPlayer(args[0]);
-                if (target != null) {
-                    //opens online player's inventory
-                    String argPlayer = target.getPlayer().getPlayer().getUniqueId().toString();
-                    player.openInventory(MapConversion.map.get(argPlayer));
-                } else if (target == null) {
-                    //checking if argument == offline player
-                    if (Bukkit.getOfflinePlayer(args[0]).hasPlayedBefore() == true) {
-                        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[0]);
-                        String offlinePlayerId = offlinePlayer.getUniqueId().toString();
-                        //Now see if offlinePlayer String matches map key.
-                        if (MapConversion.map.containsKey(offlinePlayerId)) {
-                            player.openInventory(MapConversion.map.get(offlinePlayerId));
-                        } else {
-                            player.sendMessage("This player has not logged in before");
-                        }
-                    } else {
-                        player.sendMessage("This player has not logged in before");
-                    }
-
-                } else {
-                    player.sendMessage("Player could not be found");
-                }
-
-            } else {
-                player.sendMessage("You cannot do this");
             }
-        } else {
-            System.out.println("This command can only be used by players!");
         }
         return false;
     }
