@@ -18,7 +18,7 @@ import java.util.Set;
 
 public class StashCommand implements CommandExecutor {
 
-    private Main plugin;
+    private final Main plugin;
 
     public StashCommand(Main instance) {
         this.plugin = instance;
@@ -30,7 +30,6 @@ public class StashCommand implements CommandExecutor {
         LocalDateTime date = LocalDateTime.now();
         String dateStr = date.format(DateTimeFormatter.ofPattern("EEEE MMMM dd yyyy hh,mm,ss a"));
         Set<String> keys = plugin.getConfig().getKeys(false);
-
 
         if (sender instanceof Player) {
             Player player = (Player) sender;
@@ -46,8 +45,6 @@ public class StashCommand implements CommandExecutor {
                 //ALL ARG
                 if (args[1].equals("all") && (args[2].equals("sf"))) {
                     //ALL SF ARGS
-                    //this only executes if argument "all" is used
-                    //this will be repeated
                     SlimefunItem sfItem = SlimefunItem.getById(args[3].toUpperCase());
                     ItemStack item = sfItem.getItem();
                     if (args.length == 4) {
@@ -56,12 +53,12 @@ public class StashCommand implements CommandExecutor {
                             Inventory stashInv = (Inventory) entry.getValue();
                             stashInv.addItem(item);
                         }
-                        configAdd(keys, item, integer, dateStr);
+                        configAddAll(keys, item, integer, dateStr);
                     } else if (args.length == 5) {
                         //checking if int arg is an Integer
-                        parseIntegers4(args, item, stash, keys, dateStr, player);
+                        parseIntegers4All(args, item, keys, dateStr, player);
                     }
-                    //COMPLETED SF ALL ARGS
+                    //END OF SF ALL ARGS
                 } else if (args[1].equals("all")) {
                     Material mat = Material.getMaterial(args[2].toUpperCase());
                     ItemStack item = new ItemStack(mat);
@@ -71,74 +68,82 @@ public class StashCommand implements CommandExecutor {
                             Inventory stashInv = (Inventory) entry.getValue();
                             stashInv.addItem(item);
                         }
-                        configAdd(keys, item, integer, dateStr);
+                        configAddAll(keys, item, integer, dateStr);
                     } else if (args.length == 4) {
-                        parseIntegers3(args, item, stash, keys, dateStr, player);
+                        parseIntegers3All(args, item, keys, dateStr, player);
                     }
                 }
                 /*
                     BELOW IS FOR GIVING ITEMS TO A SINGLE PLAYER
                      */
-                //VANILLA ONLINE PLAYER
                 else {
                     Player target = Bukkit.getPlayer(args[1]);
                     if (target != null && args[2].equals("sf")) {
                         SlimefunItem sfItem = SlimefunItem.getById(args[3].toUpperCase());
                         ItemStack item = sfItem.getItem();
-                        Inventory targetStash = MapConversion.map.get(target.getUniqueId().toString());
+                        Inventory singleStash = MapConversion.map.get(target.getUniqueId().toString());
                         if (args.length == 4) {
                             Integer integer = 1;
-                            targetStash.addItem(item);
-                            configAdd(keys, item, integer, dateStr);
+                            singleStash.addItem(item);
+                            configAdd(args, item, integer, dateStr);
                         } else if (args.length == 5) {
-                            parseIntegers4(args, item, stash, keys, dateStr, player);
+                            parseIntegers4Single(args, singleStash, item, dateStr, player);
                         }
                     } else if (target == null && args[2].equals("sf")) {
                         SlimefunItem sfItem = SlimefunItem.getById(args[3].toUpperCase());
                         ItemStack item = sfItem.getItem();
                         OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[1]);
                         String offlinePlayerId = offlinePlayer.getUniqueId().toString();
-                        Inventory offlineStash = MapConversion.map.get(offlinePlayerId);
+                        Inventory singleStash = MapConversion.map.get(offlinePlayerId);
                         if (args.length == 4) {
                             //checking if argument == offline player
-                            if (Bukkit.getOfflinePlayer(args[1]).hasPlayedBefore() == true) {
+                            if (Bukkit.getOfflinePlayer(args[1]).hasPlayedBefore()) {
                                 Integer integer = 1;
                                 //Now see if offlinePlayer String matches map key.
                                 if (MapConversion.map.containsKey(offlinePlayerId)) {
-                                    offlineStash.addItem(item);
-                                    configAdd(keys, item, integer, dateStr);
+                                    singleStash.addItem(item);
+                                    configAdd(args, item, integer, dateStr);
                                 } else {
                                     player.sendMessage("This player has not logged in before");
                                 }
                             }
                         } else if (args.length == 5) {
-                            parseIntegers4(args, item, stash, keys, dateStr, player);
+                            parseIntegers4Single(args, singleStash, item, dateStr, player);
                         }
                     }
                     //END SF
 
                     else if (target != null) {
-                        Inventory targetStash = MapConversion.map.get(target.getUniqueId().toString());
+                        Inventory singleStash = MapConversion.map.get(target.getUniqueId().toString());
                         Material mat = Material.getMaterial(args[2].toUpperCase());
                         ItemStack item = new ItemStack(mat);
                         if (args.length == 3) {
                             Integer integer = 1;
-                            targetStash.addItem(item);
-                            configAdd(keys, item, integer, dateStr);
+                            singleStash.addItem(item);
+                            configAdd(args, item, integer, dateStr);
                         } else if (args.length == 4) {
-                            parseIntegers3(args, item, stash, keys, dateStr, player);
+                            parseIntegers3Single(args, singleStash, item, dateStr, player);
                         }
                     } else {
                         //target == null
                         Material mat = Material.getMaterial(args[2].toUpperCase());
                         ItemStack item = new ItemStack(mat);
+                        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[1]);
+                        String offlinePlayerId = offlinePlayer.getUniqueId().toString();
+                        Inventory singleStash = MapConversion.map.get(offlinePlayerId);
                         if (args.length == 3) {
-                            Integer integer = 1;
-                            Inventory targetStash = MapConversion.map.get(target.getUniqueId().toString());
-                            targetStash.addItem(item);
-                            configAdd(keys, item, integer, dateStr);
+                            if (Bukkit.getOfflinePlayer(args[1]).hasPlayedBefore()) {
+                                Integer integer = 1;
+                                //Now see if offlinePlayer String matches map key.
+                                if (MapConversion.map.containsKey(offlinePlayerId)) {
+                                    singleStash.addItem(item);
+                                    configAdd(args, item, integer, dateStr);
+                                } else {
+                                    player.sendMessage("This player has not logged in before");
+                                }
+                            }
                         } else if (args.length == 4) {
-                            parseIntegers3(args, item, stash, keys, dateStr, player);
+                            parseIntegers3Single(args, singleStash, item, dateStr, player);
                         }
                     }
                 }
@@ -146,36 +151,76 @@ public class StashCommand implements CommandExecutor {
         }
         return false;
     }
-    private void configAdd(Set<String> keys, ItemStack item, Integer integer, String dateStr) {
+    private void configAddAll(Set<String> keys, ItemStack item, Integer integer, String dateStr) {
         for (String p : keys) {
             plugin.getConfig().createSection(p + ".Added Items." + "- " + item);
             plugin.getConfig().set(p + ".Added Items." + "- " + "x" + integer+ " " + item, dateStr);
             plugin.saveConfig();
         }
     }
-    private void parseIntegers3(String[] args, ItemStack item, Inventory stash, Set<String> keys, String dateStr, Player player) {
+    private void configAdd(String[] args, ItemStack item, Integer integer, String dateStr) {
+        String p = args[1];
+        plugin.getConfig().createSection(p + ".Added Items." + "- " + item);
+        plugin.getConfig().set(p + ".Added Items." + "- " + "x" + integer+ " " + item, dateStr);
+        plugin.saveConfig();
+    }
+    private void parseIntegers3All(String[] args, ItemStack item, Set<String> keys, String dateStr, Player player) {
         try {
             Integer.parseInt(args[3]);
             int integer = Integer.parseInt(args[3]);
             if (integer <= item.getMaxStackSize()) {
-                for (int i = 0; i < integer; i++) {
-                    stash.addItem(item);
+                for (Map.Entry entry : MapConversion.map.entrySet()) {
+                    Inventory stashInv = (Inventory) entry.getValue();
+                    for (int i = 0; i < integer; i++) {
+                        stashInv.addItem(item);
+                    }
                 }
-                configAdd(keys, item, integer, dateStr);
+                configAddAll(keys, item, integer, dateStr);
             }
         } catch (NumberFormatException nfe) {
             player.sendMessage("This argument must be an integer");
         }
     }
-    private void parseIntegers4(String[] args, ItemStack item, Inventory stash, Set<String> keys, String dateStr, Player player) {
+    private void parseIntegers3Single(String[] args, Inventory singleStash, ItemStack item, String dateStr, Player player) {
+        try {
+            Integer.parseInt(args[3]);
+            int integer = Integer.parseInt(args[3]);
+            if (integer <= item.getMaxStackSize()) {
+                for (int i = 0; i < integer; i++) {
+                    singleStash.addItem(item);
+                }
+                configAdd(args, item, integer, dateStr);
+            }
+        } catch (NumberFormatException nfe) {
+            player.sendMessage("This argument must be an integer");
+        }
+    }
+    private void parseIntegers4All(String[] args, ItemStack item, Set<String> keys, String dateStr, Player player) {
+        try {
+            Integer.parseInt(args[4]);
+            int integer = Integer.parseInt(args[4]);
+            if (integer <= item.getMaxStackSize()) {
+                for (Map.Entry entry : MapConversion.map.entrySet()) {
+                    Inventory stashInv = (Inventory) entry.getValue();
+                    for (int i = 0; i < integer; i++) {
+                        stashInv.addItem(item);
+                    }
+                }
+                configAddAll(keys, item, integer, dateStr);
+            }
+        } catch (NumberFormatException nfe) {
+            player.sendMessage("This argument must be an integer");
+        }
+    }
+    private void parseIntegers4Single(String[] args, Inventory singleStash, ItemStack item, String dateStr, Player player) {
         try {
             Integer.parseInt(args[4]);
             int integer = Integer.parseInt(args[4]);
             if (integer <= item.getMaxStackSize()) {
                 for (int i = 0; i < integer; i++) {
-                    stash.addItem(item);
+                    singleStash.addItem(item);
                 }
-                configAdd(keys, item, integer, dateStr);
+                configAdd(args, item, integer, dateStr);
             }
         } catch (NumberFormatException nfe) {
             player.sendMessage("This argument must be an integer");
