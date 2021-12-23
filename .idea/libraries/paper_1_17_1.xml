@@ -3,7 +3,7 @@
     <CLASSES>
       <root url="jar://$USER_HOME$/Downloads/spigot-1.17.1.jar!/" />
       <root url="jar://$USER_HOME$/Downloads/ExoticGarden.jar!/" />
-      <root url="jar://$USER_HOME$/Desktop/Plugin testing/plugins/Slimefun.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/Slimefun4.jar!/" />
     </CLASSES>
     <JAVADOC>
       <root url="https://hub.spigotmc.org/javadocs/spigot/" />
