@@ -33,54 +33,59 @@ public class StashCommand implements CommandExecutor {
 
         if (sender instanceof Player) {
             Player player = (Player) sender;
-            Inventory stash = MapConversion.map.get(player.getUniqueId().toString());
+            Inventory senderStash = MapConversion.map.get(player.getUniqueId().toString());
 
             //opens your own stash
             if (args.length == 0) {
-                player.openInventory(stash);
+                player.openInventory(senderStash);
 
                 //GIVE ARG
             } else if (args[0].equals("give") && player.hasPermission("stash.a")) {
 
                 //ALL ARG
-                if (args[1].equals("all") && (args[2].equals("sf"))) {
-                    //ALL SF ARGS
-                    SlimefunItem sfItem = SlimefunItem.getById(args[3].toUpperCase());
-                    ItemStack item = sfItem.getItem();
-                    if (args.length == 4) {
-                        Integer integer = 1;
-                        for (Map.Entry entry : MapConversion.map.entrySet()) {
-                            Inventory stashInv = (Inventory) entry.getValue();
-                            stashInv.addItem(item);
+                if (args[1].equals("all")) {
+                    if (args[2].equals("sf")) {
+                        //ALL SF ARGS
+                        SlimefunItem sfItem = SlimefunItem.getById(args[3].toUpperCase());
+                        ItemStack item = sfItem.getItem();
+                        if (args.length == 4) {
+                            Integer integer = 1;
+                            for (Map.Entry entry : MapConversion.map.entrySet()) {
+                                Inventory stashInv = (Inventory) entry.getValue();
+                                stashInv.addItem(item);
+                            }
+                            configAddAll(keys, item, integer, dateStr);
+                        } else if (args.length == 5) {
+                            //checking if int arg is an Integer
+                            parseIntegers4All(args, item, keys, dateStr, player);
                         }
-                        configAddAll(keys, item, integer, dateStr);
-                    } else if (args.length == 5) {
-                        //checking if int arg is an Integer
-                        parseIntegers4All(args, item, keys, dateStr, player);
-                    }
-                    //END OF SF ALL ARGS
-                } else if (args[1].equals("all")) {
-                    Material mat = Material.getMaterial(args[2].toUpperCase());
-                    ItemStack item = new ItemStack(mat);
-                    if (args.length == 3) {
-                        Integer integer = 1;
-                        for (Map.Entry entry : MapConversion.map.entrySet()) {
-                            Inventory stashInv = (Inventory) entry.getValue();
-                            stashInv.addItem(item);
+                        //END OF SF ALL ARGS
+                    } else {
+                        Material mat = Material.getMaterial(args[2].toUpperCase());
+                        ItemStack item = new ItemStack(mat);
+                        if (args.length == 3) {
+                            Integer integer = 1;
+                            for (Map.Entry entry : MapConversion.map.entrySet()) {
+                                Inventory stashInv = (Inventory) entry.getValue();
+                                stashInv.addItem(item);
+                            }
+                            configAddAll(keys, item, integer, dateStr);
+                        } else if (args.length == 4) {
+                            parseIntegers3All(args, item, keys, dateStr, player);
                         }
-                        configAddAll(keys, item, integer, dateStr);
-                    } else if (args.length == 4) {
-                        parseIntegers3All(args, item, keys, dateStr, player);
                     }
-                }
+
                 /*
                     BELOW IS FOR GIVING ITEMS TO A SINGLE PLAYER
                      */
-                else {
+                } else if (args[2].equals("sf")) {
+
+                    SlimefunItem sfItem = SlimefunItem.getById(args[3].toUpperCase());
+                    ItemStack item = sfItem.getItem();
                     Player target = Bukkit.getPlayer(args[1]);
-                    if (target != null && args[2].equals("sf")) {
-                        SlimefunItem sfItem = SlimefunItem.getById(args[3].toUpperCase());
-                        ItemStack item = sfItem.getItem();
+
+                    if (target != null) {
+
                         Inventory singleStash = MapConversion.map.get(target.getUniqueId().toString());
                         if (args.length == 4) {
                             Integer integer = 1;
@@ -89,12 +94,10 @@ public class StashCommand implements CommandExecutor {
                         } else if (args.length == 5) {
                             parseIntegers4Single(args, singleStash, item, dateStr, player);
                         }
-                    } else if (target == null && args[2].equals("sf")) {
-                        SlimefunItem sfItem = SlimefunItem.getById(args[3].toUpperCase());
-                        ItemStack item = sfItem.getItem();
+                    } else {
                         OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[1]);
+                        Inventory singleStash = MapConversion.map.get(offlinePlayer.getUniqueId().toString());
                         String offlinePlayerId = offlinePlayer.getUniqueId().toString();
-                        Inventory singleStash = MapConversion.map.get(offlinePlayerId);
                         if (args.length == 4) {
                             //checking if argument == offline player
                             if (Bukkit.getOfflinePlayer(args[1]).hasPlayedBefore()) {
@@ -111,12 +114,14 @@ public class StashCommand implements CommandExecutor {
                             parseIntegers4Single(args, singleStash, item, dateStr, player);
                         }
                     }
-                    //END SF
-
-                    else if (target != null) {
+                } else {
+                    Player target = Bukkit.getPlayer(args[1]);
+                    Material mat = Material.getMaterial(args[2].toUpperCase());
+                    ItemStack item = new ItemStack(mat);
+                    if (target != null) {
                         Inventory singleStash = MapConversion.map.get(target.getUniqueId().toString());
-                        Material mat = Material.getMaterial(args[2].toUpperCase());
-                        ItemStack item = new ItemStack(mat);
+
+
                         if (args.length == 3) {
                             Integer integer = 1;
                             singleStash.addItem(item);
@@ -126,11 +131,9 @@ public class StashCommand implements CommandExecutor {
                         }
                     } else {
                         //target == null
-                        Material mat = Material.getMaterial(args[2].toUpperCase());
-                        ItemStack item = new ItemStack(mat);
                         OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[1]);
                         String offlinePlayerId = offlinePlayer.getUniqueId().toString();
-                        Inventory singleStash = MapConversion.map.get(offlinePlayerId);
+                        Inventory singleStash = MapConversion.map.get(offlinePlayer.getUniqueId().toString());
                         if (args.length == 3) {
                             if (Bukkit.getOfflinePlayer(args[1]).hasPlayedBefore()) {
                                 Integer integer = 1;
@@ -144,13 +147,15 @@ public class StashCommand implements CommandExecutor {
                             }
                         } else if (args.length == 4) {
                             parseIntegers3Single(args, singleStash, item, dateStr, player);
+                            }
                         }
                     }
                 }
             }
-        }
         return false;
-    }
+        }
+
+
     private void configAddAll(Set<String> keys, ItemStack item, Integer integer, String dateStr) {
         for (String p : keys) {
             plugin.getConfig().createSection(p + ".Added Items." + "- " + item);

@@ -22,7 +22,6 @@ public class EventListener implements Listener {
     //Stash inventory creation
     public void join(PlayerJoinEvent e) {
         if (MapConversion.map.containsKey(e.getPlayer().getUniqueId().toString())) {
-            return;
         } else {
             Inventory inv = Bukkit.createInventory(null, 18, ChatColor.DARK_PURPLE + "Stash");
             String uuid = e.getPlayer().getUniqueId().toString();
@@ -47,16 +46,21 @@ public class EventListener implements Listener {
         Inventory playerInventory = e.getWhoClicked().getInventory();
         Inventory stashInv = MapConversion.map.get(e.getWhoClicked().getUniqueId().toString());
 
-        if (e.getWhoClicked().hasPermission("stash.a")) {
-            //checking if player is admin
+        if (stashInv.getViewers().isEmpty()) {
             e.setCancelled(false);
         }
+        else {
+            if (e.getWhoClicked().hasPermission("stash.a")) {
+                //checking if player is admin
+                e.setCancelled(false);
+            }
 
-        else if (e.getClickedInventory().equals(playerInventory)) {
+            else if (e.getClickedInventory().equals(playerInventory)) {
 
-            if (e.getCursor().getType().isAir()) {
-                e.setCancelled(true);
-                e.getWhoClicked().sendMessage("You cannot put items into the Stash");
+                if (e.getCursor().getType().isAir()) {
+                    e.setCancelled(true);
+                    e.getWhoClicked().sendMessage("You cannot put items into the Stash");
+                }
             }
         }
     }
