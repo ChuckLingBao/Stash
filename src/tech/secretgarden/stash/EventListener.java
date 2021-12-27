@@ -40,7 +40,7 @@ public class EventListener implements Listener {
         }
 
         if (!MapConversion.map.get(e.getPlayer().getUniqueId().toString()).isEmpty()) {
-            e.getPlayer().sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "You have Items in you Stash, use '/stash' to get your items.");
+            e.getPlayer().sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "You have Items in your Stash, use '/stash' to get your items.");
         }
     }
 
