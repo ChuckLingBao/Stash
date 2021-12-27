@@ -2,6 +2,7 @@ package tech.secretgarden.stash;
 
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -34,7 +35,6 @@ public class StashCommand implements CommandExecutor {
         if (sender instanceof Player) {
             Player player = (Player) sender;
             Inventory senderStash = MapConversion.map.get(player.getUniqueId().toString());
-
             //opens your own stash
             if (args.length == 0) {
                 player.openInventory(senderStash);
@@ -147,14 +147,15 @@ public class StashCommand implements CommandExecutor {
                             }
                         } else if (args.length == 4) {
                             parseIntegers3Single(args, singleStash, item, dateStr, player);
-                            }
                         }
                     }
                 }
+            } else {
+                player.sendMessage(ChatColor.RED + "You do not have permission.");
             }
-        return false;
         }
-
+        return false;
+    }
 
     private void configAddAll(Set<String> keys, ItemStack item, Integer integer, String dateStr) {
         for (String p : keys) {

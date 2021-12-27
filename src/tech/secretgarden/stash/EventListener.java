@@ -13,7 +13,7 @@ import java.time.format.DateTimeFormatter;
 
 public class EventListener implements Listener {
 
-    private Main plugin;
+    private final Main plugin;
     public EventListener(Main instance) {
         this.plugin = instance;
     }
@@ -37,6 +37,10 @@ public class EventListener implements Listener {
             plugin.getConfig().createSection(player + ".Added Items");
             plugin.getConfig().set(player + ".Stash Creation", uuid + " " + dateStr);
             plugin.saveConfig();
+        }
+
+        if (!MapConversion.map.get(e.getPlayer().getUniqueId().toString()).isEmpty()) {
+            e.getPlayer().sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "You have Items in you Stash, use '/stash' to get your items.");
         }
     }
 
