@@ -1,7 +1,10 @@
 main: tech.secretgarden.stash.Main
 name: Stash
-version: 1.0
+author: ChuckLingBao
+version: 1.1.0
 api-version: 1.17
 commands:
   stash:
     description: This is where your rewards are.
+  stashsf:
+    description: This will give Slimefun items.
