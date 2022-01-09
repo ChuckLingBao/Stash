@@ -1,8 +1,8 @@
 package tech.secretgarden.stash;
 
+import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -16,16 +16,14 @@ import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.Set;
 
-public class StashCommand implements CommandExecutor {
-
+public class StashSfCommand implements CommandExecutor {
     private final Main plugin;
-
-    public StashCommand(Main instance) {
+    public StashSfCommand(Main instance) {
         this.plugin = instance;
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String args[]) {
+    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 
         LocalDateTime date = LocalDateTime.now();
         String dateStr = date.format(DateTimeFormatter.ofPattern("EEEE MMMM dd yyyy hh,mm,ss a"));
@@ -33,18 +31,13 @@ public class StashCommand implements CommandExecutor {
 
         if (sender instanceof Player) {
             Player player = (Player) sender;
-            Inventory senderStash = MapConversion.map.get(player.getUniqueId().toString());
-            //opens your own stash
-            if (args.length == 0) {
-                player.openInventory(senderStash);
+            Player target = Bukkit.getPlayer(args[1]);
 
-                //GIVE ARG
-            } else if (args[0].equals("give") && player.hasPermission("stash.a")) {
-
-                //ALL ARG
+            if (args[0].equals("give") && player.hasPermission("stash.a")) {
+                SlimefunItem sfItem = SlimefunItem.getById(args[2].toUpperCase());
+                ItemStack item = sfItem.getItem();
                 if (args[1].equals("all")) {
-                    Material mat = Material.getMaterial(args[2].toUpperCase());
-                    ItemStack item = new ItemStack(mat);
+                    //ALL SF ARGS
                     if (args.length == 3) {
                         Integer integer = 1;
                         for (Map.Entry entry : MapConversion.map.entrySet()) {
@@ -53,48 +46,47 @@ public class StashCommand implements CommandExecutor {
                         }
                         configAddAll(keys, item, integer, dateStr);
                     } else if (args.length == 4) {
+                        //checking if int arg is an Integer
                         parseIntegersAll(args, item, keys, dateStr, player);
                     }
+                    //END OF SF ALL ARGS
+                }
                 /*
                     BELOW IS FOR GIVING ITEMS TO A SINGLE PLAYER
                      */
+                else if (target != null) {
+
+                    Inventory singleStash = MapConversion.map.get(target.getUniqueId().toString());
+                    if (args.length == 3) {
+                        Integer integer = 1;
+                        singleStash.addItem(item);
+                        configAdd(args, item, integer, dateStr);
+                    } else if (args.length == 4) {
+                        parseIntegersSingle(args, singleStash, item, dateStr, player);
+                    }
                 } else {
-                    Player target = Bukkit.getPlayer(args[1]);
-                    Material mat = Material.getMaterial(args[2].toUpperCase());
-                    ItemStack item = new ItemStack(mat);
-                    if (target != null) {
-                        Inventory singleStash = MapConversion.map.get(target.getUniqueId().toString());
-                        if (args.length == 3) {
+                    OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[1]);
+                    Inventory singleStash = MapConversion.map.get(offlinePlayer.getUniqueId().toString());
+                    String offlinePlayerId = offlinePlayer.getUniqueId().toString();
+                    if (args.length == 3) {
+                        //checking if argument == offline player
+                        if (Bukkit.getOfflinePlayer(args[1]).hasPlayedBefore()) {
                             Integer integer = 1;
-                            singleStash.addItem(item);
-                            configAdd(args, item, integer, dateStr);
-                        } else if (args.length == 4) {
-                            parseIntegersSingle(args, singleStash, item, dateStr, player);
+                            //Now see if offlinePlayer String matches map key.
+                            if (MapConversion.map.containsKey(offlinePlayerId)) {
+                                singleStash.addItem(item);
+                                configAdd(args, item, integer, dateStr);
+                            } else {
+                                player.sendMessage("This player has not logged in before");
+                            }
+                        } else {
+                            player.sendMessage(ChatColor.RED + "This is not a valid player.");
                         }
-                    } else {
-                        //target == null
-                        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[1]);
-                        String offlinePlayerId = offlinePlayer.getUniqueId().toString();
-                        Inventory singleStash = MapConversion.map.get(offlinePlayer.getUniqueId().toString());
-                        if (args.length == 3) {
-                            if (Bukkit.getOfflinePlayer(args[1]).hasPlayedBefore()) {
-                                Integer integer = 1;
-                                //Now see if offlinePlayer String matches map key.
-                                if (MapConversion.map.containsKey(offlinePlayerId)) {
-                                    singleStash.addItem(item);
-                                    configAdd(args, item, integer, dateStr);
-                                } else {
-                                    player.sendMessage("This player has not logged in before");
-                                }
-                            } else {
-                                player.sendMessage(ChatColor.RED + "This is not a valid player.");
-                            }
-                        } else if (args.length == 4) {
-                            if (Bukkit.getOfflinePlayer(args[1]).hasPlayedBefore()) {
-                                parseIntegersSingle(args, singleStash, item, dateStr, player);
-                            } else {
-                                player.sendMessage(ChatColor.RED + "This is not a valid player.");
-                            }
+                    } else if (args.length == 4) {
+                        if (Bukkit.getOfflinePlayer(args[1]).hasPlayedBefore()) {
+                            parseIntegersSingle(args, singleStash, item, dateStr, player);
+                        } else {
+                            player.sendMessage(ChatColor.RED + "This is not a valid player.");
                         }
                     }
                 }
@@ -102,9 +94,9 @@ public class StashCommand implements CommandExecutor {
                 player.sendMessage(ChatColor.RED + "You do not have permission.");
             }
         }
+
         return false;
     }
-
     private void configAddAll(Set<String> keys, ItemStack item, Integer integer, String dateStr) {
         for (String p : keys) {
             plugin.getConfig().createSection(p + ".Added Items." + "- " + item);
