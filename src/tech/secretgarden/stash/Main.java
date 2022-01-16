@@ -6,10 +6,13 @@ import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import su.nexmedia.engine.NexEngine;
+import su.nightexpress.goldencrates.GoldenCrates;
 
 public class Main extends JavaPlugin {
 
     MapConversion mapConversion = new MapConversion();
+
 
     @Override
     public void onEnable() {
@@ -19,6 +22,10 @@ public class Main extends JavaPlugin {
         getCommand("stash").setExecutor(new StashCommand(this));
         getCommand("stashsf").setExecutor(new StashSfCommand(this));
         getCommand("stashsf").setTabCompleter(new SfTabCompletion());
+        getCommand("stashkey").setExecutor(new StashKeyCommand(this));
+        getCommand("stashkey").setTabCompleter(new KeyTabCompletion());
+
+
 
         getConfig().options().copyDefaults();
         saveDefaultConfig();
@@ -30,16 +37,26 @@ public class Main extends JavaPlugin {
 
         if (getSfAPI() == null) {
             System.out.println("sf4 not found, plugin disabled");
-            Bukkit.getPluginManager().disablePlugin(this);
         } else {
             System.out.println("sf4 was found");
         }
 
         if (getEgAPI() == null) {
-            System.out.println("eg was not found, plugin disabled");
-            Bukkit.getPluginManager().disablePlugin(this);
+            System.out.println("ExoticGardens was not found, plugin disabled");
         } else {
-            System.out.println("eg was found");
+            System.out.println("ExoticGardens was found");
+        }
+
+        if (getGcAPI() == null) {
+            System.out.println("GoldenCrates was not found, plugin disabled");
+        } else {
+            System.out.println("GoldenCrates was found");
+        }
+
+        if (getNeAPI() == null) {
+            System.out.println("NexEngine was not found, plugin disabled");
+        } else {
+            System.out.println("NexEngine was found");
         }
     }
 
@@ -58,6 +75,26 @@ public class Main extends JavaPlugin {
         Plugin egPlugin = Bukkit.getServer().getPluginManager().getPlugin("ExoticGarden");
         if (egPlugin instanceof ExoticGarden) {
             return (ExoticGarden) egPlugin;
+        } else {
+            return null;
+        }
+    }
+
+    //golden crates API
+    public GoldenCrates getGcAPI() {
+        Plugin gcPlugin = Bukkit.getServer().getPluginManager().getPlugin("GoldenCrates");
+        if (gcPlugin instanceof GoldenCrates) {
+            return (GoldenCrates) gcPlugin;
+        } else {
+            return null;
+        }
+    }
+
+    //nex engine API
+    public NexEngine getNeAPI() {
+        Plugin nePlugin = Bukkit.getServer().getPluginManager().getPlugin("NexEngine");
+        if (nePlugin instanceof NexEngine) {
+            return (NexEngine) nePlugin;
         } else {
             return null;
         }
