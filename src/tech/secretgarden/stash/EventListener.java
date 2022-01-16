@@ -50,17 +50,24 @@ public class EventListener implements Listener {
         Inventory playerInventory = e.getWhoClicked().getInventory();
         Inventory stashInv = MapConversion.map.get(e.getWhoClicked().getUniqueId().toString());
 
+        //checks if player is not viewing their stash
+        if (!(stashInv.getViewers().contains(e.getWhoClicked()))) {
+            e.setCancelled(false);
+        }
+
+        /*
         if (stashInv.getViewers().isEmpty()) {
             e.setCancelled(false);
         }
+         */
+        //if they are:
         else {
             if (e.getWhoClicked().hasPermission("stash.a")) {
                 //checking if player is admin
                 e.setCancelled(false);
             }
-
             else if (e.getClickedInventory().equals(playerInventory)) {
-
+                //if player is not currently holding something with cursor and is trying to click slot in their PlayerInventory:
                 if (e.getCursor().getType().isAir()) {
                     e.setCancelled(true);
                     e.getWhoClicked().sendMessage("You cannot put items into the Stash");

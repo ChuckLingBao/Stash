@@ -1,7 +1,6 @@
 package tech.secretgarden.stash;
 
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
-import io.github.thebusybiscuit.slimefun4.core.commands.SlimefunCommand;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
