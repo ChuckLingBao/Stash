@@ -54,12 +54,6 @@ public class EventListener implements Listener {
         if (!(stashInv.getViewers().contains(e.getWhoClicked()))) {
             e.setCancelled(false);
         }
-
-        /*
-        if (stashInv.getViewers().isEmpty()) {
-            e.setCancelled(false);
-        }
-         */
         //if they are:
         else {
             if (e.getWhoClicked().hasPermission("stash.a")) {
