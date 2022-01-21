@@ -3,16 +3,22 @@ package tech.secretgarden.stash;
 import io.github.thebusybiscuit.exoticgarden.ExoticGarden;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import su.nexmedia.engine.NexEngine;
 import su.nightexpress.goldencrates.GoldenCrates;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Map;
+import java.util.Set;
+
 public class Main extends JavaPlugin {
 
     MapConversion mapConversion = new MapConversion();
-
 
     @Override
     public void onEnable() {
@@ -30,31 +36,29 @@ public class Main extends JavaPlugin {
         getConfig().options().copyDefaults();
         saveDefaultConfig();
 
-        FileConfiguration config = getConfig();
-
         //decodes stringMap, then converts it back to map.
         mapConversion.loadMap();
 
         if (getSfAPI() == null) {
-            System.out.println("sf4 not found, plugin disabled");
+            System.out.println("sf4 not found");
         } else {
             System.out.println("sf4 was found");
         }
 
         if (getEgAPI() == null) {
-            System.out.println("ExoticGardens was not found, plugin disabled");
+            System.out.println("ExoticGardens was not found");
         } else {
             System.out.println("ExoticGardens was found");
         }
 
         if (getGcAPI() == null) {
-            System.out.println("GoldenCrates was not found, plugin disabled");
+            System.out.println("GoldenCrates was not found");
         } else {
             System.out.println("GoldenCrates was found");
         }
 
         if (getNeAPI() == null) {
-            System.out.println("NexEngine was not found, plugin disabled");
+            System.out.println("NexEngine was not found");
         } else {
             System.out.println("NexEngine was found");
         }
@@ -97,6 +101,57 @@ public class Main extends JavaPlugin {
             return (NexEngine) nePlugin;
         } else {
             return null;
+        }
+    }
+
+    //GIVE METHODS
+    public void configAddAll(String itemName, Integer integer) {
+        Set<String> configKeys = getConfig().getKeys(false);
+        LocalDateTime date = LocalDateTime.now();
+        String dateStr = date.format(DateTimeFormatter.ofPattern("EEEE MMMM dd yyyy hh,mm,ss a"));
+        for (String p : configKeys) {
+            getConfig().set(p + ".Added Items." + "- " + "x" + integer + " " + itemName, dateStr);
+            saveConfig();
+        }
+    }
+    public void configAdd(String[] args, String itemName, Integer integer) {
+        LocalDateTime date = LocalDateTime.now();
+        String dateStr = date.format(DateTimeFormatter.ofPattern("EEEE MMMM dd yyyy hh,mm,ss a"));
+        String p = args[1];
+        getConfig().set(p + ".Added Items." + "- " + "x" + integer + " " + itemName, dateStr);
+        saveConfig();
+    }
+    public void parseIntegersAll(String[] args, ItemStack item, Player player) {
+        try {
+            Integer.parseInt(args[3]);
+            int integer = Integer.parseInt(args[3]);
+            String itemName = item.getItemMeta().getDisplayName();
+            if (integer <= item.getMaxStackSize()) {
+                for (Map.Entry entry : MapConversion.map.entrySet()) {
+                    Inventory stashInv = (Inventory) entry.getValue();
+                    for (int i = 0; i < integer; i++) {
+                        stashInv.addItem(item);
+                    }
+                }
+                configAddAll(itemName, integer);
+            }
+        } catch (NumberFormatException nfe) {
+            player.sendMessage("This argument must be an integer");
+        }
+    }
+    public void parseIntegersSingle(String[] args, Inventory singleStash, ItemStack item, Player player) {
+        try {
+            Integer.parseInt(args[3]);
+            String itemName = item.getItemMeta().getDisplayName();
+            int integer = Integer.parseInt(args[3]);
+            if (integer <= item.getMaxStackSize()) {
+                for (int i = 0; i < integer; i++) {
+                    singleStash.addItem(item);
+                }
+                configAdd(args, itemName, integer);
+            }
+        } catch (NumberFormatException nfe) {
+            player.sendMessage("This argument must be an integer");
         }
     }
 
