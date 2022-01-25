@@ -3,6 +3,7 @@ package tech.secretgarden.stash;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import tech.secretgarden.stash.MapConversion;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;

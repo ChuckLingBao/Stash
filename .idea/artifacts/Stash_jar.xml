@@ -3,8 +3,8 @@
     <output-path>$PROJECT_DIR$/out/artifacts/Stash_jar</output-path>
     <root id="archive" name="Stash.jar">
       <element id="module-output" name="Stash" />
-      <element id="file-copy" path="$PROJECT_DIR$/src/plugin.yml" />
-      <element id="file-copy" path="$PROJECT_DIR$/src/config.yml" />
+      <element id="file-copy" path="$PROJECT_DIR$/src/main/java/plugin.yml" />
+      <element id="file-copy" path="$PROJECT_DIR$/src/main/java/config.yml" />
     </root>
   </artifact>
 </component>
