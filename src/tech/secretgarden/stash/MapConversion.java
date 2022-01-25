@@ -8,11 +8,15 @@ import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
 
 import java.io.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
 public class MapConversion {
+    Database database = new Database();
 
     //initialized HashMap
     static HashMap<String, Inventory> map = new HashMap<>();
@@ -53,7 +57,31 @@ public class MapConversion {
         return null;
     }
 
+    public void loadMap() {
+
+        try {
+            PreparedStatement ps = database.getConnection().prepareStatement("SELECT UUID, INV FROM PLAYERS;");
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                String key = rs.getString("UUID");
+                String value = rs.getString("INV");
+                stringMap.put(key, value);
+                System.out.println(key + value);
+            }
+            for (Map.Entry<String, String> entry : stringMap.entrySet()) {
+                String inventoryData = entry.getValue();
+                Inventory inv = stringToInventory(inventoryData);
+                String uuid = entry.getKey();
+                map.put(uuid, inv);
+                System.out.println(uuid + inv);
+            }
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+    }
+
     //Saving HashMap
+    /*
     public void saveMap() {
         for (Map.Entry<String, Inventory> entry : map.entrySet()) {
             //entry is a single entry in the map
@@ -99,4 +127,5 @@ public class MapConversion {
             map.put(entry.getKey(), stringToInventory(inventoryData));
         }
     }
+     */
 }

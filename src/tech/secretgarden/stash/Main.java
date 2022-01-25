@@ -3,32 +3,36 @@ package tech.secretgarden.stash;
 import io.github.thebusybiscuit.exoticgarden.ExoticGarden;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import su.nexmedia.engine.NexEngine;
 import su.nightexpress.goldencrates.GoldenCrates;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Map;
-import java.util.Set;
+import java.sql.SQLException;
 
 public class Main extends JavaPlugin {
 
     MapConversion mapConversion = new MapConversion();
+    GiveMethods giveMethods = new GiveMethods();
+    private Database database;
 
     @Override
     public void onEnable() {
+        database = new Database();
+        try {
+            database.connect();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        System.out.println("Connected to database = " + database.isConnected());
+
         System.out.println("Stash plugin has loaded");
 
-        Bukkit.getPluginManager().registerEvents(new EventListener(this), this);
-        getCommand("stash").setExecutor(new StashCommand(this));
-        getCommand("stashsf").setExecutor(new StashSfCommand(this));
+        Bukkit.getPluginManager().registerEvents(new EventListener(), this);
+        getCommand("stash").setExecutor(new StashCommand());
+        getCommand("stashsf").setExecutor(new StashSfCommand());
         getCommand("stashsf").setTabCompleter(new SfTabCompletion());
-        getCommand("stashkey").setExecutor(new StashKeyCommand(this));
+        getCommand("stashkey").setExecutor(new StashKeyCommand());
         getCommand("stashkey").setTabCompleter(new KeyTabCompletion());
 
 
@@ -36,8 +40,8 @@ public class Main extends JavaPlugin {
         getConfig().options().copyDefaults();
         saveDefaultConfig();
 
-        //decodes stringMap, then converts it back to map.
         mapConversion.loadMap();
+
 
         if (getSfAPI() == null) {
             System.out.println("sf4 not found");
@@ -104,63 +108,13 @@ public class Main extends JavaPlugin {
         }
     }
 
-    //GIVE METHODS
-    public void configAddAll(String itemName, Integer integer) {
-        Set<String> configKeys = getConfig().getKeys(false);
-        LocalDateTime date = LocalDateTime.now();
-        String dateStr = date.format(DateTimeFormatter.ofPattern("EEEE MMMM dd yyyy hh,mm,ss a"));
-        for (String p : configKeys) {
-            getConfig().set(p + ".Added Items." + "- " + "x" + integer + " " + itemName, dateStr);
-            saveConfig();
-        }
-    }
-    public void configAdd(String[] args, String itemName, Integer integer) {
-        LocalDateTime date = LocalDateTime.now();
-        String dateStr = date.format(DateTimeFormatter.ofPattern("EEEE MMMM dd yyyy hh,mm,ss a"));
-        String p = args[1];
-        getConfig().set(p + ".Added Items." + "- " + "x" + integer + " " + itemName, dateStr);
-        saveConfig();
-    }
-    public void parseIntegersAll(String[] args, ItemStack item, Player player) {
-        try {
-            Integer.parseInt(args[3]);
-            int integer = Integer.parseInt(args[3]);
-            String itemName = item.getItemMeta().getDisplayName();
-            if (integer <= item.getMaxStackSize()) {
-                for (Map.Entry entry : MapConversion.map.entrySet()) {
-                    Inventory stashInv = (Inventory) entry.getValue();
-                    for (int i = 0; i < integer; i++) {
-                        stashInv.addItem(item);
-                    }
-                }
-                configAddAll(itemName, integer);
-            }
-        } catch (NumberFormatException nfe) {
-            player.sendMessage("This argument must be an integer");
-        }
-    }
-    public void parseIntegersSingle(String[] args, Inventory singleStash, ItemStack item, Player player) {
-        try {
-            Integer.parseInt(args[3]);
-            String itemName = item.getItemMeta().getDisplayName();
-            int integer = Integer.parseInt(args[3]);
-            if (integer <= item.getMaxStackSize()) {
-                for (int i = 0; i < integer; i++) {
-                    singleStash.addItem(item);
-                }
-                configAdd(args, itemName, integer);
-            }
-        } catch (NumberFormatException nfe) {
-            player.sendMessage("This argument must be an integer");
-        }
-    }
 
     @Override
     public void onDisable() {
         System.out.println("Stash has unloaded");
+        giveMethods.updateAllPlayers();
 
-        //turns map -> stringMap, then serializes it.
-        mapConversion.saveMap();
+        database.disconnect();
 
     }
 }
