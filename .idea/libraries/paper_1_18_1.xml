@@ -5,7 +5,6 @@
       <root url="jar://$USER_HOME$/Downloads/Slimefun4.jar!/" />
       <root url="jar://$USER_HOME$/Downloads/GoldenCrates/GoldenCrates.jar!/" />
       <root url="jar://$USER_HOME$/Downloads/GoldenCrates/NexEngine.jar!/" />
-      <root url="jar://$USER_HOME$/Downloads/Spigot/Spigot-API/target/spigot-api-1.18.1-R0.1-SNAPSHOT-shaded.jar!/" />
     </CLASSES>
     <JAVADOC>
       <root url="https://hub.spigotmc.org/javadocs/spigot/" />
