@@ -1,18 +1,16 @@
 <component name="libraryTable">
-  <library name="paper-1.17.1">
+  <library name="paper-1.18.1">
     <CLASSES>
-      <root url="jar://$USER_HOME$/Downloads/spigot-1.17.1.jar!/" />
       <root url="jar://$USER_HOME$/Downloads/ExoticGarden.jar!/" />
       <root url="jar://$USER_HOME$/Downloads/Slimefun4.jar!/" />
       <root url="jar://$USER_HOME$/Downloads/GoldenCrates/GoldenCrates.jar!/" />
       <root url="jar://$USER_HOME$/Downloads/GoldenCrates/NexEngine.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/Spigot/Spigot-API/target/spigot-api-1.18.1-R0.1-SNAPSHOT-shaded.jar!/" />
     </CLASSES>
     <JAVADOC>
       <root url="https://hub.spigotmc.org/javadocs/spigot/" />
       <root url="https://slimefun.github.io/javadocs/Slimefun4/docs/index-all.html" />
     </JAVADOC>
-    <SOURCES>
-      <root url="jar://$USER_HOME$/Downloads/spigot-1.17.1.jar!/" />
-    </SOURCES>
+    <SOURCES />
   </library>
 </component>

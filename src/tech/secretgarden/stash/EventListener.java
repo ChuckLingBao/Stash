@@ -2,11 +2,10 @@ package tech.secretgarden.stash;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryMoveItemEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.Inventory;
 
@@ -72,69 +71,78 @@ public class EventListener implements Listener {
 
         Inventory playerInventory = e.getWhoClicked().getInventory();
         Inventory stashInv = MapConversion.map.get(e.getWhoClicked().getUniqueId().toString());
+        String stashString = mapConversion.inventoryToString(stashInv);
+        String uuid = e.getWhoClicked().getUniqueId().toString();
 
-        //checks if player is not viewing their stash
-        if (!(stashInv.getViewers().contains(e.getWhoClicked()))) {
-            e.setCancelled(false);
-        }
-        //if they are:
-        else {
+        //checks if player is  viewing their stash
+        if (stashInv.getViewers().contains(e.getWhoClicked())) {
             if (e.getWhoClicked().hasPermission("stash.a")) {
                 //checking if player is admin
                 e.setCancelled(false);
-            }
-            else if (e.getClickedInventory().equals(playerInventory)) {
-                //if player is not currently holding something with cursor and is trying to click slot in their PlayerInventory:
-                if (e.getCursor().getType().isAir()) {
+
+            } else if (e.getClickedInventory() == null) {
+                e.setCancelled(true);
+            } else if (e.getClickedInventory().equals(playerInventory)) {
+                //if player is trying to click slot in their PlayerInventory:
+                if (e.getCurrentItem() == null) {
+                    //clicked on an air block
+                    if (!e.getCursor().getType().isAir()) {
+                        int integer = e.getCursor().getAmount();
+                        String number = Integer.toString(integer);
+                        //had itemStack in cursor
+                        e.setCancelled(false);
+                        if (e.getClick().isRightClick()) {
+                            e.setCancelled(true);
+                        } else if (e.getCursor().hasItemMeta()) {
+                            String itemName = e.getCursor().getItemMeta().getDisplayName();
+                            giveMethods.recordItem(uuid, itemName, number, "removed");
+                            giveMethods.updatePlayers(stashString, uuid);
+                        } else {
+                            String itemName = e.getCursor().toString();
+                            giveMethods.recordItem(uuid, itemName, number, "removed");
+                            giveMethods.updatePlayers(stashString, uuid);
+                        }
+
+                    } else {
+                        //had nothing in cursor
+                        e.setCancelled(false);
+                    }
+                    //e.getWhoClicked().sendMessage("You cannot put items into the Stash");
+                } else {
+                    //clicked on itemStack
                     e.setCancelled(true);
-                    e.getWhoClicked().sendMessage("You cannot put items into the Stash");
+                }
+            } else if (e.getClickedInventory().equals(stashInv)) {
+                //player clicks slot in stash
+                if (e.getCurrentItem() != null && e.getCursor().getType().isAir()) {
+                    if (e.getClick().isShiftClick()) {
+                        int integer = e.getCurrentItem().getAmount();
+                        String number = Integer.toString(integer);
+                        if (e.getCurrentItem().hasItemMeta()) {
+                            String itemName = e.getCurrentItem().getItemMeta().getDisplayName();
+                            giveMethods.recordItem(uuid, itemName, number, "removed");
+                            giveMethods.updatePlayers(stashString, uuid);
+                        } else {
+                            String itemName = e.getCurrentItem().toString();
+                            giveMethods.recordItem(uuid, itemName, number, "removed");
+                            giveMethods.updatePlayers(stashString, uuid);
+                        }
+                    }
+                    e.setCancelled(false);
+                } else if (!e.getCursor().getType().isAir()) {
+                    e.setCancelled(true);
                 }
             }
         }
     }
 
     @EventHandler
-    public void invMove(InventoryMoveItemEvent e) {
-
-        if (e.getSource().getViewers().get(0) instanceof Player) {
-
-            Player player = (Player) e.getSource().getViewers().get(0);
-            //player that opened the stash inventory
-            String uuid = player.getUniqueId().toString();
-            Inventory stash = MapConversion.map.get(uuid);
-            System.out.println(player + uuid + stash);
-            if(e.getSource().equals(stash)) {
-                String stashString = mapConversion.inventoryToString(stash);
-                String itemName = e.getItem().getItemMeta().getDisplayName();
-                int integer = e.getItem().getAmount();
-                String number = Integer.toString(integer);
-                giveMethods.updatePlayers(stashString, uuid);
-                giveMethods.recordAddedItem(uuid, itemName, number);
-
-                /*
-                try {
-                    PreparedStatement ps = database.getConnection().prepareStatement("UPDATE PLAYERS " +
-                            "SET INV = ?, " +
-                            "DATECREATED = ? " +
-                            "WHERE UUID = ?;");
-                    ps.setString(1, stashString);
-                    ps.setTimestamp(2, timestamp);
-                    ps.setString(3, uuid);
-                    ps.executeUpdate();
-
-                    PreparedStatement removeRecord = database.getConnection().prepareStatement("INSERT INTO `" +
-                            uuid + "` " +
-                            "(TIMESTAMP, ITEM_NAME) VALUES (?,?);");
-                    removeRecord.setTimestamp(1, timestamp);
-                    removeRecord.setString(2, "Gave " + itemName + " x" + number);
-                    removeRecord.executeUpdate();
-                } catch (SQLException exception) {
-                    exception.printStackTrace();
-                }
-
-                 */
-
-            }
+    public void drag(InventoryDragEvent e) {
+        Inventory stashInv = MapConversion.map.get(e.getWhoClicked().getUniqueId().toString());
+        if (stashInv.getViewers().contains(e.getWhoClicked())) {
+            e.setCancelled(true);
         }
     }
 }
+
+

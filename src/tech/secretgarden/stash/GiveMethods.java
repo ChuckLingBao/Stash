@@ -13,13 +13,14 @@ import java.util.Map;
 public class GiveMethods {
     Database database = new Database();
     MapConversion mapConversion = new MapConversion();
+    String add = "added";
     public void giveSinglePlayer(String[] args, Inventory singleStash, ItemStack item, Player player, String uuid, String itemName) {
         if (args.length == 3) {
             String number = "1";
             singleStash.addItem(item);
             String stash = mapConversion.inventoryToString(singleStash);
             updatePlayers(stash, uuid);
-            recordAddedItem(uuid, itemName, number);
+            recordItem(uuid, itemName, number, add);
         } else {
             try {
                 String number = args[3];
@@ -31,7 +32,7 @@ public class GiveMethods {
                     }
                     String stashString = mapConversion.inventoryToString(singleStash);
                     updatePlayers(stashString, uuid);
-                    recordAddedItem(uuid, itemName, number);
+                    recordItem(uuid, itemName, number, add);
                 }
             } catch (NumberFormatException nfe) {
                 player.sendMessage("This argument must be an integer");
@@ -50,7 +51,7 @@ public class GiveMethods {
                     String stashString = mapConversion.inventoryToString(stashInv);
 
                     updatePlayers(stashString, uuid);
-                    recordAddedItem(uuid, itemName, number);
+                    recordItem(uuid, itemName, number, add);
                 }
             } else if (args.length == 4) {
                 try {
@@ -65,7 +66,7 @@ public class GiveMethods {
                             }
                             String stash = mapConversion.inventoryToString(stashInv);
                             updatePlayers(stash, uuid);
-                            recordAddedItem(uuid, itemName, number);
+                            recordItem(uuid, itemName, number, add);
                         }
                         //configAddAll(itemName, integer);
                     }
@@ -96,14 +97,14 @@ public class GiveMethods {
         }
     }
 
-    public void recordAddedItem(String uuid, String itemName, String number) {
+    public void recordItem(String uuid, String itemName, String number, String addOrRemove) {
         LocalDateTime date = LocalDateTime.now();
         Timestamp timestamp = Timestamp.valueOf(date);
         try {
             PreparedStatement ps = database.getConnection().prepareStatement("INSERT INTO `" + uuid + "` " +
                     "(TIMESTAMP, ITEM_NAME) VALUES (?,?);");
             ps.setTimestamp(1, timestamp);
-            ps.setString(2, "Gave " + itemName + " x" + number);
+            ps.setString(2, addOrRemove + " " + itemName + " x" + number);
             ps.executeUpdate();
         } catch (SQLException exception) {
             exception.printStackTrace();
