@@ -1,1 +1,6 @@
-#all players that have a stash are listed below
+#DATABASE CONNECTION CONFIGURATION
+HOST:
+PORT: "3306"
+DATABASE:
+USERNAME:
+PASSWORD:

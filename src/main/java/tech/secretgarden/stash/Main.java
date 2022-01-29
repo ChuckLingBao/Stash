@@ -3,12 +3,14 @@ package tech.secretgarden.stash;
 import io.github.thebusybiscuit.exoticgarden.ExoticGarden;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import su.nexmedia.engine.NexEngine;
 import su.nightexpress.goldencrates.GoldenCrates;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 public class Main extends JavaPlugin {
 
@@ -16,14 +18,28 @@ public class Main extends JavaPlugin {
     GiveMethods giveMethods = new GiveMethods();
     private Database database;
 
+    public static ArrayList<String> configList = new ArrayList<>();
+    public ArrayList<String> getList() {
+        configList.add(getConfig().getString("HOST"));
+        configList.add(getConfig().getString("PORT"));
+        configList.add(getConfig().getString("DATABASE"));
+        configList.add(getConfig().getString("USERNAME"));
+        configList.add(getConfig().getString("PASSWORD"));
+        return configList;
+    }
+
     @Override
     public void onEnable() {
         database = new Database();
-        try {
-            database.connect();
-        } catch (SQLException e) {
-            e.printStackTrace();
+        if (getConfig().getString("HOST") != null) {
+            try {
+                getList();
+                database.connect();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
+
         System.out.println("Connected to database = " + database.isConnected());
 
         System.out.println("Stash plugin has loaded");
@@ -40,8 +56,11 @@ public class Main extends JavaPlugin {
         getConfig().options().copyDefaults();
         saveDefaultConfig();
 
-        mapConversion.loadMap();
 
+
+        if (database.isConnected()) {
+            mapConversion.loadMap();
+        }
 
         if (getSfAPI() == null) {
             System.out.println("sf4 not found");

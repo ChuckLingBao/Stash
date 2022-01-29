@@ -5,6 +5,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import tech.secretgarden.stash.MapConversion;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -84,10 +85,11 @@ public class GiveMethods {
     public void updatePlayers(String stashString, String uuid) {
         LocalDateTime date = LocalDateTime.now();
         Timestamp timestamp = Timestamp.valueOf(date);
+
         try {
             PreparedStatement ps = database.getConnection().prepareStatement("UPDATE players " +
                     "SET INV = ?, " +
-                    "DATECREATED = ? " +
+                    "TIMESTAMP = ? " +
                     "WHERE UUID = ?;");
             ps.setString(1, stashString);
             ps.setTimestamp(2, timestamp);
@@ -96,6 +98,21 @@ public class GiveMethods {
         } catch (SQLException exception) {
             exception.printStackTrace();
         }
+        /*
+        try (Connection connection = database.getHikari().getConnection();
+            PreparedStatement statement = connection.prepareStatement("UPDATE players " +
+                    "SET INV = ?, " +
+                    "DATECREATED = ? " +
+                    "WHERE UUID = ?;")) {
+            statement.setString(1, stashString);
+            statement.setTimestamp(2, timestamp);
+            statement.setString(3, uuid);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+         */
     }
 
     public void recordItem(String uuid, String itemName, String number, String addOrRemove) {
@@ -110,6 +127,18 @@ public class GiveMethods {
         } catch (SQLException exception) {
             exception.printStackTrace();
         }
+        /*
+        try (Connection connection = database.getHikari().getConnection();
+             PreparedStatement statement = connection.prepareStatement("INSERT INTO `" + uuid + "` " +
+                     "(TIMESTAMP, ITEM_NAME) VALUES (?,?);")) {
+            statement.setTimestamp(1, timestamp);
+            statement.setString(2, addOrRemove + " " + itemName + " x" + number);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+         */
     }
 
     public void updateAllPlayers() {

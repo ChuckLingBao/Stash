@@ -8,6 +8,7 @@ import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
 
 import java.io.*;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -59,73 +60,52 @@ public class MapConversion {
 
     public void loadMap() {
 
-        try {
-            PreparedStatement ps = database.getConnection().prepareStatement("SELECT UUID, INV FROM PLAYERS;");
-            ResultSet rs = ps.executeQuery();
+            try {
+                PreparedStatement createTable = database.getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS players(" +
+                        "ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY, " +
+                        "UUID VARCHAR(36), " +
+                        "NAME VARCHAR(99), " +
+                        "INV VARCHAR(65535), " +
+                        "TIMESTAMP TIMESTAMP);");
+                createTable.executeUpdate();
+                PreparedStatement ps = database.getConnection().prepareStatement("SELECT UUID, INV FROM PLAYERS;");
+                ResultSet rs = ps.executeQuery();
+                while (rs.next()) {
+                    String key = rs.getString("UUID");
+                    String value = rs.getString("INV");
+                    stringMap.put(key, value);
+                    System.out.println(key + value);
+                }
+                for (Map.Entry<String, String> entry : stringMap.entrySet()) {
+                    String inventoryData = entry.getValue();
+                    Inventory inv = stringToInventory(inventoryData);
+                    String uuid = entry.getKey();
+                    map.put(uuid, inv);
+                    System.out.println(uuid + inv);
+                }
+            } catch (SQLException exception) {
+                exception.printStackTrace();
+            }
+        }
+        /*
+        try (Connection connection = database.getHikari().getConnection();
+            PreparedStatement statement = connection.prepareStatement("SELECT UUID, INV FROM PLAYERS;")) {
+            ResultSet rs = statement.executeQuery();
             while (rs.next()) {
                 String key = rs.getString("UUID");
                 String value = rs.getString("INV");
                 stringMap.put(key, value);
-                System.out.println(key + value);
             }
             for (Map.Entry<String, String> entry : stringMap.entrySet()) {
                 String inventoryData = entry.getValue();
                 Inventory inv = stringToInventory(inventoryData);
                 String uuid = entry.getKey();
                 map.put(uuid, inv);
-                System.out.println(uuid + inv);
             }
-        } catch (SQLException exception) {
-            exception.printStackTrace();
+        } catch (SQLException x) {
+            x.printStackTrace();
         }
-    }
 
-    //Saving HashMap
-    /*
-    public void saveMap() {
-        for (Map.Entry<String, Inventory> entry : map.entrySet()) {
-            //entry is a single entry in the map
-            Inventory inventory = entry.getValue();
-            inventoryToString(inventory);
+         */
 
-            //put String value in a new HashMap
-            stringMap.put(entry.getKey(), inventoryToString(inventory));
-
-            //Time to serialize stringMap
-            try {
-                FileOutputStream fos = new FileOutputStream("plugins/Stash/data.ser");
-                ObjectOutputStream oos = new ObjectOutputStream(fos);
-                oos.writeObject(stringMap);
-                oos.close();
-                fos.close();
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    //Loading HashMap
-    public void loadMap() {
-        //decode stringMap (data.ser)
-        try {
-            FileInputStream fis = new FileInputStream("plugins/Stash/data.ser");
-            ObjectInputStream ois = new ObjectInputStream(fis);
-            stringMap = (HashMap) ois.readObject();
-            ois.close();
-            fis.close();
-        } catch (ClassNotFoundException | IOException e) {
-            e.printStackTrace();
-        }
-        //time to turn stringMap into map
-        for (Map.Entry<String, String> entry : stringMap.entrySet()) {
-
-            String inventoryData = entry.getValue();
-            stringToInventory(inventoryData);
-
-            //put Inventory value in map.
-            map.put(entry.getKey(), stringToInventory(inventoryData));
-        }
-    }
-     */
 }

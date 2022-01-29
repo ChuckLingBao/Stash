@@ -9,6 +9,7 @@ import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.Inventory;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -41,6 +42,7 @@ public class EventListener implements Listener {
             MapConversion.map.put(uuid, inv);
             System.out.println("created inv");
             String stash = mapConversion.inventoryToString(inv);
+
             try {
                 PreparedStatement ps = database.getConnection().prepareStatement("INSERT INTO players (UUID, NAME, INV, INVNAME, DATECREATED) VALUES (?,?,?,?,?);");
                 ps.setString(1, uuid);
@@ -59,6 +61,30 @@ public class EventListener implements Listener {
             } catch (SQLException exception) {
                 exception.printStackTrace();
             }
+
+            /*
+            try (Connection connection = database.getHikari().getConnection();
+                 PreparedStatement statement = connection.prepareStatement("INSERT INTO players (UUID, NAME, INV, INVNAME, DATECREATED) VALUES (?,?,?,?,?);")) {
+                statement.setString(1, uuid);
+                statement.setString(2, player);
+                statement.setString(3, stash);
+                statement.setString(4, invName);
+                statement.setTimestamp(5, timestamp);
+                statement.executeUpdate();
+            } catch (SQLException x) {
+                x.printStackTrace();
+            }
+            try (Connection connection = database.getHikari().getConnection();
+                 PreparedStatement statement = connection.prepareStatement("CREATE TABLE " + "`" + uuid + "`"  + " (" +
+                         "ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY, " +
+                         "TIMESTAMP TIMESTAMP NOT NULL, " +
+                         "ITEM_NAME VARCHAR(255));")) {
+                statement.executeUpdate();
+            } catch (SQLException x) {
+                x.printStackTrace();
+            }
+
+             */
         }
 
         if (!MapConversion.map.get(e.getPlayer().getUniqueId().toString()).isEmpty()) {
