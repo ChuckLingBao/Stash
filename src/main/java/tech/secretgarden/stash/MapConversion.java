@@ -59,53 +59,34 @@ public class MapConversion {
     }
 
     public void loadMap() {
+        try {
+            PreparedStatement createTable = database.getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS players (" +
+                    "ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY, " +
+                    "UUID TEXT(36), " +
+                    "NAME TEXT(99), " +
+                    "INV TEXT(65000), " +
+                    "TIMESTAMP TIMESTAMP NOT NULL);");
+            createTable.executeUpdate();
 
-            try {
-                PreparedStatement createTable = database.getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS players(" +
-                        "ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY, " +
-                        "UUID VARCHAR(36), " +
-                        "NAME VARCHAR(99), " +
-                        "INV VARCHAR(65535), " +
-                        "TIMESTAMP TIMESTAMP);");
-                createTable.executeUpdate();
-                PreparedStatement ps = database.getConnection().prepareStatement("SELECT UUID, INV FROM PLAYERS;");
-                ResultSet rs = ps.executeQuery();
-                while (rs.next()) {
-                    String key = rs.getString("UUID");
-                    String value = rs.getString("INV");
-                    stringMap.put(key, value);
-                    System.out.println(key + value);
-                }
-                for (Map.Entry<String, String> entry : stringMap.entrySet()) {
-                    String inventoryData = entry.getValue();
-                    Inventory inv = stringToInventory(inventoryData);
-                    String uuid = entry.getKey();
-                    map.put(uuid, inv);
-                    System.out.println(uuid + inv);
-                }
-            } catch (SQLException exception) {
-                exception.printStackTrace();
-            }
-        }
-        /*
-        try (Connection connection = database.getHikari().getConnection();
-            PreparedStatement statement = connection.prepareStatement("SELECT UUID, INV FROM PLAYERS;")) {
-            ResultSet rs = statement.executeQuery();
+            PreparedStatement ps = database.getConnection().prepareStatement("SELECT UUID, INV FROM players;");
+            ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 String key = rs.getString("UUID");
                 String value = rs.getString("INV");
                 stringMap.put(key, value);
+                System.out.println(key + value);
             }
             for (Map.Entry<String, String> entry : stringMap.entrySet()) {
                 String inventoryData = entry.getValue();
                 Inventory inv = stringToInventory(inventoryData);
                 String uuid = entry.getKey();
                 map.put(uuid, inv);
+                System.out.println(uuid + inv);
             }
-        } catch (SQLException x) {
-            x.printStackTrace();
+
+
+        } catch (SQLException exception) {
+            exception.printStackTrace();
         }
-
-         */
-
+    }
 }

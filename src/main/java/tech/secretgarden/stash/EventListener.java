@@ -44,12 +44,11 @@ public class EventListener implements Listener {
             String stash = mapConversion.inventoryToString(inv);
 
             try {
-                PreparedStatement ps = database.getConnection().prepareStatement("INSERT INTO players (UUID, NAME, INV, INVNAME, DATECREATED) VALUES (?,?,?,?,?);");
+                PreparedStatement ps = database.getConnection().prepareStatement("INSERT INTO players (UUID, NAME, INV, TIMESTAMP) VALUES (?,?,?,?);");
                 ps.setString(1, uuid);
                 ps.setString(2, player);
                 ps.setString(3, stash);
-                ps.setString(4, invName);
-                ps.setTimestamp(5, timestamp);
+                ps.setTimestamp(4, timestamp);
                 ps.executeUpdate();
 
                 PreparedStatement createTable = database.getConnection().prepareStatement("CREATE TABLE " + "`" + uuid + "`"  + " (" +
@@ -105,6 +104,17 @@ public class EventListener implements Listener {
             if (e.getWhoClicked().hasPermission("stash.a")) {
                 //checking if player is admin
                 e.setCancelled(false);
+                int integer = e.getCursor().getAmount();
+                String number = Integer.toString(integer);
+                if (e.getCursor().hasItemMeta()) {
+                    String itemName = e.getCursor().getItemMeta().getDisplayName();
+                    giveMethods.recordItem(uuid, itemName, number, "removed");
+                    giveMethods.updatePlayers(stashString, uuid);
+                } else {
+                    String itemName = e.getCursor().toString();
+                    giveMethods.recordItem(uuid, itemName, number, "removed");
+                    giveMethods.updatePlayers(stashString, uuid);
+                }
 
             } else if (e.getClickedInventory() == null) {
                 e.setCancelled(true);

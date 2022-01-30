@@ -131,7 +131,7 @@ public class Main extends JavaPlugin {
     @Override
     public void onDisable() {
         System.out.println("Stash has unloaded");
-        giveMethods.updateAllPlayers();
+        //giveMethods.updateAllPlayers();
 
         database.disconnect();
 
