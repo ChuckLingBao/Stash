@@ -1,7 +1,8 @@
 package tech.secretgarden.stash;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
+import com.mchange.v2.c3p0.ComboPooledDataSource;
+
+import java.beans.PropertyVetoException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -15,30 +16,32 @@ public class Database {
      */
 
     static ArrayList<String> list = Main.configList;
-    private static Connection connection;
+    public static ComboPooledDataSource pool;
 
     public static void connect() throws SQLException {
-        connection = DriverManager.getConnection(
-                "jdbc:mysql://" + list.get(0) + ":" + list.get(1) + "/" + list.get(2) + "?useSSL=false",
-                list.get(3),
-                list.get(4));
+
+        try {
+            pool = new ComboPooledDataSource();
+            pool.setDriverClass("com.mysql.jdbc.Driver");
+            pool.setJdbcUrl("jdbc:mysql://" + list.get(0) + ":" + list.get(1) + "/" + list.get(2) + "?useSSL=false");
+            pool.setUser(list.get(3));
+            pool.setPassword(list.get(4));
+        } catch (PropertyVetoException e) {
+            e.printStackTrace();
+        }
     }
 
-    public boolean isConnected() {
-        return connection != null;
+    public static boolean isConnected() {
+        return pool != null;
     }
 
-    public Connection getConnection() {
-        return connection;
+    public ComboPooledDataSource getPool() {
+        return pool;
     }
 
     public void disconnect() {
         if (isConnected()) {
-            try {
-                connection.close();
-            } catch (SQLException exception) {
-                exception.printStackTrace();
-            }
+            pool.close();
         }
 
     }

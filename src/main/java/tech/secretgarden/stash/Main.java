@@ -30,17 +30,16 @@ public class Main extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        database = new Database();
         if (getConfig().getString("HOST") != null) {
             try {
                 getList();
-                database.connect();
+                Database.connect();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         }
 
-        System.out.println("Connected to database = " + database.isConnected());
+        System.out.println("Connected to database = " + Database.isConnected());
 
         System.out.println("Stash plugin has loaded");
 
@@ -58,7 +57,7 @@ public class Main extends JavaPlugin {
 
 
 
-        if (database.isConnected()) {
+        if (Database.isConnected()) {
             mapConversion.loadMap();
         }
 
@@ -131,8 +130,6 @@ public class Main extends JavaPlugin {
     @Override
     public void onDisable() {
         System.out.println("Stash has unloaded");
-        //giveMethods.updateAllPlayers();
-
         database.disconnect();
 
     }

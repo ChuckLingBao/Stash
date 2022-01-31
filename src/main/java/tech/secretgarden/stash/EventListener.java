@@ -43,47 +43,27 @@ public class EventListener implements Listener {
             System.out.println("created inv");
             String stash = mapConversion.inventoryToString(inv);
 
-            try {
-                PreparedStatement ps = database.getConnection().prepareStatement("INSERT INTO players (UUID, NAME, INV, TIMESTAMP) VALUES (?,?,?,?);");
-                ps.setString(1, uuid);
-                ps.setString(2, player);
-                ps.setString(3, stash);
-                ps.setTimestamp(4, timestamp);
-                ps.executeUpdate();
-
-                PreparedStatement createTable = database.getConnection().prepareStatement("CREATE TABLE " + "`" + uuid + "`"  + " (" +
-                        "ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY, " +
-                        "TIMESTAMP TIMESTAMP NOT NULL, " +
-                        "ITEM_NAME VARCHAR(255)," +
-                        "NAME VARCHAR(255));");
-                createTable.executeUpdate();
-            } catch (SQLException exception) {
-                exception.printStackTrace();
-            }
-
-            /*
-            try (Connection connection = database.getHikari().getConnection();
-                 PreparedStatement statement = connection.prepareStatement("INSERT INTO players (UUID, NAME, INV, INVNAME, DATECREATED) VALUES (?,?,?,?,?);")) {
+            try (Connection connection = database.getPool().getConnection();
+                PreparedStatement statement = connection.prepareStatement("INSERT INTO players (UUID, NAME, INV, TIMESTAMP) VALUES (?,?,?,?);")) {
                 statement.setString(1, uuid);
                 statement.setString(2, player);
                 statement.setString(3, stash);
-                statement.setString(4, invName);
-                statement.setTimestamp(5, timestamp);
+                statement.setTimestamp(4, timestamp);
                 statement.executeUpdate();
-            } catch (SQLException x) {
+
+            } catch (Exception x) {
                 x.printStackTrace();
             }
-            try (Connection connection = database.getHikari().getConnection();
+            try (Connection connection = database.getPool().getConnection();
                  PreparedStatement statement = connection.prepareStatement("CREATE TABLE " + "`" + uuid + "`"  + " (" +
                          "ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY, " +
                          "TIMESTAMP TIMESTAMP NOT NULL, " +
-                         "ITEM_NAME VARCHAR(255));")) {
+                         "ITEM_NAME VARCHAR(255)," +
+                         "NAME VARCHAR(255));")) {
                 statement.executeUpdate();
-            } catch (SQLException x) {
+            } catch (Exception x) {
                 x.printStackTrace();
             }
-
-             */
         }
 
         if (!MapConversion.map.get(e.getPlayer().getUniqueId().toString()).isEmpty()) {

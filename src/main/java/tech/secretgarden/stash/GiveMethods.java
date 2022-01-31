@@ -70,13 +70,11 @@ public class GiveMethods {
                             updatePlayers(stash, uuid);
                             recordItem(uuid, itemName, number, add);
                         }
-                        //configAddAll(itemName, integer);
                     }
                 } catch (NumberFormatException nfe) {
                     player.sendMessage("This argument must be an integer");
                 }
             }
-            //plugin.configAddAll(itemName, integer);
         }
 
 
@@ -86,24 +84,11 @@ public class GiveMethods {
         LocalDateTime date = LocalDateTime.now();
         Timestamp timestamp = Timestamp.valueOf(date);
 
-        try {
-            PreparedStatement ps = database.getConnection().prepareStatement("UPDATE players " +
-                    "SET INV = ?, " +
-                    "TIMESTAMP = ? " +
-                    "WHERE UUID = ?;");
-            ps.setString(1, stashString);
-            ps.setTimestamp(2, timestamp);
-            ps.setString(3, uuid);
-            ps.executeUpdate();
-        } catch (SQLException exception) {
-            exception.printStackTrace();
-        }
-        /*
-        try (Connection connection = database.getHikari().getConnection();
-            PreparedStatement statement = connection.prepareStatement("UPDATE players " +
-                    "SET INV = ?, " +
-                    "DATECREATED = ? " +
-                    "WHERE UUID = ?;")) {
+        try (Connection connection = database.getPool().getConnection();
+             PreparedStatement statement = connection.prepareStatement("UPDATE players " +
+                     "SET INV = ?, " +
+                     "TIMESTAMP = ? " +
+                     "WHERE UUID = ?;")) {
             statement.setString(1, stashString);
             statement.setTimestamp(2, timestamp);
             statement.setString(3, uuid);
@@ -111,24 +96,13 @@ public class GiveMethods {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
-         */
     }
 
     public void recordItem(String uuid, String itemName, String number, String addOrRemove) {
         LocalDateTime date = LocalDateTime.now();
         Timestamp timestamp = Timestamp.valueOf(date);
-        try {
-            PreparedStatement ps = database.getConnection().prepareStatement("INSERT INTO `" + uuid + "` " +
-                    "(TIMESTAMP, ITEM_NAME) VALUES (?,?);");
-            ps.setTimestamp(1, timestamp);
-            ps.setString(2, addOrRemove + " " + itemName + " x" + number);
-            ps.executeUpdate();
-        } catch (SQLException exception) {
-            exception.printStackTrace();
-        }
-        /*
-        try (Connection connection = database.getHikari().getConnection();
+
+        try (Connection connection = database.getPool().getConnection();
              PreparedStatement statement = connection.prepareStatement("INSERT INTO `" + uuid + "` " +
                      "(TIMESTAMP, ITEM_NAME) VALUES (?,?);")) {
             statement.setTimestamp(1, timestamp);
@@ -137,8 +111,6 @@ public class GiveMethods {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
-         */
     }
 
     public void updateAllPlayers() {
