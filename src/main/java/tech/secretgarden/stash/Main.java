@@ -16,7 +16,6 @@ public class Main extends JavaPlugin {
 
     MapConversion mapConversion = new MapConversion();
     GiveMethods giveMethods = new GiveMethods();
-    private Database database;
 
     public static ArrayList<String> configList = new ArrayList<>();
     public ArrayList<String> getList() {
@@ -130,7 +129,7 @@ public class Main extends JavaPlugin {
     @Override
     public void onDisable() {
         System.out.println("Stash has unloaded");
-        database.disconnect();
+        Database.disconnect();
 
     }
 }

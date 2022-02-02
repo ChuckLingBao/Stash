@@ -1,74 +1,109 @@
 package tech.secretgarden.stash;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import tech.secretgarden.stash.MapConversion;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.UUID;
 
 public class GiveMethods {
     Database database = new Database();
     MapConversion mapConversion = new MapConversion();
     String add = "added";
-    public void giveSinglePlayer(String[] args, Inventory singleStash, ItemStack item, Player player, String uuid, String itemName) {
-        if (args.length == 3) {
-            String number = "1";
-            singleStash.addItem(item);
-            String stash = mapConversion.inventoryToString(singleStash);
-            updatePlayers(stash, uuid);
-            recordItem(uuid, itemName, number, add);
-        } else {
-            try {
-                String number = args[3];
+    public void giveSinglePlayer(String[] args, Inventory singleStash, ItemStack item, Player player, String idString, String itemName) {
+        UUID uuid = UUID.fromString(idString);
+        String owner = Bukkit.getPlayer(uuid).getDisplayName();
+        String sender = player.getDisplayName();
+        try (Connection connection = database.getPool().getConnection();
+             PreparedStatement statement = connection.prepareStatement("SELECT ID FROM Players WHERE UUID=" + idString)) {
+            ResultSet rs = statement.executeQuery();
+            while (rs.next()) {
+                int playerKey = rs.getInt("ID");
+                if (args.length == 3) {
+                    String number = "1";
+                    singleStash.addItem(item);
+                    String stash = mapConversion.inventoryToString(singleStash);
+                    updatePlayers(stash, idString);
 
-                int integer = Integer.parseInt(number);
-                if (integer <= item.getMaxStackSize()) {
-                    for (int i = 0; i < integer; i++) {
-                        singleStash.addItem(item);
+                    recordItem(sender, itemName, number, add, owner, playerKey);
+                } else {
+                    try {
+                        String number = args[3];
+
+                        int integer = Integer.parseInt(number);
+                        if (integer <= item.getMaxStackSize()) {
+                            for (int i = 0; i < integer; i++) {
+                                singleStash.addItem(item);
+                            }
+                            String stashString = mapConversion.inventoryToString(singleStash);
+                            updatePlayers(stashString, idString);
+                            recordItem(sender, itemName, number, add, owner, playerKey);
+                        }
+                    } catch (NumberFormatException nfe) {
+                        player.sendMessage("This argument must be an integer");
                     }
-                    String stashString = mapConversion.inventoryToString(singleStash);
-                    updatePlayers(stashString, uuid);
-                    recordItem(uuid, itemName, number, add);
                 }
-            } catch (NumberFormatException nfe) {
-                player.sendMessage("This argument must be an integer");
             }
+        } catch (SQLException x) {
+            x.printStackTrace();
         }
+
     }
     public void giveAllPlayers(String[] args, ItemStack item, Player player, String itemName) {
         if (args[1].equals("all")) {
 
+            String name = player.getDisplayName();
+
             if (args.length == 3) {
                 String number = "1";
-                for (Map.Entry entry : mapConversion.map.entrySet()) {
-                    Inventory stashInv = (Inventory) entry.getValue();
-                    String uuid = (String) entry.getKey();
+                for (Map.Entry<String, Inventory> entry : MapConversion.map.entrySet()) {
+                    Inventory stashInv = entry.getValue();
+                    String uuid = entry.getKey();
                     stashInv.addItem(item);
                     String stashString = mapConversion.inventoryToString(stashInv);
-
-                    updatePlayers(stashString, uuid);
-                    recordItem(uuid, itemName, number, add);
+                    String owner = Bukkit.getPlayer(entry.getKey()).getDisplayName();
+                    try (Connection connection = database.getPool().getConnection();
+                         PreparedStatement statement = connection.prepareStatement("SELECT ID FROM Players WHERE UUID=" + uuid)) {
+                        ResultSet rs = statement.executeQuery();
+                        while (rs.next()) {
+                            int playerKey = rs.getInt("ID");
+                            updatePlayers(stashString, uuid);
+                            recordItem(name, itemName, number, add, owner, playerKey);
+                        }
+                    } catch (SQLException x) {
+                        x.printStackTrace();
+                    }
                 }
             } else if (args.length == 4) {
                 try {
                     String number = args[3];
                     int integer = Integer.parseInt(number);
                     if (integer <= item.getMaxStackSize()) {
-                        for (Map.Entry entry : mapConversion.map.entrySet()) {
-                            Inventory stashInv = (Inventory) entry.getValue();
-                            String uuid = (String) entry.getKey();
-                            for (int i = 0; i < integer; i++) {
-                                stashInv.addItem(item);
+                        for (Map.Entry<String, Inventory> entry : MapConversion.map.entrySet()) {
+                            Inventory stashInv = entry.getValue();
+                            String uuid = entry.getKey();
+                            String owner = Bukkit.getPlayer(entry.getKey()).getDisplayName();
+                            try (Connection connection = database.getPool().getConnection();
+                                 PreparedStatement statement = connection.prepareStatement("SELECT ID FROM Players WHERE UUID = '" + uuid + "'")) {
+                                ResultSet rs = statement.executeQuery();
+                                while (rs.next()) {
+                                    int playerKey = rs.getInt("ID");
+                                    for (int i = 0; i < integer; i++) {
+                                        stashInv.addItem(item);
+                                    }
+                                    String stash = mapConversion.inventoryToString(stashInv);
+                                    updatePlayers(stash, uuid);
+                                    recordItem(name, itemName, number, add, owner, playerKey);
+                                }
+                            } catch (SQLException x) {
+                                x.printStackTrace();
                             }
-                            String stash = mapConversion.inventoryToString(stashInv);
-                            updatePlayers(stash, uuid);
-                            recordItem(uuid, itemName, number, add);
+
                         }
                     }
                 } catch (NumberFormatException nfe) {
@@ -85,9 +120,9 @@ public class GiveMethods {
         Timestamp timestamp = Timestamp.valueOf(date);
 
         try (Connection connection = database.getPool().getConnection();
-             PreparedStatement statement = connection.prepareStatement("UPDATE players " +
-                     "SET INV = ?, " +
-                     "TIMESTAMP = ? " +
+             PreparedStatement statement = connection.prepareStatement("UPDATE Players " +
+                     "SET Inv = ?, " +
+                     "Timestamp = ? " +
                      "WHERE UUID = ?;")) {
             statement.setString(1, stashString);
             statement.setTimestamp(2, timestamp);
@@ -98,15 +133,18 @@ public class GiveMethods {
         }
     }
 
-    public void recordItem(String uuid, String itemName, String number, String addOrRemove) {
+    public void recordItem(String name, String itemName, String number, String addOrRemove, String owner, int playerKey) {
         LocalDateTime date = LocalDateTime.now();
         Timestamp timestamp = Timestamp.valueOf(date);
 
         try (Connection connection = database.getPool().getConnection();
-             PreparedStatement statement = connection.prepareStatement("INSERT INTO `" + uuid + "` " +
-                     "(TIMESTAMP, ITEM_NAME) VALUES (?,?);")) {
+             PreparedStatement statement = connection.prepareStatement("INSERT INTO Log " +
+                     "(Timestamp, ItemName, Name, Owner, PlayerKey) VALUES (?,?,?,?,?);")) {
             statement.setTimestamp(1, timestamp);
             statement.setString(2, addOrRemove + " " + itemName + " x" + number);
+            statement.setString(3, name);
+            statement.setString(4, owner);
+            statement.setInt(5, playerKey);
             statement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();

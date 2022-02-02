@@ -39,7 +39,7 @@ public class Database {
         return pool;
     }
 
-    public void disconnect() {
+    public static void disconnect() {
         if (isConnected()) {
             pool.close();
         }
