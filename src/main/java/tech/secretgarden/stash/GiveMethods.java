@@ -12,15 +12,18 @@ import java.util.Map;
 import java.util.UUID;
 
 public class GiveMethods {
-    Database database = new Database();
-    MapConversion mapConversion = new MapConversion();
+    private final Database database = new Database();
+    private final MapConversion mapConversion = new MapConversion();
+    private final GetMethods getMethods = new GetMethods();
+
     String add = "added";
+
     public void giveSinglePlayer(String[] args, Inventory singleStash, ItemStack item, Player player, String idString, String itemName) {
         UUID uuid = UUID.fromString(idString);
-        String owner = Bukkit.getPlayer(uuid).getDisplayName();
-        String sender = player.getDisplayName();
+        String owner = getMethods.getName(uuid);
+        String sender = player.getName();
         try (Connection connection = database.getPool().getConnection();
-             PreparedStatement statement = connection.prepareStatement("SELECT ID FROM Players WHERE UUID=" + idString)) {
+             PreparedStatement statement = connection.prepareStatement("SELECT ID FROM Players WHERE UUID = '" + idString + "'")) {
             ResultSet rs = statement.executeQuery();
             while (rs.next()) {
                 int playerKey = rs.getInt("ID");
@@ -63,16 +66,16 @@ public class GiveMethods {
                 String number = "1";
                 for (Map.Entry<String, Inventory> entry : MapConversion.map.entrySet()) {
                     Inventory stashInv = entry.getValue();
-                    String uuid = entry.getKey();
+                    String idString = entry.getKey();
                     stashInv.addItem(item);
                     String stashString = mapConversion.inventoryToString(stashInv);
                     String owner = Bukkit.getPlayer(entry.getKey()).getDisplayName();
                     try (Connection connection = database.getPool().getConnection();
-                         PreparedStatement statement = connection.prepareStatement("SELECT ID FROM Players WHERE UUID=" + uuid)) {
+                         PreparedStatement statement = connection.prepareStatement("SELECT ID FROM Players WHERE UUID = '" + idString + "'")) {
                         ResultSet rs = statement.executeQuery();
                         while (rs.next()) {
                             int playerKey = rs.getInt("ID");
-                            updatePlayers(stashString, uuid);
+                            updatePlayers(stashString, idString);
                             recordItem(name, itemName, number, add, owner, playerKey);
                         }
                     } catch (SQLException x) {

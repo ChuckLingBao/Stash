@@ -21,7 +21,7 @@ public class StashCommand implements CommandExecutor {
 
         if (sender instanceof Player) {
             Player player = (Player) sender;
-            Inventory senderStash = mapConversion.map.get(player.getUniqueId().toString());
+            Inventory senderStash = MapConversion.map.get(player.getUniqueId().toString());
             //opens your own stash
             if (args.length == 0) {
                 player.openInventory(senderStash);
@@ -31,11 +31,11 @@ public class StashCommand implements CommandExecutor {
 
                 if (Bukkit.getPlayer(p) != null) {
                     String id = Bukkit.getPlayer(p).getUniqueId().toString();
-                    Inventory otherStash = mapConversion.map.get(id);
+                    Inventory otherStash = MapConversion.map.get(id);
                     player.openInventory(otherStash);
                 } else if (Bukkit.getOfflinePlayer(p).hasPlayedBefore()) {
                     String id = Bukkit.getOfflinePlayer(p).getUniqueId().toString();
-                    Inventory otherStash = mapConversion.map.get(id);
+                    Inventory otherStash = MapConversion.map.get(id);
                     player.openInventory(otherStash);
                 } else {
                     player.sendMessage(ChatColor.RED + "This is not a valid player!");
@@ -56,14 +56,14 @@ public class StashCommand implements CommandExecutor {
                     Player target = Bukkit.getPlayer(args[1]);
                     if (target != null) {
                         String uuid = target.getUniqueId().toString();
-                        Inventory singleStash = mapConversion.map.get(target.getUniqueId().toString());
+                        Inventory singleStash = MapConversion.map.get(target.getUniqueId().toString());
                         giveMethods.giveSinglePlayer(args, singleStash, item, player, uuid, itemName);
                     } else {
                         //target == null
                         OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[1]);
                         if (offlinePlayer.hasPlayedBefore()) {
                             String uuid = offlinePlayer.getUniqueId().toString();
-                            Inventory singleStash = mapConversion.map.get(offlinePlayer.getUniqueId().toString());
+                            Inventory singleStash = MapConversion.map.get(offlinePlayer.getUniqueId().toString());
                             giveMethods.giveSinglePlayer(args, singleStash, item, player, uuid, itemName);
                         } else {
                             player.sendMessage("This player has not logged in before.");

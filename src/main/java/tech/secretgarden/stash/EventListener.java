@@ -21,6 +21,7 @@ public class EventListener implements Listener {
     private final Database database = new Database();
     private final MapConversion mapConversion = new MapConversion();
     private final GiveMethods giveMethods = new GiveMethods();
+    private final GetMethods getMethods = new GetMethods();
 
     LocalDateTime date = LocalDateTime.now();
     Timestamp timestamp = Timestamp.valueOf(date);
@@ -81,27 +82,18 @@ public class EventListener implements Listener {
                 e.setCancelled(true);
             } else {
                 Inventory stash = e.getView().getTopInventory();
-                //for (Map.Entry<String, Inventory> entry : MapConversion.map.entrySet()) {
-                //if (entry.getValue().equals(stash)) {
-                //finds map key value pair
-                //value.equals(stash)
                 Inventory playerInventory = e.getWhoClicked().getInventory();
-                String key = getKey(stash);
+
+                String key = getMethods.getKey(stash);
                 UUID uuid = UUID.fromString(key);
-                String owner = getName(uuid);
+                int playerKey = getMethods.getForeignKey(key);
+                String owner = getMethods.getName(uuid);
+
                 String name = e.getWhoClicked().getName();
                 String stashStr = mapConversion.inventoryToString(stash);
-                int playerKey = getForeignKey(key);
 
-                            /*
-                            try (Connection connection = database.getPool().getConnection();
-                                 PreparedStatement statement = connection.prepareStatement("SELECT ID FROM Players WHERE UUID = '" + uuid + "'")) {
-                                ResultSet rs = statement.executeQuery();
-                                while (rs.next()) {
-                                    int playerKey = rs.getInt("ID");
-
-                             */
                 String cursorBukkitItemName = cursor.toString();
+
                 if (e.getClickedInventory().equals(stash)) {
                     //clicked stash inventory
                     if (cursor.getType().isAir() && slot != null) {
@@ -179,92 +171,8 @@ public class EventListener implements Listener {
 
                 }
             }
-
-                        /*
-                            } catch (SQLException x) {
-                                x.printStackTrace();
-                            }
-
-                         */
-
-
         }
-
-
     }
-
-            /*
-            if (e.getWhoClicked().hasPermission("stash.a")) {
-                //checking if player is admin
-                e.setCancelled(false);
-                int integer = e.getCursor().getAmount();
-                String number = Integer.toString(integer);
-                if (e.getCursor().hasItemMeta()) {
-                    String itemName = e.getCursor().getItemMeta().getDisplayName();
-                    giveMethods.recordItem(uuid, itemName, number, "removed");
-                    giveMethods.updatePlayers(stashString, uuid);
-                } else {
-                    String itemName = e.getCursor().toString();
-                    giveMethods.recordItem(uuid, itemName, number, "removed");
-                    giveMethods.updatePlayers(stashString, uuid);
-                }
-
-            } else if (e.getClickedInventory() == null) {
-                e.setCancelled(true);
-            } else if (e.getClickedInventory().equals(playerInventory)) {
-                //if player is trying to click slot in their PlayerInventory:
-                if (e.getCurrentItem() == null) {
-                    //clicked on an air block
-                    if (!e.getCursor().getType().isAir()) {
-                        int integer = e.getCursor().getAmount();
-                        String number = Integer.toString(integer);
-                        //had itemStack in cursor
-                        e.setCancelled(false);
-                        if (e.getClick().isRightClick()) {
-                            e.setCancelled(true);
-                        } else if (e.getCursor().hasItemMeta()) {
-                            String itemName = e.getCursor().getItemMeta().getDisplayName();
-                            giveMethods.recordItem(uuid, itemName, number, "removed");
-                            giveMethods.updatePlayers(stashString, uuid);
-                        } else {
-                            String itemName = e.getCursor().toString();
-                            giveMethods.recordItem(uuid, itemName, number, "removed");
-                            giveMethods.updatePlayers(stashString, uuid);
-                        }
-
-                    } else {
-                        //had nothing in cursor
-                        e.setCancelled(false);
-                    }
-                    //e.getWhoClicked().sendMessage("You cannot put items into the Stash");
-                } else {
-                    //clicked on itemStack
-                    e.setCancelled(true);
-                }
-            } else if (e.getClickedInventory().equals(stashInv)) {
-                //player clicks slot in stash
-                if (e.getCurrentItem() != null && e.getCursor().getType().isAir()) {
-                    if (e.getClick().isShiftClick()) {
-                        int integer = e.getCurrentItem().getAmount();
-                        String number = Integer.toString(integer);
-                        if (e.getCurrentItem().hasItemMeta()) {
-                            String itemName = e.getCurrentItem().getItemMeta().getDisplayName();
-                            giveMethods.recordItem(uuid, itemName, number, "removed");
-                            giveMethods.updatePlayers(stashString, uuid);
-                        } else {
-                            String itemName = e.getCurrentItem().toString();
-                            giveMethods.recordItem(uuid, itemName, number, "removed");
-                            giveMethods.updatePlayers(stashString, uuid);
-                        }
-                    }
-                    e.setCancelled(false);
-                } else if (!e.getCursor().getType().isAir()) {
-                    e.setCancelled(true);
-                }
-            }
-
-             */
-
 
     @EventHandler
     public void drag(InventoryDragEvent e) {
@@ -272,39 +180,6 @@ public class EventListener implements Listener {
         if (stashInv.getViewers().contains(e.getWhoClicked())) {
             e.setCancelled(true);
         }
-    }
-
-    public String getName(UUID id) {
-        if (Bukkit.getPlayer(id) != null) {
-            String owner = Bukkit.getPlayer(id).getName();
-            return owner;
-        } else {
-            String owner = Bukkit.getOfflinePlayer(id).getName();
-            return owner;
-        }
-    }
-
-    public String getKey(Inventory stash) {
-        for (Map.Entry<String, Inventory> entry : MapConversion.map.entrySet()) {
-            if (stash.equals(entry.getValue())) {
-                return entry.getKey();
-            }
-        }
-        return null;
-    }
-
-    public int getForeignKey(String uuid) {
-        try (Connection connection = database.getPool().getConnection();
-             PreparedStatement statement = connection.prepareStatement("SELECT ID FROM Players WHERE UUID = '" + uuid + "'")) {
-            ResultSet rs = statement.executeQuery();
-            while (rs.next()) {
-                int playerKey = rs.getInt("ID");
-                return playerKey;
-            }
-        } catch (SQLException exception) {
-            exception.printStackTrace();
-        }
-        return 0;
     }
 }
 
