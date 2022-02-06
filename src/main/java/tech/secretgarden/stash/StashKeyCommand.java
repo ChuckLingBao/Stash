@@ -16,41 +16,48 @@ public class StashKeyCommand implements CommandExecutor {
 
 
     private final GiveMethods giveMethods = new GiveMethods();
+    private final GetMethods getMethods = new GetMethods();
+
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 
         if (sender instanceof Player) {
             Player player = (Player) sender;
-            if (args[0].equals("give") && player.hasPermission("stash.a")) {
-                CrateKey key = GoldenCratesAPI.getKeyManager().getKeyById(args[2]);
-                ItemStack item = key.getItem();
-                String itemName = item.getItemMeta().getDisplayName();
-                if (args[1].equals("all")) {
-                    giveMethods.giveAllPlayers(args, item, player, itemName);
+            String world = player.getWorld().getName();
+            if (getMethods.getWorld(world)) {
+                if (args[0].equals("give") && player.hasPermission("stash.a")) {
+                    CrateKey key = GoldenCratesAPI.getKeyManager().getKeyById(args[2]);
+                    ItemStack item = key.getItem();
+                    String itemName = item.getItemMeta().getDisplayName();
+                    if (args[1].equals("all")) {
+                        giveMethods.giveAllPlayers(args, item, player, itemName);
                      /*
                     BELOW IS FOR GIVING ITEMS TO A SINGLE PLAYER
                      */
-                } else {
-                    Player target = Bukkit.getPlayer(args[1]);
-                    if (target != null) {
-                        String uuid = target.getUniqueId().toString();
-                        Inventory singleStash = MapConversion.map.get(target.getUniqueId().toString());
-                        giveMethods.giveSinglePlayer(args, singleStash, item, player, uuid, itemName);
                     } else {
-                        //target == null
-                        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[1]);
-                        if (offlinePlayer.hasPlayedBefore()) {
-                            String uuid = offlinePlayer.getUniqueId().toString();
-                            Inventory singleStash = MapConversion.map.get(offlinePlayer.getUniqueId().toString());
+                        Player target = Bukkit.getPlayer(args[1]);
+                        if (target != null) {
+                            String uuid = target.getUniqueId().toString();
+                            Inventory singleStash = MapConversion.map.get(target.getUniqueId().toString());
                             giveMethods.giveSinglePlayer(args, singleStash, item, player, uuid, itemName);
                         } else {
-                            player.sendMessage("This player has not logged in before.");
+                            //target == null
+                            OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[1]);
+                            if (offlinePlayer.hasPlayedBefore()) {
+                                String uuid = offlinePlayer.getUniqueId().toString();
+                                Inventory singleStash = MapConversion.map.get(offlinePlayer.getUniqueId().toString());
+                                giveMethods.giveSinglePlayer(args, singleStash, item, player, uuid, itemName);
+                            } else {
+                                player.sendMessage("This player has not logged in before.");
+                            }
                         }
                     }
+                } else {
+                    player.sendMessage(ChatColor.RED + "You do not have permission.");
                 }
             } else {
-                player.sendMessage(ChatColor.RED + "You do not have permission.");
+                player.sendMessage(ChatColor.RED + "You cannot do that in this world!");
             }
         }
         return false;

@@ -15,7 +15,7 @@ public class Database {
     private final String PASSWORD = "";
      */
 
-    static ArrayList<String> list = Main.configList;
+    private static final ArrayList<String> list = Main.dbList;
     public static ComboPooledDataSource pool;
 
     public static void connect() throws SQLException {

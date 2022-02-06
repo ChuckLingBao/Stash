@@ -93,14 +93,12 @@ public class MapConversion {
                 String key = rs.getString("UUID");
                 String value = rs.getString("Inv");
                 stringMap.put(key, value);
-                System.out.println(key + value);
             }
             for (Map.Entry<String, String> entry : stringMap.entrySet()) {
                 String inventoryData = entry.getValue();
                 Inventory inv = stringToInventory(inventoryData);
                 String uuid = entry.getKey();
                 map.put(uuid, inv);
-                System.out.println(uuid + inv);
             }
 
         } catch (Exception x) {

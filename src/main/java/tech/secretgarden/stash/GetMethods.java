@@ -7,6 +7,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.UUID;
 
@@ -45,5 +46,15 @@ public class GetMethods {
             exception.printStackTrace();
         }
         return 0;
+    }
+
+    public boolean getWorld(String world) {
+        int x = 0;
+        for (String entry : Main.worldList) {
+            if (entry.equalsIgnoreCase(world)) {
+                x = x + 1;
+            }
+        }
+        return x == 0;
     }
 }
