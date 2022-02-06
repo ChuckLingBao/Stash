@@ -120,16 +120,13 @@ public class GiveMethods {
 
     public void updatePlayers(String stashString, String uuid) {
         LocalDateTime date = LocalDateTime.now();
-        Timestamp timestamp = Timestamp.valueOf(date);
 
         try (Connection connection = database.getPool().getConnection();
              PreparedStatement statement = connection.prepareStatement("UPDATE Players " +
                      "SET Inv = ?, " +
-                     "Timestamp = ? " +
                      "WHERE UUID = ?;")) {
             statement.setString(1, stashString);
-            statement.setTimestamp(2, timestamp);
-            statement.setString(3, uuid);
+            statement.setString(2, uuid);
             statement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
