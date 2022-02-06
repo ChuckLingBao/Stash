@@ -61,33 +61,44 @@ public class MapConversion {
     public void loadMap() {
 
         try (Connection connection = database.getPool().getConnection();
-             PreparedStatement statement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS players (" +
+             PreparedStatement statement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS Players (" +
                      "ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY, " +
-                     "UUID TEXT(36), " +
-                     "NAME TEXT(99), " +
-                     "INV TEXT(65000), " +
-                     "TIMESTAMP TIMESTAMP NOT NULL);")) {
+                     "UUID VARCHAR(36), " +
+                     "Name VARCHAR(99), " +
+                     "Inv TEXT(65000), " +
+                     "Timestamp TIMESTAMP NOT NULL);")) {
             statement.executeUpdate();
 
         } catch (Exception x) {
             x.printStackTrace();
         }
+        try (Connection connection = database.getPool().getConnection();
+             PreparedStatement statement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS Log (" +
+                     "ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY, " +
+                     "Name VARCHAR(255), " +
+                     "ItemName VARCHAR(255)," +
+                     "Timestamp TIMESTAMP NOT NULL, " +
+                     "Owner VARCHAR(255), " +
+                     "PlayerKey INT, " +
+                     "FOREIGN KEY (PlayerKey) REFERENCES Players(ID));")) {
+            statement.executeUpdate();
+        } catch (Exception x) {
+            x.printStackTrace();
+        }
 
         try (Connection connection = database.getPool().getConnection();
-             PreparedStatement statement = connection.prepareStatement("SELECT UUID, INV FROM players;")) {
+             PreparedStatement statement = connection.prepareStatement("SELECT UUID, Inv FROM Players;")) {
             ResultSet rs = statement.executeQuery();
             while (rs.next()) {
                 String key = rs.getString("UUID");
-                String value = rs.getString("INV");
+                String value = rs.getString("Inv");
                 stringMap.put(key, value);
-                System.out.println(key + value);
             }
             for (Map.Entry<String, String> entry : stringMap.entrySet()) {
                 String inventoryData = entry.getValue();
                 Inventory inv = stringToInventory(inventoryData);
                 String uuid = entry.getKey();
                 map.put(uuid, inv);
-                System.out.println(uuid + inv);
             }
 
         } catch (Exception x) {

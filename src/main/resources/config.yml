@@ -4,3 +4,6 @@ PORT: "3306"
 DATABASE:
 USERNAME:
 PASSWORD:
+
+disabled_worlds:
+# - world_name

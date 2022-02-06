@@ -15,7 +15,7 @@ public class Database {
     private final String PASSWORD = "";
      */
 
-    static ArrayList<String> list = Main.configList;
+    private static final ArrayList<String> list = Main.dbList;
     public static ComboPooledDataSource pool;
 
     public static void connect() throws SQLException {
@@ -39,7 +39,7 @@ public class Database {
         return pool;
     }
 
-    public void disconnect() {
+    public static void disconnect() {
         if (isConnected()) {
             pool.close();
         }

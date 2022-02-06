@@ -11,33 +11,40 @@ import su.nightexpress.goldencrates.GoldenCrates;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Main extends JavaPlugin {
 
     MapConversion mapConversion = new MapConversion();
-    GiveMethods giveMethods = new GiveMethods();
-    private Database database;
 
-    public static ArrayList<String> configList = new ArrayList<>();
-    public ArrayList<String> getList() {
-        configList.add(getConfig().getString("HOST"));
-        configList.add(getConfig().getString("PORT"));
-        configList.add(getConfig().getString("DATABASE"));
-        configList.add(getConfig().getString("USERNAME"));
-        configList.add(getConfig().getString("PASSWORD"));
-        return configList;
+    public static ArrayList<String> dbList = new ArrayList<>();
+    public ArrayList<String> getDbList() {
+        dbList.add(getConfig().getString("HOST"));
+        dbList.add(getConfig().getString("PORT"));
+        dbList.add(getConfig().getString("DATABASE"));
+        dbList.add(getConfig().getString("USERNAME"));
+        dbList.add(getConfig().getString("PASSWORD"));
+        return dbList;
     }
+
+    public static List<String> worldList = new ArrayList<>();
 
     @Override
     public void onEnable() {
+        getConfig().options().copyDefaults();
+        saveDefaultConfig();
+
         if (getConfig().getString("HOST") != null) {
             try {
-                getList();
+                getDbList();
                 Database.connect();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         }
+
+        //list of disabled worlds set in config
+        worldList = getConfig().getStringList("disabled_worlds");
 
         System.out.println("Connected to database = " + Database.isConnected());
 
@@ -49,13 +56,6 @@ public class Main extends JavaPlugin {
         getCommand("stashsf").setTabCompleter(new SfTabCompletion());
         getCommand("stashkey").setExecutor(new StashKeyCommand());
         getCommand("stashkey").setTabCompleter(new KeyTabCompletion());
-
-
-
-        getConfig().options().copyDefaults();
-        saveDefaultConfig();
-
-
 
         if (Database.isConnected()) {
             mapConversion.loadMap();
@@ -130,7 +130,7 @@ public class Main extends JavaPlugin {
     @Override
     public void onDisable() {
         System.out.println("Stash has unloaded");
-        database.disconnect();
+        Database.disconnect();
 
     }
 }
