@@ -69,6 +69,7 @@ public class EventListener implements Listener {
         String title = e.getView().getTitle();
 
         if (title.contains(ChatColor.DARK_PURPLE + "Stash")) {
+            System.out.println("test");
             //top inv title includes "stash"
             ItemStack cursor = e.getCursor();
             ItemStack slot = e.getCurrentItem();

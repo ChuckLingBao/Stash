@@ -123,7 +123,7 @@ public class GiveMethods {
 
         try (Connection connection = database.getPool().getConnection();
              PreparedStatement statement = connection.prepareStatement("UPDATE Players " +
-                     "SET Inv = ?, " +
+                     "SET Inv = ? " +
                      "WHERE UUID = ?;")) {
             statement.setString(1, stashString);
             statement.setString(2, uuid);
