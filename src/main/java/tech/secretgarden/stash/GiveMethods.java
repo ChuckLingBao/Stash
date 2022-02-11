@@ -23,10 +23,10 @@ public class GiveMethods {
         String owner = getMethods.getName(uuid);
         String sender = player.getName();
         try (Connection connection = database.getPool().getConnection();
-             PreparedStatement statement = connection.prepareStatement("SELECT ID FROM Players WHERE UUID = '" + idString + "'")) {
+             PreparedStatement statement = connection.prepareStatement("SELECT id FROM player WHERE uuid = '" + idString + "'")) {
             ResultSet rs = statement.executeQuery();
             while (rs.next()) {
-                int playerKey = rs.getInt("ID");
+                int playerKey = rs.getInt("id");
                 if (args.length == 3) {
                     String number = "1";
                     singleStash.addItem(item);
@@ -71,10 +71,10 @@ public class GiveMethods {
                     String stashString = mapConversion.inventoryToString(stashInv);
                     String owner = Bukkit.getPlayer(entry.getKey()).getDisplayName();
                     try (Connection connection = database.getPool().getConnection();
-                         PreparedStatement statement = connection.prepareStatement("SELECT ID FROM Players WHERE UUID = '" + idString + "'")) {
+                         PreparedStatement statement = connection.prepareStatement("SELECT id FROM player WHERE uuid = '" + idString + "'")) {
                         ResultSet rs = statement.executeQuery();
                         while (rs.next()) {
-                            int playerKey = rs.getInt("ID");
+                            int playerKey = rs.getInt("id");
                             updatePlayers(stashString, idString);
                             recordItem(name, itemName, number, add, owner, playerKey);
                         }
@@ -92,10 +92,10 @@ public class GiveMethods {
                             String uuid = entry.getKey();
                             String owner = Bukkit.getPlayer(entry.getKey()).getDisplayName();
                             try (Connection connection = database.getPool().getConnection();
-                                 PreparedStatement statement = connection.prepareStatement("SELECT ID FROM Players WHERE UUID = '" + uuid + "'")) {
+                                 PreparedStatement statement = connection.prepareStatement("SELECT id FROM player WHERE uuid = '" + uuid + "'")) {
                                 ResultSet rs = statement.executeQuery();
                                 while (rs.next()) {
-                                    int playerKey = rs.getInt("ID");
+                                    int playerKey = rs.getInt("id");
                                     for (int i = 0; i < integer; i++) {
                                         stashInv.addItem(item);
                                     }
@@ -122,9 +122,9 @@ public class GiveMethods {
         LocalDateTime date = LocalDateTime.now();
 
         try (Connection connection = database.getPool().getConnection();
-             PreparedStatement statement = connection.prepareStatement("UPDATE Players " +
-                     "SET Inv = ? " +
-                     "WHERE UUID = ?;")) {
+             PreparedStatement statement = connection.prepareStatement("UPDATE player " +
+                     "SET inv = ? " +
+                     "WHERE uuid = ?;")) {
             statement.setString(1, stashString);
             statement.setString(2, uuid);
             statement.executeUpdate();
@@ -138,8 +138,8 @@ public class GiveMethods {
         Timestamp timestamp = Timestamp.valueOf(date);
 
         try (Connection connection = database.getPool().getConnection();
-             PreparedStatement statement = connection.prepareStatement("INSERT INTO Log " +
-                     "(Timestamp, ItemName, Name, Owner, PlayerKey) VALUES (?,?,?,?,?);")) {
+             PreparedStatement statement = connection.prepareStatement("INSERT INTO log " +
+                     "(timestamp, item_name, name, owner, player_key) VALUES (?,?,?,?,?);")) {
             statement.setTimestamp(1, timestamp);
             statement.setString(2, addOrRemove + " " + itemName + " x" + number);
             statement.setString(3, name);

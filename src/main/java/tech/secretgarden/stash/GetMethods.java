@@ -7,7 +7,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.UUID;
 
@@ -36,11 +35,10 @@ public class GetMethods {
 
     public int getForeignKey(String uuid) {
         try (Connection connection = database.getPool().getConnection();
-             PreparedStatement statement = connection.prepareStatement("SELECT ID FROM Players WHERE UUID = '" + uuid + "'")) {
+             PreparedStatement statement = connection.prepareStatement("SELECT ID FROM player WHERE uuid = '" + uuid + "'")) {
             ResultSet rs = statement.executeQuery();
             while (rs.next()) {
-                int playerKey = rs.getInt("ID");
-                return playerKey;
+                return rs.getInt("ID");
             }
         } catch (SQLException exception) {
             exception.printStackTrace();

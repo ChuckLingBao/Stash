@@ -45,7 +45,7 @@ public class EventListener implements Listener {
             String stash = mapConversion.inventoryToString(inv);
 
             try (Connection connection = database.getPool().getConnection();
-                 PreparedStatement statement = connection.prepareStatement("INSERT INTO Players (UUID, Name, Inv, Timestamp) VALUES (?,?,?,?);")) {
+                 PreparedStatement statement = connection.prepareStatement("INSERT INTO player (uuid, name, inv, timestamp) VALUES (?,?,?,?);")) {
                 statement.setString(1, uuid);
                 statement.setString(2, player);
                 statement.setString(3, stash);
@@ -69,7 +69,6 @@ public class EventListener implements Listener {
         String title = e.getView().getTitle();
 
         if (title.contains(ChatColor.DARK_PURPLE + "Stash")) {
-            System.out.println("test");
             //top inv title includes "stash"
             ItemStack cursor = e.getCursor();
             ItemStack slot = e.getCurrentItem();

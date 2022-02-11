@@ -61,37 +61,37 @@ public class MapConversion {
     public void loadMap() {
 
         try (Connection connection = database.getPool().getConnection();
-             PreparedStatement statement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS Players (" +
-                     "ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY, " +
-                     "UUID VARCHAR(36), " +
-                     "Name VARCHAR(99), " +
-                     "Inv TEXT(65000), " +
-                     "Timestamp TIMESTAMP NOT NULL);")) {
+             PreparedStatement statement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS player (" +
+                     "id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, " +
+                     "uuid VARCHAR(36), " +
+                     "name VARCHAR(99), " +
+                     "inv TEXT(65000), " +
+                     "timestamp TIMESTAMP NOT NULL);")) {
             statement.executeUpdate();
 
         } catch (Exception x) {
             x.printStackTrace();
         }
         try (Connection connection = database.getPool().getConnection();
-             PreparedStatement statement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS Log (" +
-                     "ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY, " +
-                     "Name VARCHAR(255), " +
-                     "ItemName VARCHAR(255)," +
-                     "Timestamp TIMESTAMP NOT NULL, " +
-                     "Owner VARCHAR(255), " +
-                     "PlayerKey INT, " +
-                     "FOREIGN KEY (PlayerKey) REFERENCES Players(ID));")) {
+             PreparedStatement statement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS log (" +
+                     "id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, " +
+                     "name VARCHAR(255), " +
+                     "item_name VARCHAR(255)," +
+                     "timestamp TIMESTAMP NOT NULL, " +
+                     "owner VARCHAR(255), " +
+                     "player_key INT, " +
+                     "FOREIGN KEY (player_key) REFERENCES player(id));")) {
             statement.executeUpdate();
         } catch (Exception x) {
             x.printStackTrace();
         }
 
         try (Connection connection = database.getPool().getConnection();
-             PreparedStatement statement = connection.prepareStatement("SELECT UUID, Inv FROM Players;")) {
+             PreparedStatement statement = connection.prepareStatement("SELECT uuid, inv FROM player;")) {
             ResultSet rs = statement.executeQuery();
             while (rs.next()) {
-                String key = rs.getString("UUID");
-                String value = rs.getString("Inv");
+                String key = rs.getString("uuid");
+                String value = rs.getString("inv");
                 stringMap.put(key, value);
             }
             for (Map.Entry<String, String> entry : stringMap.entrySet()) {

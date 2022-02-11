@@ -6,4 +6,4 @@ USERNAME:
 PASSWORD:
 
 disabled_worlds:
-# - world_name
+  - example_world
