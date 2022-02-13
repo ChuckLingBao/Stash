@@ -52,10 +52,10 @@ public class Main extends JavaPlugin {
 
         Bukkit.getPluginManager().registerEvents(new EventListener(), this);
         getCommand("stash").setExecutor(new StashCommand());
-        getCommand("stashsf").setExecutor(new StashSfCommand());
-        getCommand("stashsf").setTabCompleter(new SfTabCompletion());
-        getCommand("stashkey").setExecutor(new StashKeyCommand());
-        getCommand("stashkey").setTabCompleter(new KeyTabCompletion());
+        getCommand("stashsf").setExecutor(new StashSfCommand(this));
+        getCommand("stashsf").setTabCompleter(new SfTabCompletion(this));
+        getCommand("stashkey").setExecutor(new StashKeyCommand(this));
+        getCommand("stashkey").setTabCompleter(new KeyTabCompletion(this));
 
         if (Database.isConnected()) {
             mapConversion.loadMap();

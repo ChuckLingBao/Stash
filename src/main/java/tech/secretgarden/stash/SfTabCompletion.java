@@ -10,12 +10,17 @@ import javax.annotation.Nonnull;
 import java.util.*;
 
 public class SfTabCompletion implements TabCompleter {
+    private final Main plugin;
+    public SfTabCompletion(Main instance) { this.plugin = instance; }
     private static final int MAX_SUGGESTIONS = 80;
+
     @Override
     public List<String> onTabComplete(CommandSender commandSender, Command cmd, String label, String[] args) {
-        if (args.length == 3) {
-            if (args[0].equalsIgnoreCase("give")) {
-                return createReturnList(getSlimefunItems(), args[2]);
+        if (plugin.getSfAPI() != null) {
+            if (args.length == 3) {
+                if (args[0].equalsIgnoreCase("give")) {
+                    return createReturnList(getSlimefunItems(), args[2]);
+                }
             }
         }
         return null;
