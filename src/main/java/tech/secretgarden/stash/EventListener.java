@@ -30,8 +30,8 @@ public class EventListener implements Listener {
     //Stash inventory creation
     public void join(PlayerJoinEvent e) {
         String uuid = e.getPlayer().getUniqueId().toString();
-        if (MapConversion.map.containsKey(e.getPlayer().getUniqueId().toString())) {
-        } else {
+        if (!MapConversion.map.containsKey(e.getPlayer().getUniqueId().toString())) {
+
             System.out.println(MapConversion.map.get(uuid));
 
             Inventory inv = Bukkit.createInventory(null, 18, ChatColor.DARK_PURPLE + "Stash");
