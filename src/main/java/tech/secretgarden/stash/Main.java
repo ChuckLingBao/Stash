@@ -1,14 +1,16 @@
 package tech.secretgarden.stash;
 
-import io.github.thebusybiscuit.exoticgarden.ExoticGarden;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
+import me.mrCookieSlime.ExoticGarden.ExoticGarden;
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 import su.nexmedia.engine.NexEngine;
 import su.nightexpress.goldencrates.GoldenCrates;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +18,7 @@ import java.util.List;
 public class Main extends JavaPlugin {
 
     MapConversion mapConversion = new MapConversion();
+    Database database = new Database();
 
     public static ArrayList<String> dbList = new ArrayList<>();
     public ArrayList<String> getDbList() {
@@ -59,6 +62,7 @@ public class Main extends JavaPlugin {
 
         if (Database.isConnected()) {
             mapConversion.loadMap();
+            ping.runTaskTimer(this, 20, 20 * 60);
         }
 
         if (getSfAPI() == null) {
@@ -133,6 +137,17 @@ public class Main extends JavaPlugin {
         Database.disconnect();
 
     }
+    BukkitRunnable ping = new BukkitRunnable() {
+        @Override
+        public void run() {
+            try (Connection connection = database.getPool().getConnection();
+                 PreparedStatement statement = connection.prepareStatement("SELECT 1")) {
+                statement.executeQuery();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    };
 }
 
 
