@@ -1,7 +1,7 @@
 package tech.secretgarden.stash;
 
+import io.github.thebusybiscuit.exoticgarden.ExoticGarden;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
-import me.mrCookieSlime.ExoticGarden.ExoticGarden;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
