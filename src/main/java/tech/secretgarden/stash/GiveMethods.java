@@ -69,7 +69,7 @@ public class GiveMethods {
                     String idString = entry.getKey();
                     stashInv.addItem(item);
                     String stashString = mapConversion.inventoryToString(stashInv);
-                    String owner = Bukkit.getPlayer(entry.getKey()).getDisplayName();
+                    String owner = Bukkit.getPlayer(entry.getKey()).getName();
                     try (Connection connection = database.getPool().getConnection();
                          PreparedStatement statement = connection.prepareStatement("SELECT id FROM player WHERE uuid = '" + idString + "'")) {
                         ResultSet rs = statement.executeQuery();
@@ -90,7 +90,7 @@ public class GiveMethods {
                         for (Map.Entry<String, Inventory> entry : MapConversion.map.entrySet()) {
                             Inventory stashInv = entry.getValue();
                             String uuid = entry.getKey();
-                            String owner = Bukkit.getPlayer(entry.getKey()).getDisplayName();
+                            String owner = Bukkit.getPlayer(entry.getKey()).getName();
                             try (Connection connection = database.getPool().getConnection();
                                  PreparedStatement statement = connection.prepareStatement("SELECT id FROM player WHERE uuid = '" + uuid + "'")) {
                                 ResultSet rs = statement.executeQuery();

@@ -17,7 +17,7 @@ public class KeyTabCompletion implements TabCompleter {
 
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
-        if (plugin.getGcAPI() != null && plugin.getNeAPI() != null) {
+        if (plugin.getEcAPI() != null && plugin.getNeAPI() != null) {
             if (args.length == 3 && args[0].equals("give")) {
                 return createList();
             }
