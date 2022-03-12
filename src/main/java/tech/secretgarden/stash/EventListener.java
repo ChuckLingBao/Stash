@@ -75,10 +75,12 @@ public class EventListener implements Listener {
 
             if (!cursor.getType().isAir() && slot != null) {
                 e.setCancelled(true);
-            } else if (e.getClick().isRightClick()) {
+            }
+            if (e.getClick().isRightClick()) {
                 e.setCancelled(true);
                 //if user tries to swap item or right click, cancel event regardless of their permissions!
-            } else if (e.getClickedInventory() == null) {
+            }
+            if (e.getClickedInventory() == null) {
                 e.setCancelled(true);
             } else {
                 Inventory stash = e.getView().getTopInventory();
@@ -112,7 +114,7 @@ public class EventListener implements Listener {
                         }
                         giveMethods.updatePlayers(stashStr, key);
 
-                    } else if (!cursor.getType().isAir() && slot == null) {
+                    } else if (!cursor.getType().isAir() && (slot == null || slot.getType().isAir())) {
                         //adding item to stash
                         if (e.getWhoClicked().hasPermission("stash.a")) {
                             int integer = cursor.getAmount();
@@ -132,7 +134,7 @@ public class EventListener implements Listener {
                     }
                 } else if (e.getClickedInventory().equals(playerInventory)) {
                     //clicked player inventory
-                    if (cursor.getType().isAir() && slot != null) {
+                    if (cursor.getType().isAir() && (slot == null || slot.getType().isAir())) {
                         //removing item from player inv
                         if (e.getWhoClicked().hasPermission("stash.a")) {
                             if (e.getClick().isShiftClick()) {
@@ -153,7 +155,7 @@ public class EventListener implements Listener {
                             e.setCancelled(true);
                         }
 
-                    } else if (!cursor.getType().isAir() && slot == null) {
+                    } else if (!cursor.getType().isAir() && (slot == null || slot.getType().isAir())) {
                         int integer = cursor.getAmount();
                         String number = Integer.toString(integer);
                         if (cursor.hasItemMeta()) {
