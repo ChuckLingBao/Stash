@@ -69,7 +69,9 @@ public class GiveMethods {
                     String idString = entry.getKey();
                     stashInv.addItem(item);
                     String stashString = mapConversion.inventoryToString(stashInv);
-                    String owner = Bukkit.getPlayer(entry.getKey()).getDisplayName();
+                    String uuidString = entry.getKey();
+                    UUID uuid = UUID.fromString(uuidString);
+                    String owner = Bukkit.getOfflinePlayer(uuid).getName();
                     try (Connection connection = database.getPool().getConnection();
                          PreparedStatement statement = connection.prepareStatement("SELECT id FROM player WHERE uuid = '" + idString + "'")) {
                         ResultSet rs = statement.executeQuery();
@@ -89,10 +91,11 @@ public class GiveMethods {
                     if (integer <= item.getMaxStackSize()) {
                         for (Map.Entry<String, Inventory> entry : MapConversion.map.entrySet()) {
                             Inventory stashInv = entry.getValue();
-                            String uuid = entry.getKey();
-                            String owner = Bukkit.getPlayer(entry.getKey()).getDisplayName();
+                            String uuidString = entry.getKey();
+                            UUID uuid = UUID.fromString(uuidString);
+                            String owner = Bukkit.getOfflinePlayer(uuid).getName();
                             try (Connection connection = database.getPool().getConnection();
-                                 PreparedStatement statement = connection.prepareStatement("SELECT id FROM player WHERE uuid = '" + uuid + "'")) {
+                                 PreparedStatement statement = connection.prepareStatement("SELECT id FROM player WHERE uuid = '" + uuidString + "'")) {
                                 ResultSet rs = statement.executeQuery();
                                 while (rs.next()) {
                                     int playerKey = rs.getInt("id");
@@ -100,7 +103,7 @@ public class GiveMethods {
                                         stashInv.addItem(item);
                                     }
                                     String stash = mapConversion.inventoryToString(stashInv);
-                                    updatePlayers(stash, uuid);
+                                    updatePlayers(stash, uuidString);
                                     recordItem(name, itemName, number, add, owner, playerKey);
                                 }
                             } catch (SQLException x) {

@@ -9,8 +9,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import su.nightexpress.goldencrates.api.GoldenCratesAPI;
-import su.nightexpress.goldencrates.manager.key.CrateKey;
+import su.nightexpress.excellentcrates.ExcellentCrates;
+import su.nightexpress.excellentcrates.api.GoldenCratesAPI;
+import su.nightexpress.excellentcrates.api.crate.ICrateKey;
+import su.nightexpress.excellentcrates.key.CrateKey;
 
 public class StashKeyCommand implements CommandExecutor {
 
@@ -29,8 +31,8 @@ public class StashKeyCommand implements CommandExecutor {
             String world = player.getWorld().getName();
             if (getMethods.getWorld(world)) {
                 if (args[0].equals("give") && player.hasPermission("stash.a")) {
-                    if (plugin.getGcAPI() != null && plugin.getNeAPI() != null) {
-                        CrateKey key = GoldenCratesAPI.getKeyManager().getKeyById(args[2]);
+                    if (plugin.getEcAPI() != null && plugin.getNeAPI() != null) {
+                        ICrateKey key = ExcellentCrates.getInstance().getKeyManager().getKeyById(args[2]);
                         ItemStack item = key.getItem();
                         String itemName = item.getItemMeta().getDisplayName();
                         if (args[1].equals("all")) {

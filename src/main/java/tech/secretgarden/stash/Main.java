@@ -7,7 +7,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import su.nexmedia.engine.NexEngine;
-import su.nightexpress.goldencrates.GoldenCrates;
+import su.nightexpress.excellentcrates.ExcellentCrates;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -77,7 +77,7 @@ public class Main extends JavaPlugin {
             System.out.println("ExoticGardens was found");
         }
 
-        if (getGcAPI() == null) {
+        if (getEcAPI() == null) {
             System.out.println("GoldenCrates was not found");
         } else {
             System.out.println("GoldenCrates was found");
@@ -111,10 +111,10 @@ public class Main extends JavaPlugin {
     }
 
     //golden crates API
-    public GoldenCrates getGcAPI() {
-        Plugin gcPlugin = Bukkit.getServer().getPluginManager().getPlugin("GoldenCrates");
-        if (gcPlugin instanceof GoldenCrates) {
-            return (GoldenCrates) gcPlugin;
+    public ExcellentCrates getEcAPI() {
+        Plugin ecPlugin = Bukkit.getServer().getPluginManager().getPlugin("ExcellentCrates");
+        if (ecPlugin instanceof ExcellentCrates) {
+            return (ExcellentCrates) ecPlugin;
         } else {
             return null;
         }
