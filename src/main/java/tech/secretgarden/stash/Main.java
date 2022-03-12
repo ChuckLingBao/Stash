@@ -16,6 +16,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Main extends JavaPlugin {
+    private static Main instance;
+    public Main() {
+        instance = this;
+    }
+
+    public static Main getInstance() {
+        return instance;
+    }
 
     MapConversion mapConversion = new MapConversion();
     Database database = new Database();

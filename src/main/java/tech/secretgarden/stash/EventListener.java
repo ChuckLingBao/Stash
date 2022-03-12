@@ -86,9 +86,9 @@ public class EventListener implements Listener {
                 Inventory stash = e.getView().getTopInventory();
                 Inventory playerInventory = e.getWhoClicked().getInventory();
 
-                String key = getMethods.getKey(stash);
+                String key = getMethods.getMapKey(stash);
                 UUID uuid = UUID.fromString(key);
-                int playerKey = getMethods.getForeignKey(key);
+                int playerId = getMethods.getPlayerId(key);
                 String owner = getMethods.getName(uuid);
 
                 String name = e.getWhoClicked().getName();
@@ -107,9 +107,9 @@ public class EventListener implements Listener {
                             if (slot.hasItemMeta()) {
                                 String slotCustomItemName = slot.getItemMeta().getDisplayName();
                                 //custom item
-                                giveMethods.recordItem(name, slotCustomItemName, number, "removed ", owner, playerKey);
+                                giveMethods.recordItem(name, slotCustomItemName, number, "removed ", owner, playerId);
                             } else {
-                                giveMethods.recordItem(name, slotBukkitItemName, number, "removed ", owner, playerKey);
+                                giveMethods.recordItem(name, slotBukkitItemName, number, "removed ", owner, playerId);
                             }
                         }
                         giveMethods.updatePlayers(stashStr, key);
@@ -122,9 +122,9 @@ public class EventListener implements Listener {
                             if (cursor.hasItemMeta()) {
                                 String cursorCustomItemName = cursor.getItemMeta().getDisplayName();
                                 //custom item
-                                giveMethods.recordItem(name, cursorCustomItemName, number, "added ", owner, playerKey);
+                                giveMethods.recordItem(name, cursorCustomItemName, number, "added ", owner, playerId);
                             } else {
-                                giveMethods.recordItem(name, cursorBukkitItemName, number, "added ", owner, playerKey);
+                                giveMethods.recordItem(name, cursorBukkitItemName, number, "added ", owner, playerId);
                             }
                             giveMethods.updatePlayers(stashStr, key);
                         } else {
@@ -142,10 +142,10 @@ public class EventListener implements Listener {
                                 String number = Integer.toString(integer);
                                 if (slot.hasItemMeta()) {
                                     String slotCustomItemName = slot.getItemMeta().getDisplayName();
-                                    giveMethods.recordItem(name, slotCustomItemName, number, "added ", owner, playerKey);
+                                    giveMethods.recordItem(name, slotCustomItemName, number, "added ", owner, playerId);
                                 } else {
                                     String slotBukkitItemName = slot.toString();
-                                    giveMethods.recordItem(name, slotBukkitItemName, number, "added ", owner, playerKey);
+                                    giveMethods.recordItem(name, slotBukkitItemName, number, "added ", owner, playerId);
                                 }
 
                             }
@@ -161,9 +161,9 @@ public class EventListener implements Listener {
                         if (cursor.hasItemMeta()) {
                             String cursorCustomItemName = cursor.getItemMeta().getDisplayName();
                             //custom item
-                            giveMethods.recordItem(name, cursorCustomItemName, number, "removed ", owner, playerKey);
+                            giveMethods.recordItem(name, cursorCustomItemName, number, "removed ", owner, playerId);
                         } else {
-                            giveMethods.recordItem(name, cursorBukkitItemName, number, "removed ", owner, playerKey);
+                            giveMethods.recordItem(name, cursorBukkitItemName, number, "removed ", owner, playerId);
                         }
                         giveMethods.updatePlayers(stashStr, key);
                         //adding item to player inv

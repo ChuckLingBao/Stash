@@ -24,7 +24,7 @@ public class GetMethods {
         }
     }
 
-    public String getKey(Inventory stash) {
+    public String getMapKey(Inventory stash) {
         for (Map.Entry<String, Inventory> entry : MapConversion.map.entrySet()) {
             if (stash.equals(entry.getValue())) {
                 return entry.getKey();
@@ -33,7 +33,7 @@ public class GetMethods {
         return null;
     }
 
-    public int getForeignKey(String uuid) {
+    public int getPlayerId(String uuid) {
         try (Connection connection = database.getPool().getConnection();
              PreparedStatement statement = connection.prepareStatement("SELECT ID FROM player WHERE uuid = '" + uuid + "'")) {
             ResultSet rs = statement.executeQuery();
