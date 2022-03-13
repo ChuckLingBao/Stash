@@ -15,7 +15,7 @@ public class Database {
     private final String PASSWORD = "";
      */
 
-    private static final ArrayList<String> list = Main.dbList;
+    private static final ArrayList<String> list = Stash.dbList;
     public static ComboPooledDataSource pool;
 
     public static void connect() throws SQLException {

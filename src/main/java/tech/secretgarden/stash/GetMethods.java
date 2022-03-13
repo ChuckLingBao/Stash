@@ -13,14 +13,13 @@ import java.util.UUID;
 public class GetMethods {
 
     private final Database database = new Database();
+    private final MapConversion mapConversion = new MapConversion();
 
     public String getName(UUID id) {
         if (Bukkit.getPlayer(id) != null) {
-            String owner = Bukkit.getPlayer(id).getName();
-            return owner;
+            return Bukkit.getPlayer(id).getName();
         } else {
-            String owner = Bukkit.getOfflinePlayer(id).getName();
-            return owner;
+            return Bukkit.getOfflinePlayer(id).getName();
         }
     }
 
@@ -46,9 +45,23 @@ public class GetMethods {
         return 0;
     }
 
+    public Inventory getStashInv(String uuid) {
+        try (Connection connection = database.getPool().getConnection();
+            PreparedStatement statement = connection.prepareStatement("SELECT inv FROM player where uuid = '" + uuid + "'")) {
+            ResultSet rs = statement.executeQuery();
+            while(rs.next()) {
+                String invString = rs.getString("inv");
+                return mapConversion.stringToInventory(invString);
+            }
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+        return null;
+    }
+
     public boolean getWorld(String world) {
         int x = 0;
-        for (String entry : Main.worldList) {
+        for (String entry : Stash.worldList) {
             if (entry.equalsIgnoreCase(world)) {
                 x = x + 1;
             }

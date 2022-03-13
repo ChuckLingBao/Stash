@@ -15,13 +15,13 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Main extends JavaPlugin {
-    private static Main instance;
-    public Main() {
+public class Stash extends JavaPlugin {
+    private static Stash instance;
+    public Stash() {
         instance = this;
     }
 
-    public static Main getInstance() {
+    public static Stash getInstance() {
         return instance;
     }
 
@@ -71,6 +71,8 @@ public class Main extends JavaPlugin {
         if (Database.isConnected()) {
             mapConversion.loadMap();
             ping.runTaskTimer(this, 20, 20 * 60);
+        } else {
+            Bukkit.getPluginManager().disablePlugin(this);
         }
 
         if (getSfAPI() == null) {

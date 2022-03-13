@@ -15,8 +15,8 @@ public class StashSfCommand implements CommandExecutor {
     private final GiveMethods giveMethods = new GiveMethods();
     private final GetMethods getMethods = new GetMethods();
 
-    private final Main plugin;
-    public StashSfCommand(Main instance) { this.plugin = instance; }
+    private final Stash plugin;
+    public StashSfCommand(Stash instance) { this.plugin = instance; }
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {

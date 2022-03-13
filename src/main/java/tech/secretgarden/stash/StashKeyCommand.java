@@ -10,14 +10,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import su.nightexpress.excellentcrates.ExcellentCrates;
-import su.nightexpress.excellentcrates.api.GoldenCratesAPI;
 import su.nightexpress.excellentcrates.api.crate.ICrateKey;
-import su.nightexpress.excellentcrates.key.CrateKey;
 
 public class StashKeyCommand implements CommandExecutor {
 
-    private final Main plugin;
-    public StashKeyCommand(Main instance) { this.plugin = instance; }
+    private final Stash plugin;
+    public StashKeyCommand(Stash instance) { this.plugin = instance; }
 
     private final GiveMethods giveMethods = new GiveMethods();
     private final GetMethods getMethods = new GetMethods();

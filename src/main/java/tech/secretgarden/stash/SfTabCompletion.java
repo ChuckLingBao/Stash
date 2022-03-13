@@ -10,8 +10,8 @@ import javax.annotation.Nonnull;
 import java.util.*;
 
 public class SfTabCompletion implements TabCompleter {
-    private final Main plugin;
-    public SfTabCompletion(Main instance) { this.plugin = instance; }
+    private final Stash plugin;
+    public SfTabCompletion(Stash instance) { this.plugin = instance; }
     private static final int MAX_SUGGESTIONS = 80;
 
     @Override

@@ -10,8 +10,8 @@ import java.util.List;
 
 public class KeyTabCompletion implements TabCompleter {
 
-    private final Main plugin;
-    public KeyTabCompletion(Main instance) {
+    private final Stash plugin;
+    public KeyTabCompletion(Stash instance) {
         this.plugin = instance;
     }
 
