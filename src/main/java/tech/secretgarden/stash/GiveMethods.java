@@ -4,7 +4,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import tech.secretgarden.stash.MapConversion;
 
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -122,7 +121,6 @@ public class GiveMethods {
     }
 
     public void updatePlayers(String stashString, String uuid) {
-        LocalDateTime date = LocalDateTime.now();
 
         try (Connection connection = database.getPool().getConnection();
              PreparedStatement statement = connection.prepareStatement("UPDATE player " +

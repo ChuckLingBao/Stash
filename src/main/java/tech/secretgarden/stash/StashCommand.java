@@ -11,8 +11,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
-
 public class StashCommand implements CommandExecutor {
 
     private final MapConversion mapConversion = new MapConversion();

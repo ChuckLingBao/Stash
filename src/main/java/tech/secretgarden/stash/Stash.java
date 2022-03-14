@@ -16,14 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Stash extends JavaPlugin {
-    private static Stash instance;
-    public Stash() {
-        instance = this;
-    }
-
-    public static Stash getInstance() {
-        return instance;
-    }
 
     MapConversion mapConversion = new MapConversion();
     Database database = new Database();

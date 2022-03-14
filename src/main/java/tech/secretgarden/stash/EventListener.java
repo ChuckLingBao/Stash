@@ -13,7 +13,6 @@ import org.bukkit.inventory.ItemStack;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Map;
 import java.util.UUID;
 
 public class EventListener implements Listener {
@@ -134,7 +133,7 @@ public class EventListener implements Listener {
                     }
                 } else if (e.getClickedInventory().equals(playerInventory)) {
                     //clicked player inventory
-                    if (cursor.getType().isAir() && (slot == null || slot.getType().isAir())) {
+                    if (cursor.getType().isAir() && (slot != null)) {
                         //removing item from player inv
                         if (e.getWhoClicked().hasPermission("stash.a")) {
                             if (e.getClick().isShiftClick()) {
@@ -169,6 +168,8 @@ public class EventListener implements Listener {
                         //adding item to player inv
 
                         giveMethods.updatePlayers(stashStr, key);
+                    } else {
+                        e.setCancelled(true);
                     }
 
                 }

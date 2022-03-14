@@ -1,7 +1,7 @@
 main: tech.secretgarden.stash.Stash
 name: Stash
 author: ChuckLingBao
-version: '1.6.0'
+version: '1.6.1'
 api-version: 1.18
 commands:
   stash:

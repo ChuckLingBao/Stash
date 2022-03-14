@@ -7,13 +7,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class Database {
-    /*
-    private final String HOST = "";
-    private final int PORT = 3306;
-    private final String DATABASE = "";
-    private final String USERNAME = "";
-    private final String PASSWORD = "";
-     */
 
     private static final ArrayList<String> list = Stash.dbList;
     public static ComboPooledDataSource pool;
