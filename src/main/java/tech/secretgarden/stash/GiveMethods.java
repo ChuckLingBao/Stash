@@ -1,12 +1,15 @@
 package tech.secretgarden.stash;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.sql.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -33,7 +36,7 @@ public class GiveMethods {
                     updatePlayers(stash, idString);
 
                     recordItem(sender, itemName, number, add, owner, playerKey);
-                } else {
+                } else if (args.length == 4) {
                     try {
                         String number = args[3];
 
@@ -56,6 +59,59 @@ public class GiveMethods {
         }
 
     }
+
+    public void giveByTime(Player player, String args[]) {
+        String name = player.getDisplayName();
+        long timeNow = Timestamp.valueOf(LocalDateTime.now()).getTime();
+
+        List<String> uuidList = new ArrayList<>();
+
+        if (args.length == 4) {
+            String timeArg = args[3];
+
+            if ((timeArg.length() < 3) && timeArg.contains("h") || timeArg.contains("d") || timeArg.contains("m")) {
+
+            } else {
+                player.sendMessage(ChatColor.RED + "This is not a valid command");
+                player.sendMessage("Usage: stash give time <item> [amount] <time>");
+            }
+        } else if (args.length == 5) {
+            String timeArg = args[4];
+            if ((timeArg.length() < 3) && timeArg.contains("h") || timeArg.contains("d") || timeArg.contains("m")) {
+
+                String timeWithoutSelector = timeArg.substring(0, timeArg.length() - 2);
+                int time = getTime(timeWithoutSelector);
+
+
+                //----------------------------------------------------HOURS---------------------------------------------------------------------------------------
+                if (timeArg.substring(timeArg.length() - 1).equalsIgnoreCase("h")) {
+
+                    getHoursFromLastPlayed(timeNow, time, uuidList);
+                    for (String uuid : uuidList) {
+                        
+                    }
+
+
+                }
+                //----------------------------------------------------DAYS-------------------------------------------------------------------------------------
+                if (timeArg.substring(timeArg.length() - 1).equalsIgnoreCase("d")) {
+
+                    getDaysFromLastPlayed(timeNow, time, uuidList);
+                }
+                //----------------------------------------------------MONTHS-------------------------------------------------------------------------------------
+                if (timeArg.substring(timeArg.length() - 1).equalsIgnoreCase("m")) {
+
+                    getMonthsFromLastPlayed(timeNow, time, uuidList);
+                }
+
+
+            } else {
+                player.sendMessage(ChatColor.RED + "This is not a valid command");
+                player.sendMessage("Usage: stash give time <item> [amount] <time>");
+            }
+        }
+    }
+
     public void giveAllPlayers(String[] args, ItemStack item, Player player, String itemName) {
         if (args[1].equals("all")) {
 
@@ -118,6 +174,76 @@ public class GiveMethods {
         }
 
 
+    }
+
+    private int getTime(String timeWithoutSelector) {
+        int timeInt = 0;
+        try {
+            timeInt = Integer.parseInt(timeWithoutSelector);
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        }
+        return timeInt;
+    }
+
+    private void getHoursFromLastPlayed(long timeNow, int time, List<String> uuidList) {
+        try (Connection connection = database.getPool().getConnection();
+             PreparedStatement statement = connection.prepareStatement("SELECT uuid, last_played FROM player")) {
+            ResultSet rs = statement.executeQuery();
+            while (rs.next()) {
+                String uuid = rs.getString("uuid");
+                long lastPlayed = rs.getTimestamp("last_played").getTime();
+                long diff = timeNow - lastPlayed;
+                int hours = (int) ((diff / 1000) / 3600);
+
+                if (hours < time) {
+                    uuidList.add(uuid);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void getDaysFromLastPlayed(long timeNow, int time, List<String> uuidList) {
+        try (Connection connection = database.getPool().getConnection();
+             PreparedStatement statement = connection.prepareStatement("SELECT uuid, last_played FROM player")) {
+            ResultSet rs = statement.executeQuery();
+            while (rs.next()) {
+                String uuid = rs.getString("uuid");
+                long lastPlayed = rs.getTimestamp("last_played").getTime();
+                long diff = timeNow - lastPlayed;
+                int hours = (int) ((diff / 1000) / 3600);
+                int days = hours / 24;
+
+                if (days < time) {
+                    uuidList.add(uuid);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void getMonthsFromLastPlayed(long timeNow, int time, List<String> uuidList) {
+        try (Connection connection = database.getPool().getConnection();
+             PreparedStatement statement = connection.prepareStatement("SELECT uuid, last_played FROM player")) {
+            ResultSet rs = statement.executeQuery();
+            while (rs.next()) {
+                String uuid = rs.getString("uuid");
+                long lastPlayed = rs.getTimestamp("last_played").getTime();
+                long diff = timeNow - lastPlayed;
+                int hours = (int) ((diff / 1000) / 3600);
+                int days = hours / 24;
+                int months = days / 30;
+
+                if (months < time) {
+                    uuidList.add(uuid);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public void updatePlayers(String stashString, String uuid) {
