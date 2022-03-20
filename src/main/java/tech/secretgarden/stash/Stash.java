@@ -62,7 +62,7 @@ public class Stash extends JavaPlugin {
 
         if (Database.isConnected()) {
             mapConversion.loadMap();
-            ping.runTaskTimer(this, 20, 20 * 60);
+            //ping.runTaskTimer(this, 20, 20 * 60);
         } else {
             Bukkit.getPluginManager().disablePlugin(this);
         }
