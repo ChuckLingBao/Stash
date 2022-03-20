@@ -42,15 +42,13 @@ public class StashSfCommand implements CommandExecutor {
                             Player target = Bukkit.getPlayer(args[1]);
                             if (target != null) {
                                 String uuid = target.getUniqueId().toString();
-                                Inventory singleStash = MapConversion.map.get(target.getUniqueId().toString());
-                                giveMethods.giveSinglePlayer(args, singleStash, item, player, uuid, itemName);
+                                giveMethods.giveSinglePlayer(args, item, player, uuid, itemName);
                             } else {
                                 //target == null
                                 OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[1]);
                                 if (offlinePlayer.hasPlayedBefore()) {
                                     String uuid = offlinePlayer.getUniqueId().toString();
-                                    Inventory singleStash = MapConversion.map.get(offlinePlayer.getUniqueId().toString());
-                                    giveMethods.giveSinglePlayer(args, singleStash, item, player, uuid, itemName);
+                                    giveMethods.giveSinglePlayer(args, item, player, uuid, itemName);
                                 } else {
                                     player.sendMessage("This player has not logged in before.");
                                 }

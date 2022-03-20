@@ -20,91 +20,86 @@ public class GiveMethods {
 
     String add = "added";
 
-    public void giveSinglePlayer(String[] args, Inventory singleStash, ItemStack item, Player player, String idString, String itemName) {
-        UUID uuid = UUID.fromString(idString);
-        String owner = getMethods.getName(uuid);
+    public void giveSinglePlayer(String[] args, ItemStack item, Player player, String idString, String itemName) {
         String sender = player.getName();
-        try (Connection connection = database.getPool().getConnection();
-             PreparedStatement statement = connection.prepareStatement("SELECT id FROM player WHERE uuid = '" + idString + "'")) {
-            ResultSet rs = statement.executeQuery();
-            while (rs.next()) {
-                int playerKey = rs.getInt("id");
-                if (args.length == 3) {
-                    String number = "1";
-                    singleStash.addItem(item);
-                    String stash = mapConversion.inventoryToString(singleStash);
-                    updatePlayers(stash, idString);
+        List<String> uuidList = new ArrayList<>();
+        uuidList.add(idString);
 
-                    recordItem(sender, itemName, number, add, owner, playerKey);
-                } else if (args.length == 4) {
-                    try {
-                        String number = args[3];
-
-                        int integer = Integer.parseInt(number);
-                        if (integer <= item.getMaxStackSize()) {
-                            for (int i = 0; i < integer; i++) {
-                                singleStash.addItem(item);
-                            }
-                            String stashString = mapConversion.inventoryToString(singleStash);
-                            updatePlayers(stashString, idString);
-                            recordItem(sender, itemName, number, add, owner, playerKey);
-                        }
-                    } catch (NumberFormatException nfe) {
-                        player.sendMessage("This argument must be an integer");
-                    }
-                }
-            }
-        } catch (SQLException x) {
-            x.printStackTrace();
+        if (args.length == 3) {
+            String number = "1";
+            addItemUsingList(uuidList, number, item, sender, itemName);
+        } else if (args.length == 4) {
+            String number = args[3];
+            addItemUsingList(uuidList, number, item, sender, itemName);
         }
-
     }
 
-    public void giveByTime(Player player, String args[]) {
-        String name = player.getDisplayName();
+    public void giveByTime(Player player, String[] args, ItemStack item, String itemName) {
+        String sender = player.getName();
         long timeNow = Timestamp.valueOf(LocalDateTime.now()).getTime();
+        String hour = "hour";
+        String day = "day";
+        String month = "month";
 
         List<String> uuidList = new ArrayList<>();
 
         if (args.length == 4) {
             String timeArg = args[3];
+            String number = "1";
 
-            if ((timeArg.length() < 3) && timeArg.contains("h") || timeArg.contains("d") || timeArg.contains("m")) {
-
-            } else {
-                player.sendMessage(ChatColor.RED + "This is not a valid command");
-                player.sendMessage("Usage: stash give time <item> [amount] <time>");
-            }
-        } else if (args.length == 5) {
-            String timeArg = args[4];
-            if ((timeArg.length() < 3) && timeArg.contains("h") || timeArg.contains("d") || timeArg.contains("m")) {
-
-                String timeWithoutSelector = timeArg.substring(0, timeArg.length() - 2);
-                int time = getTime(timeWithoutSelector);
-
+            if ((timeArg.length() < 4) && timeArg.contains("h") || timeArg.contains("d") || timeArg.contains("m")) {
+                String timeWithoutSelector = timeArg.substring(0, timeArg.length() - 1);
+                int time = getRawTime(timeWithoutSelector);
 
                 //----------------------------------------------------HOURS---------------------------------------------------------------------------------------
                 if (timeArg.substring(timeArg.length() - 1).equalsIgnoreCase("h")) {
-
-                    getHoursFromLastPlayed(timeNow, time, uuidList);
-                    for (String uuid : uuidList) {
-                        
-                    }
-
-
+                    initializeListFromTimeSelection(timeNow, time, uuidList, hour);
+                    //At this point, a list has been created with all uuid's of your selection.
+                    addItemUsingList(uuidList, number, item, sender, itemName);
                 }
                 //----------------------------------------------------DAYS-------------------------------------------------------------------------------------
                 if (timeArg.substring(timeArg.length() - 1).equalsIgnoreCase("d")) {
-
-                    getDaysFromLastPlayed(timeNow, time, uuidList);
+                    initializeListFromTimeSelection(timeNow, time, uuidList, day);
+                    //At this point, a list has been created with all uuid's of your selection.
+                    addItemUsingList(uuidList, number, item, sender, itemName);
                 }
                 //----------------------------------------------------MONTHS-------------------------------------------------------------------------------------
                 if (timeArg.substring(timeArg.length() - 1).equalsIgnoreCase("m")) {
-
-                    getMonthsFromLastPlayed(timeNow, time, uuidList);
+                    initializeListFromTimeSelection(timeNow, time, uuidList, month);
+                    //At this point, a list has been created with all uuid's of your selection.
+                    addItemUsingList(uuidList, number, item, sender, itemName);
                 }
 
+            } else {
+                player.sendMessage(ChatColor.RED + "This is not a valid command");
+                player.sendMessage("Usage: /stash give time <item> [amount] <time>");
+            }
+        } else if (args.length == 5) {
+            String timeArg = args[4];
+            if ((timeArg.length() < 4) && timeArg.contains("h") || timeArg.contains("d") || timeArg.contains("m")) {
 
+                String number = args[3];
+                String timeWithoutSelector = timeArg.substring(0, timeArg.length() - 1);
+                int time = getRawTime(timeWithoutSelector);
+
+                //----------------------------------------------------HOURS---------------------------------------------------------------------------------------
+                if (timeArg.substring(timeArg.length() - 1).equalsIgnoreCase("h")) {
+                    initializeListFromTimeSelection(timeNow, time, uuidList, hour);
+                    //At this point, a uuidList has been created with all uuid's of your selection.
+                    addItemUsingList(uuidList, number, item, sender, itemName);
+                }
+                //----------------------------------------------------DAYS-------------------------------------------------------------------------------------
+                if (timeArg.substring(timeArg.length() - 1).equalsIgnoreCase("d")) {
+                    initializeListFromTimeSelection(timeNow, time, uuidList, day);
+                    //At this point, a uuidList has been created with all uuid's of your selection.
+                    addItemUsingList(uuidList, number, item, sender, itemName);
+                }
+                //----------------------------------------------------MONTHS-------------------------------------------------------------------------------------
+                if (timeArg.substring(timeArg.length() - 1).equalsIgnoreCase("m")) {
+                    initializeListFromTimeSelection(timeNow, time, uuidList, month);
+                    //At this point, a uuidList has been created with all uuid's of your selection.
+                    addItemUsingList(uuidList, number, item, sender, itemName);
+                }
             } else {
                 player.sendMessage(ChatColor.RED + "This is not a valid command");
                 player.sendMessage("Usage: stash give time <item> [amount] <time>");
@@ -115,68 +110,28 @@ public class GiveMethods {
     public void giveAllPlayers(String[] args, ItemStack item, Player player, String itemName) {
         if (args[1].equals("all")) {
 
-            String name = player.getDisplayName();
+            String sender = player.getName();
+            List<String> uuidList = new ArrayList<>();
 
             if (args.length == 3) {
                 String number = "1";
                 for (Map.Entry<String, Inventory> entry : MapConversion.map.entrySet()) {
-                    Inventory stashInv = entry.getValue();
-                    String idString = entry.getKey();
-                    stashInv.addItem(item);
-                    String stashString = mapConversion.inventoryToString(stashInv);
-                    String uuidString = entry.getKey();
-                    UUID uuid = UUID.fromString(uuidString);
-                    String owner = Bukkit.getOfflinePlayer(uuid).getName();
-                    try (Connection connection = database.getPool().getConnection();
-                         PreparedStatement statement = connection.prepareStatement("SELECT id FROM player WHERE uuid = '" + idString + "'")) {
-                        ResultSet rs = statement.executeQuery();
-                        while (rs.next()) {
-                            int playerKey = rs.getInt("id");
-                            updatePlayers(stashString, idString);
-                            recordItem(name, itemName, number, add, owner, playerKey);
-                        }
-                    } catch (SQLException x) {
-                        x.printStackTrace();
-                    }
+                    uuidList.add(entry.getKey());
                 }
-            } else if (args.length == 4) {
-                try {
-                    String number = args[3];
-                    int integer = Integer.parseInt(number);
-                    if (integer <= item.getMaxStackSize()) {
-                        for (Map.Entry<String, Inventory> entry : MapConversion.map.entrySet()) {
-                            Inventory stashInv = entry.getValue();
-                            String uuidString = entry.getKey();
-                            UUID uuid = UUID.fromString(uuidString);
-                            String owner = Bukkit.getOfflinePlayer(uuid).getName();
-                            try (Connection connection = database.getPool().getConnection();
-                                 PreparedStatement statement = connection.prepareStatement("SELECT id FROM player WHERE uuid = '" + uuidString + "'")) {
-                                ResultSet rs = statement.executeQuery();
-                                while (rs.next()) {
-                                    int playerKey = rs.getInt("id");
-                                    for (int i = 0; i < integer; i++) {
-                                        stashInv.addItem(item);
-                                    }
-                                    String stash = mapConversion.inventoryToString(stashInv);
-                                    updatePlayers(stash, uuidString);
-                                    recordItem(name, itemName, number, add, owner, playerKey);
-                                }
-                            } catch (SQLException x) {
-                                x.printStackTrace();
-                            }
+                addItemUsingList(uuidList, number, item, sender, itemName);
 
-                        }
-                    }
-                } catch (NumberFormatException nfe) {
-                    player.sendMessage("This argument must be an integer");
+            } else if (args.length == 4) {
+
+                String number = args[3];
+                for (Map.Entry<String, Inventory> entry : MapConversion.map.entrySet()) {
+                    uuidList.add(entry.getKey());
                 }
+                addItemUsingList(uuidList, number, item, sender, itemName);
             }
         }
-
-
     }
 
-    private int getTime(String timeWithoutSelector) {
+    private int getRawTime(String timeWithoutSelector) {
         int timeInt = 0;
         try {
             timeInt = Integer.parseInt(timeWithoutSelector);
@@ -186,59 +141,53 @@ public class GiveMethods {
         return timeInt;
     }
 
-    private void getHoursFromLastPlayed(long timeNow, int time, List<String> uuidList) {
-        try (Connection connection = database.getPool().getConnection();
-             PreparedStatement statement = connection.prepareStatement("SELECT uuid, last_played FROM player")) {
-            ResultSet rs = statement.executeQuery();
-            while (rs.next()) {
-                String uuid = rs.getString("uuid");
-                long lastPlayed = rs.getTimestamp("last_played").getTime();
-                long diff = timeNow - lastPlayed;
-                int hours = (int) ((diff / 1000) / 3600);
-
-                if (hours < time) {
-                    uuidList.add(uuid);
+    private void addItemUsingList(List<String> uuidList, String number, ItemStack item, String sender, String itemName) {
+        for (String idString : uuidList) {
+            int playerKey = getMethods.getPlayerId(idString);
+            Inventory stash = MapConversion.map.get(idString);
+            UUID uuid = UUID.fromString(idString);
+            String owner = Bukkit.getOfflinePlayer(uuid).getName();
+            try {
+                int quantity = Integer.parseInt(number);
+                if (quantity <= item.getMaxStackSize()) {
+                    for (int i = 0; i < quantity; i++) {
+                        stash.addItem(item);
+                    }
+                    String stashString = mapConversion.inventoryToString(stash);
+                    updatePlayers(stashString, idString);
+                    recordItem(sender, itemName, number, add, owner, playerKey);
                 }
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
     }
 
-    private void getDaysFromLastPlayed(long timeNow, int time, List<String> uuidList) {
+    private void initializeListFromTimeSelection(long timeNow, int time, List<String> uuidList, String selection) {
         try (Connection connection = database.getPool().getConnection();
              PreparedStatement statement = connection.prepareStatement("SELECT uuid, last_played FROM player")) {
             ResultSet rs = statement.executeQuery();
             while (rs.next()) {
+                int selectedTime = 0;
                 String uuid = rs.getString("uuid");
-                long lastPlayed = rs.getTimestamp("last_played").getTime();
-                long diff = timeNow - lastPlayed;
-                int hours = (int) ((diff / 1000) / 3600);
-                int days = hours / 24;
-
-                if (days < time) {
-                    uuidList.add(uuid);
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void getMonthsFromLastPlayed(long timeNow, int time, List<String> uuidList) {
-        try (Connection connection = database.getPool().getConnection();
-             PreparedStatement statement = connection.prepareStatement("SELECT uuid, last_played FROM player")) {
-            ResultSet rs = statement.executeQuery();
-            while (rs.next()) {
-                String uuid = rs.getString("uuid");
-                long lastPlayed = rs.getTimestamp("last_played").getTime();
-                long diff = timeNow - lastPlayed;
-                int hours = (int) ((diff / 1000) / 3600);
-                int days = hours / 24;
-                int months = days / 30;
-
-                if (months < time) {
-                    uuidList.add(uuid);
+                if (rs.getTimestamp("last_played") != null) {
+                    long lastPlayed = rs.getTimestamp("last_played").getTime();
+                    long diff = timeNow - lastPlayed;
+                    int hours = (int) ((diff / 1000) / 3600);
+                    int days = hours / 24;
+                    int months = days / 30;
+                    if (selection.equalsIgnoreCase("hour")) {
+                        selectedTime = hours;
+                    }
+                    if (selection.equalsIgnoreCase("day")) {
+                        selectedTime = days;
+                    }
+                    if (selection.equalsIgnoreCase("month")) {
+                        selectedTime = months;
+                    }
+                    if (selectedTime < time) {
+                        uuidList.add(uuid);
+                    }
                 }
             }
         } catch (SQLException e) {
@@ -275,15 +224,6 @@ public class GiveMethods {
             statement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
-        }
-    }
-
-    public void updateAllPlayers() {
-        for (Map.Entry<String, Inventory> entry : MapConversion.map.entrySet()) {
-            String uuid = entry.getKey();
-            Inventory inv = entry.getValue();
-            String stashString = mapConversion.inventoryToString(inv);
-            updatePlayers(stashString, uuid);
         }
     }
 }

@@ -65,7 +65,8 @@ public class MapConversion {
                      "uuid VARCHAR(36), " +
                      "name VARCHAR(99), " +
                      "inv TEXT(65000), " +
-                     "timestamp TIMESTAMP NOT NULL);")) {
+                     "timestamp TIMESTAMP NOT NULL," +
+                     "last_played TIMESTAMP NOT NULL);")) {
             statement.executeUpdate();
 
         } catch (Exception x) {
