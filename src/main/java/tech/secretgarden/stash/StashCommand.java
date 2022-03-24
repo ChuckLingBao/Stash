@@ -13,7 +13,6 @@ import org.bukkit.inventory.ItemStack;
 
 public class StashCommand implements CommandExecutor {
 
-    private final MapConversion mapConversion = new MapConversion();
     private final GiveMethods giveMethods = new GiveMethods();
     private final GetMethods getMethods = new GetMethods();
 
