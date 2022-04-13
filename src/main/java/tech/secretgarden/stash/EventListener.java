@@ -36,8 +36,6 @@ public class EventListener implements Listener {
             Inventory inv = Bukkit.createInventory(null, 18, ChatColor.DARK_PURPLE + "Stash");
 
             String player = e.getPlayer().getName();
-            String dateStr = date.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-            String invName = player + "'s Stash";
 
             MapConversion.map.put(uuid, inv);
             System.out.println("created inv");
@@ -74,13 +72,16 @@ public class EventListener implements Listener {
 
             if (!cursor.getType().isAir() && slot != null) {
                 e.setCancelled(true);
+                return;
             }
             if (e.getClick().isRightClick()) {
                 e.setCancelled(true);
+                return;
                 //if user tries to swap item or right click, cancel event regardless of their permissions!
             }
             if (e.getClickedInventory() == null) {
                 e.setCancelled(true);
+                return;
             } else {
                 Inventory stash = e.getView().getTopInventory();
                 Inventory playerInventory = e.getWhoClicked().getInventory();
@@ -112,8 +113,10 @@ public class EventListener implements Listener {
                             }
                         }
                         giveMethods.updatePlayers(stashStr, key);
+                        return;
+                    }
 
-                    } else if (!cursor.getType().isAir() && (slot == null || slot.getType().isAir())) {
+                    if (!cursor.getType().isAir() && (slot == null || slot.getType().isAir())) {
                         //adding item to stash
                         if (e.getWhoClicked().hasPermission("stash.a")) {
                             int integer = cursor.getAmount();
@@ -129,9 +132,12 @@ public class EventListener implements Listener {
                         } else {
                             e.setCancelled(true);
                         }
-
+                        return;
                     }
-                } else if (e.getClickedInventory().equals(playerInventory)) {
+                    return;
+                }
+
+                if (e.getClickedInventory().equals(playerInventory)) {
                     //clicked player inventory
                     if (cursor.getType().isAir() && (slot != null)) {
                         //removing item from player inv
@@ -146,15 +152,16 @@ public class EventListener implements Listener {
                                     String slotBukkitItemName = slot.toString();
                                     giveMethods.recordItem(name, slotBukkitItemName, number, "added ", owner, playerId);
                                 }
-
                             }
-
                             giveMethods.updatePlayers(stashStr, key);
+                            return;
                         } else {
                             e.setCancelled(true);
                         }
 
-                    } else if (!cursor.getType().isAir() && (slot == null || slot.getType().isAir())) {
+                    }
+
+                    if (!cursor.getType().isAir() && (slot == null || slot.getType().isAir())) {
                         int integer = cursor.getAmount();
                         String number = Integer.toString(integer);
                         if (cursor.hasItemMeta()) {
@@ -166,12 +173,11 @@ public class EventListener implements Listener {
                         }
                         giveMethods.updatePlayers(stashStr, key);
                         //adding item to player inv
-
-                        giveMethods.updatePlayers(stashStr, key);
+                        return;
                     } else {
                         e.setCancelled(true);
                     }
-
+                    return;
                 }
             }
         }

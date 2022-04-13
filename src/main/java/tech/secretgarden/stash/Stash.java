@@ -3,15 +3,15 @@ package tech.secretgarden.stash;
 import io.github.thebusybiscuit.exoticgarden.ExoticGarden;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import su.nexmedia.engine.NexEngine;
 import su.nightexpress.excellentcrates.ExcellentCrates;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,7 +62,6 @@ public class Stash extends JavaPlugin {
 
         if (Database.isConnected()) {
             mapConversion.loadMap();
-            //ping.runTaskTimer(this, 20, 20 * 60);
         } else {
             Bukkit.getPluginManager().disablePlugin(this);
         }
@@ -90,6 +89,7 @@ public class Stash extends JavaPlugin {
         } else {
             System.out.println("NexEngine was found");
         }
+        updateLastPlayedPlayers.runTaskTimer(this, 20, 20 * 60);
     }
 
     //slimefun API
@@ -139,15 +139,20 @@ public class Stash extends JavaPlugin {
         Database.disconnect();
 
     }
-    BukkitRunnable ping = new BukkitRunnable() {
+    BukkitRunnable updateLastPlayedPlayers = new BukkitRunnable() {
         @Override
         public void run() {
-            try (Connection connection = database.getPool().getConnection();
-                 PreparedStatement statement = connection.prepareStatement("SELECT 1")) {
-                statement.executeQuery();
-            } catch (SQLException e) {
-                e.printStackTrace();
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                String uuid = player.getUniqueId().toString();
+                try (Connection connection = database.getPool().getConnection();
+                     PreparedStatement statement = connection.prepareStatement("UPDATE player SET last_played = ? WHERE uuid = '" + uuid + "'")) {
+                    statement.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
+                    statement.executeUpdate();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
+            System.out.println("updated players");
         }
     };
 }

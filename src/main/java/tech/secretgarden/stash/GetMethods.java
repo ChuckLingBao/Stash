@@ -34,10 +34,10 @@ public class GetMethods {
 
     public int getPlayerId(String uuid) {
         try (Connection connection = database.getPool().getConnection();
-             PreparedStatement statement = connection.prepareStatement("SELECT ID FROM player WHERE uuid = '" + uuid + "'")) {
+             PreparedStatement statement = connection.prepareStatement("SELECT id FROM player WHERE uuid = '" + uuid + "'")) {
             ResultSet rs = statement.executeQuery();
             while (rs.next()) {
-                return rs.getInt("ID");
+                return rs.getInt("id");
             }
         } catch (SQLException exception) {
             exception.printStackTrace();
