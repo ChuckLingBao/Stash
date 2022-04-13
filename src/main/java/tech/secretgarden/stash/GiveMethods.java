@@ -20,22 +20,21 @@ public class GiveMethods {
 
     String add = "added";
 
-    public void giveSinglePlayer(String[] args, ItemStack item, Player player, String idString, String itemName) {
-        String sender = player.getName();
+    public void giveSinglePlayer(String[] args, ItemStack item, String sender, String idString, String itemName) {
         List<String> uuidList = new ArrayList<>();
         uuidList.add(idString);
 
         if (args.length == 3) {
             String number = "1";
             addItemUsingList(uuidList, number, item, sender, itemName);
+            System.out.println("using list function");
         } else if (args.length == 4) {
             String number = args[3];
             addItemUsingList(uuidList, number, item, sender, itemName);
         }
     }
 
-    public void giveByTime(Player player, String[] args, ItemStack item, String itemName) {
-        String sender = player.getName();
+    public void giveByTime(String sender, String[] args, ItemStack item, String itemName, Player player) {
         long timeNow = Timestamp.valueOf(LocalDateTime.now()).getTime();
         String hour = "hour";
         String day = "day";
@@ -71,8 +70,10 @@ public class GiveMethods {
                 }
 
             } else {
-                player.sendMessage(ChatColor.RED + "This is not a valid command");
-                player.sendMessage("Usage: /stash give time <item> [amount] <time>");
+                if (player != null) {
+                    player.sendMessage(ChatColor.RED + "This is not a valid command");
+                    player.sendMessage("Usage: /stash give time <item> [amount] <time>");
+                }
             }
         } else if (args.length == 5) {
             String timeArg = args[4];
@@ -101,16 +102,17 @@ public class GiveMethods {
                     addItemUsingList(uuidList, number, item, sender, itemName);
                 }
             } else {
-                player.sendMessage(ChatColor.RED + "This is not a valid command");
-                player.sendMessage("Usage: stash give time <item> [amount] <time>");
+                if (player != null) {
+                    player.sendMessage(ChatColor.RED + "This is not a valid command");
+                    player.sendMessage("Usage: stash give time <item> [amount] <time>");
+                }
             }
         }
     }
 
-    public void giveAllPlayers(String[] args, ItemStack item, Player player, String itemName) {
+    public void giveAllPlayers(String[] args, ItemStack item, String sender, String itemName) {
         if (args[1].equals("all")) {
 
-            String sender = player.getName();
             List<String> uuidList = new ArrayList<>();
 
             if (args.length == 3) {
@@ -153,6 +155,7 @@ public class GiveMethods {
                     for (int i = 0; i < quantity; i++) {
                         stash.addItem(item);
                     }
+                    System.out.println("added item");
                     String stashString = mapConversion.inventoryToString(stash);
                     updatePlayers(stashString, idString);
                     recordItem(sender, itemName, number, add, owner, playerKey);
