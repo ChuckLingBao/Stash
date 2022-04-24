@@ -152,7 +152,7 @@ public class Stash extends JavaPlugin {
                     e.printStackTrace();
                 }
             }
-            System.out.println("updated players");
+            getLogger().info("updated players");
         }
     };
 }
