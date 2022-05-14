@@ -10,3 +10,5 @@ commands:
     description: This will give Slimefun items.
   stashkey:
     description: This will give keys.
+  verify:
+    description: Verifies your MC account with www.SecretGarden.tech

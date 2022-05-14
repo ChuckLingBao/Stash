@@ -31,6 +31,16 @@ public class Stash extends JavaPlugin {
         return dbList;
     }
 
+    public static ArrayList<String> dropletList = new ArrayList<>();
+    public ArrayList<String> getDropletList() {
+        dropletList.add(getConfig().getString("DROPLET_HOST"));
+        dropletList.add(getConfig().getString("DROPLET_PORT"));
+        dropletList.add(getConfig().getString("DROPLET_DATABASE"));
+        dropletList.add(getConfig().getString("DROPLET_USERNAME"));
+        dropletList.add(getConfig().getString("DROPLET_PASSWORD"));
+        return dropletList;
+    }
+
     public static List<String> worldList = new ArrayList<>();
 
     @Override
@@ -38,10 +48,12 @@ public class Stash extends JavaPlugin {
         getConfig().options().copyDefaults();
         saveDefaultConfig();
 
-        if (getConfig().getString("HOST") != null) {
+        if (getConfig().getString("HOST") != null && getConfig().getString("DROPLET_HOST") != null) {
             try {
                 getDbList();
+                getDropletList();
                 Database.connect();
+                DropletDatabase.connect();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -60,6 +72,7 @@ public class Stash extends JavaPlugin {
         getCommand("stashsf").setTabCompleter(new SfTabCompletion(this));
         getCommand("stashkey").setExecutor(new StashKeyCommand(this));
         getCommand("stashkey").setTabCompleter(new KeyTabCompletion(this));
+        getCommand("verify").setExecutor(new VerifyCommand());
 
         if (Database.isConnected()) {
             mapConversion.loadMap();
