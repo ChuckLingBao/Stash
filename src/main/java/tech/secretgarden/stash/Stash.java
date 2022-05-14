@@ -1,5 +1,6 @@
 package tech.secretgarden.stash;
 
+import com.google.common.collect.ImmutableList;
 import io.github.thebusybiscuit.exoticgarden.ExoticGarden;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import org.bukkit.Bukkit;
@@ -136,13 +137,14 @@ public class Stash extends JavaPlugin {
     @Override
     public void onDisable() {
         System.out.println("Stash has unloaded");
-        Database.disconnect();
+        database.disconnect();
 
     }
     BukkitRunnable updateLastPlayedPlayers = new BukkitRunnable() {
         @Override
         public void run() {
-            for (Player player : Bukkit.getOnlinePlayers()) {
+            ImmutableList<Player> onlinePlayerList = ImmutableList.copyOf(Bukkit.getOnlinePlayers());
+            for (Player player : onlinePlayerList) {
                 String uuid = player.getUniqueId().toString();
                 try (Connection connection = database.getPool().getConnection();
                      PreparedStatement statement = connection.prepareStatement("UPDATE player SET last_played = ? WHERE uuid = '" + uuid + "'")) {

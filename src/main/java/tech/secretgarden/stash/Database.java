@@ -32,7 +32,7 @@ public class Database {
         return pool;
     }
 
-    public static void disconnect() {
+    public void disconnect() {
         if (isConnected()) {
             pool.close();
         }
