@@ -1,34 +1,30 @@
 package tech.secretgarden.stash;
 
-import com.mchange.v2.c3p0.ComboPooledDataSource;
+import com.zaxxer.hikari.HikariDataSource;
 
-import java.beans.PropertyVetoException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class Database {
 
     private static final ArrayList<String> list = Stash.dbList;
-    public static ComboPooledDataSource pool;
+    public static HikariDataSource pool;
 
-    public static void connect() throws SQLException {
+    public HikariDataSource connect() throws SQLException {
 
-        try {
-            pool = new ComboPooledDataSource();
-            pool.setDriverClass("com.mysql.jdbc.Driver");
-            pool.setJdbcUrl("jdbc:mysql://" + list.get(0) + ":" + list.get(1) + "/" + list.get(2) + "?useSSL=true&autoReconnect=true");
-            pool.setUser(list.get(3));
-            pool.setPassword(list.get(4));
-        } catch (PropertyVetoException e) {
-            e.printStackTrace();
-        }
+        pool = new HikariDataSource();
+        pool.setDriverClassName("com.mysql.jdbc.Driver");
+        pool.setJdbcUrl("jdbc:mysql://" + list.get(0) + ":" + list.get(1) + "/" + list.get(2) + "?useSSL=true&autoReconnect=true");
+        pool.setUsername(list.get(3));
+        pool.setPassword(list.get(4));
+        return pool;
     }
 
-    public static boolean isConnected() {
+    public boolean isConnected() {
         return pool != null;
     }
 
-    public ComboPooledDataSource getPool() {
+    public HikariDataSource getPool() {
         return pool;
     }
 
