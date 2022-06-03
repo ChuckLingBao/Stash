@@ -20,6 +20,7 @@ public class Stash extends JavaPlugin {
 
     MapConversion mapConversion = new MapConversion();
     Database database = new Database();
+    DropletDatabase dropletDatabase = new DropletDatabase();
 
     public static ArrayList<String> dbList = new ArrayList<>();
     public ArrayList<String> getDbList() {
@@ -52,8 +53,8 @@ public class Stash extends JavaPlugin {
             try {
                 getDbList();
                 getDropletList();
-                Database.connect();
-                DropletDatabase.connect();
+                database.connect();
+                dropletDatabase.connect();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -62,7 +63,7 @@ public class Stash extends JavaPlugin {
         //list of disabled worlds set in config
         worldList = getConfig().getStringList("disabled_worlds");
 
-        System.out.println("Connected to database = " + Database.isConnected());
+        System.out.println("Connected to database = " + database.isConnected());
 
         System.out.println("Stash plugin has loaded");
 
@@ -74,7 +75,7 @@ public class Stash extends JavaPlugin {
         getCommand("stashkey").setTabCompleter(new KeyTabCompletion(this));
         getCommand("verify").setExecutor(new VerifyCommand());
 
-        if (Database.isConnected()) {
+        if (database.isConnected()) {
             mapConversion.loadMap();
         } else {
             Bukkit.getPluginManager().disablePlugin(this);

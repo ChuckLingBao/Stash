@@ -13,6 +13,8 @@ import java.sql.SQLException;
 
 public class VerifyCommand implements CommandExecutor {
 
+    DropletDatabase dropletDatabase = new DropletDatabase();
+
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (sender instanceof Player) {
@@ -32,7 +34,7 @@ public class VerifyCommand implements CommandExecutor {
                 return false;
             }
 
-            try (Connection connection = DropletDatabase.pool.getConnection();
+            try (Connection connection = dropletDatabase.getPool().getConnection();
                  PreparedStatement statement = connection.prepareStatement("SELECT gamertag FROM mc_account WHERE user_key = '" + id + "'")) {
                 ResultSet rs = statement.executeQuery();
                 while (rs.next()) {
@@ -46,7 +48,7 @@ public class VerifyCommand implements CommandExecutor {
                 e.printStackTrace();
             }
 
-            try (Connection connection = DropletDatabase.pool.getConnection();
+            try (Connection connection = dropletDatabase.getPool().getConnection();
                  PreparedStatement statement = connection.prepareStatement("SELECT verified FROM mc_account WHERE user_key = '" + id + "'")) {
                 ResultSet rs = statement.executeQuery();
                 while (rs.next()) {
@@ -66,13 +68,13 @@ public class VerifyCommand implements CommandExecutor {
             String tokenResult = getToken(id);
 
             if (token.equals(tokenResult)) {
-                try (Connection connection = DropletDatabase.pool.getConnection();
+                try (Connection connection = dropletDatabase.getPool().getConnection();
                      PreparedStatement statement = connection.prepareStatement("UPDATE mc_account SET verified = 'true' WHERE user_key = '" + id + "'")) {
                     statement.executeUpdate();
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
-                try (Connection connection = DropletDatabase.pool.getConnection();
+                try (Connection connection = dropletDatabase.getPool().getConnection();
                      PreparedStatement statement = connection.prepareStatement("SELECT verified FROM mc_account WHERE user_key = '" + id + "'")) {
                     ResultSet rs = statement.executeQuery();
                     while (rs.next()) {
@@ -94,7 +96,7 @@ public class VerifyCommand implements CommandExecutor {
     }
     private String getToken(int id) {
         String result = null;
-        try (Connection connection = DropletDatabase.pool.getConnection();
+        try (Connection connection = dropletDatabase.getPool().getConnection();
              PreparedStatement statement = connection.prepareStatement("SELECT token FROM mc_account WHERE user_key = ?")) {
             statement.setInt(1, id);
             ResultSet rs = statement.executeQuery();
