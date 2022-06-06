@@ -18,24 +18,17 @@ public class VerifyCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (sender instanceof Player) {
-            if (args.length != 2) {
-                return false;
-            }
             Player player = (Player) sender;
-            String idString = args[0];
-
-            //check if id string can be parsed
-            int id;
-            try {
-                id = Integer.parseInt(idString);
-            } catch (NumberFormatException e) {
+            if (args.length != 2) {
                 player.sendMessage(ChatColor.RED + "Incorrect command usage!");
-                player.sendMessage(ChatColor.RED + "/verify <number> <token>");
+                player.sendMessage(ChatColor.RED + "/verify <SG id> <token>");
                 return false;
             }
+
+            String appID = args[0];
 
             try (Connection connection = dropletDatabase.getPool().getConnection();
-                 PreparedStatement statement = connection.prepareStatement("SELECT gamertag FROM mc_account WHERE user_key = '" + id + "'")) {
+                 PreparedStatement statement = connection.prepareStatement("SELECT gamertag FROM mc_accounts WHERE app_id = '" + appID + "'")) {
                 ResultSet rs = statement.executeQuery();
                 while (rs.next()) {
                     String gamertag = rs.getString("gamertag");
@@ -49,7 +42,7 @@ public class VerifyCommand implements CommandExecutor {
             }
 
             try (Connection connection = dropletDatabase.getPool().getConnection();
-                 PreparedStatement statement = connection.prepareStatement("SELECT verified FROM mc_account WHERE user_key = '" + id + "'")) {
+                 PreparedStatement statement = connection.prepareStatement("SELECT verified FROM mc_accounts WHERE app_id = '" + appID + "'")) {
                 ResultSet rs = statement.executeQuery();
                 while (rs.next()) {
                     String verification = rs.getString("verified");
@@ -65,17 +58,17 @@ public class VerifyCommand implements CommandExecutor {
 
             String token = args[1];
 
-            String tokenResult = getToken(id);
+            String tokenResult = getToken(appID);
 
             if (token.equals(tokenResult)) {
                 try (Connection connection = dropletDatabase.getPool().getConnection();
-                     PreparedStatement statement = connection.prepareStatement("UPDATE mc_account SET verified = 'true' WHERE user_key = '" + id + "'")) {
+                     PreparedStatement statement = connection.prepareStatement("UPDATE mc_accounts SET verified = 'true' WHERE app_id = '" + appID + "'")) {
                     statement.executeUpdate();
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
                 try (Connection connection = dropletDatabase.getPool().getConnection();
-                     PreparedStatement statement = connection.prepareStatement("SELECT verified FROM mc_account WHERE user_key = '" + id + "'")) {
+                     PreparedStatement statement = connection.prepareStatement("SELECT verified FROM mc_accounts WHERE app_id = '" + appID + "'")) {
                     ResultSet rs = statement.executeQuery();
                     while (rs.next()) {
                         String verification = rs.getString("verified");
@@ -94,11 +87,11 @@ public class VerifyCommand implements CommandExecutor {
         }
         return false;
     }
-    private String getToken(int id) {
+    private String getToken(String appID) {
         String result = null;
         try (Connection connection = dropletDatabase.getPool().getConnection();
-             PreparedStatement statement = connection.prepareStatement("SELECT token FROM mc_account WHERE user_key = ?")) {
-            statement.setInt(1, id);
+             PreparedStatement statement = connection.prepareStatement("SELECT token FROM mc_accounts WHERE app_id = ?")) {
+            statement.setString(1, appID);
             ResultSet rs = statement.executeQuery();
             while (rs.next()) {
                 result = rs.getString("token");
