@@ -2,7 +2,7 @@ main: tech.secretgarden.stash.Stash
 name: Stash
 author: ChuckLingBao
 version: '1.7.4'
-api-version: 1.18
+api-version: 1.19
 commands:
   stash:
     description: This is where your rewards are.
