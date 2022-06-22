@@ -35,6 +35,7 @@ public class GiveMethods {
     }
 
     public void giveByTime(String sender, String[] args, ItemStack item, String itemName, Player player) {
+        //Usage: /stash give time <item> [amount] <time>
         long timeNow = Timestamp.valueOf(LocalDateTime.now()).getTime();
         String hour = "hour";
         String day = "day";
@@ -47,6 +48,7 @@ public class GiveMethods {
             String number = "1";
 
             if ((timeArg.length() < 4) && timeArg.contains("h") || timeArg.contains("d") || timeArg.contains("m")) {
+                //selections can be up to 3 numbers and a character.
                 String timeWithoutSelector = timeArg.substring(0, timeArg.length() - 1);
                 int time = getRawTime(timeWithoutSelector);
 
@@ -55,18 +57,24 @@ public class GiveMethods {
                     initializeListFromTimeSelection(timeNow, time, uuidList, hour);
                     //At this point, a list has been created with all uuid's of your selection.
                     addItemUsingList(uuidList, number, item, sender, itemName);
+                    return;
                 }
                 //----------------------------------------------------DAYS-------------------------------------------------------------------------------------
                 if (timeArg.substring(timeArg.length() - 1).equalsIgnoreCase("d")) {
                     initializeListFromTimeSelection(timeNow, time, uuidList, day);
                     //At this point, a list has been created with all uuid's of your selection.
                     addItemUsingList(uuidList, number, item, sender, itemName);
+                    return;
                 }
                 //----------------------------------------------------MONTHS-------------------------------------------------------------------------------------
                 if (timeArg.substring(timeArg.length() - 1).equalsIgnoreCase("m")) {
                     initializeListFromTimeSelection(timeNow, time, uuidList, month);
                     //At this point, a list has been created with all uuid's of your selection.
                     addItemUsingList(uuidList, number, item, sender, itemName);
+                    return;
+                }
+                if (player != null) {
+                    showUsage(player);
                 }
 
             } else {
@@ -88,26 +96,40 @@ public class GiveMethods {
                     initializeListFromTimeSelection(timeNow, time, uuidList, hour);
                     //At this point, a uuidList has been created with all uuid's of your selection.
                     addItemUsingList(uuidList, number, item, sender, itemName);
+                    return;
                 }
                 //----------------------------------------------------DAYS-------------------------------------------------------------------------------------
                 if (timeArg.substring(timeArg.length() - 1).equalsIgnoreCase("d")) {
                     initializeListFromTimeSelection(timeNow, time, uuidList, day);
                     //At this point, a uuidList has been created with all uuid's of your selection.
                     addItemUsingList(uuidList, number, item, sender, itemName);
+                    return;
                 }
                 //----------------------------------------------------MONTHS-------------------------------------------------------------------------------------
                 if (timeArg.substring(timeArg.length() - 1).equalsIgnoreCase("m")) {
                     initializeListFromTimeSelection(timeNow, time, uuidList, month);
                     //At this point, a uuidList has been created with all uuid's of your selection.
                     addItemUsingList(uuidList, number, item, sender, itemName);
+                    return;
+                }
+                if (player != null) {
+                    showUsage(player);
                 }
             } else {
                 if (player != null) {
-                    player.sendMessage(ChatColor.RED + "This is not a valid command");
-                    player.sendMessage("Usage: stash give time <item> [amount] <time>");
+                    showUsage(player);
                 }
             }
+        } else {
+            if (player != null) {
+                showUsage(player);
+            }
         }
+    }
+
+    private void showUsage(Player player) {
+        player.sendMessage(ChatColor.RED + "Incorrect usage, please use the format below");
+        player.sendMessage(ChatColor.GREEN + "<StashCommand> give time <item> [amount] <time>");
     }
 
     public void giveAllPlayers(String[] args, ItemStack item, String sender, String itemName) {

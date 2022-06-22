@@ -9,6 +9,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import su.nightexpress.excellentcrates.ExcellentCrates;
+import su.nightexpress.excellentcrates.ExcellentCratesAPI;
 import su.nightexpress.excellentcrates.api.crate.ICrateKey;
 
 public class StashKeyCommand implements CommandExecutor {
@@ -35,7 +36,8 @@ public class StashKeyCommand implements CommandExecutor {
         }
         if (args[0].equals("give")) {
             if (plugin.getEcAPI() != null && plugin.getNeAPI() != null) {
-                ICrateKey key = ExcellentCrates.getInstance().getKeyManager().getKeyById(args[2]);
+                ICrateKey key = ExcellentCratesAPI.getKeyManager().getKeyById(args[2]);
+//                ICrateKey key = ExcellentCrates.getInstance().getKeyManager().getKeyById(args[2]);
                 ItemStack item = key.getItem();
                 String itemName = item.getItemMeta().getDisplayName();
                 if (args[1].equals("all")) {
