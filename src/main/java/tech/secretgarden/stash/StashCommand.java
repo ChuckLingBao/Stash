@@ -21,9 +21,7 @@ public class StashCommand implements CommandExecutor {
 
         if (sender instanceof Player) {
             Player player = (Player) sender;
-
             String world = player.getWorld().getName();
-
             if (getMethods.getWorld(world)) {
                 Inventory senderStash = MapConversion.map.get(player.getUniqueId().toString());
                 //opens your own stash
@@ -35,27 +33,23 @@ public class StashCommand implements CommandExecutor {
                 player.sendMessage(ChatColor.RED + "You cannot do that in this world!");
             }
             if (args.length == 1 && player.hasPermission("stash.a")) {
+                //opens a different player's stash
                 String p = args[0];
 
-                if (Bukkit.getPlayer(p) != null) {
-                    String idString = Bukkit.getPlayer(p).getUniqueId().toString();
-                    Inventory otherStash = MapConversion.map.get(idString);
-                    player.openInventory(otherStash);
-                    return false;
-                } else if (Bukkit.getOfflinePlayer(p).hasPlayedBefore()) {
-                    String id = Bukkit.getOfflinePlayer(p).getUniqueId().toString();
-                    Inventory otherStash = MapConversion.map.get(id);
-                    player.openInventory(otherStash);
+                String idString = getMethods.getIdString(p);
+                if (idString == null) {
+                    player.sendMessage(ChatColor.RED + "This is not a valid player!");
                     return false;
                 } else {
-                    player.sendMessage(ChatColor.RED + "This is not a valid player!");
+                    Inventory otherStash = MapConversion.map.get(idString);
+                    player.openInventory(otherStash);
                     return false;
                 }
             }
         }
         //GIVE ARGS
         Player player = null;
-        String giver;
+        String giver = null;
 
         if(sender instanceof Player) {
             player = (Player) sender;
@@ -67,46 +61,54 @@ public class StashCommand implements CommandExecutor {
         } else {
             giver = "Console";
         }
-
         if (args.length >= 1) {
-            System.out.println("args greater than 0");
+            if (player != null) {
+                if (!player.hasPermission("stash.a")) {
+                    player.sendMessage(ChatColor.RED + "You do not have permission!");
+                    return false;
+                }
+            }
             if (args[0].equals("give")) {
                 Material mat = Material.getMaterial(args[2].toUpperCase());
                 ItemStack item = new ItemStack(mat);
                 String itemName = item.toString();
 
-                //ALL ARG
-                if (args[1].equals("all")) {
-                    giveMethods.giveAllPlayers(args, item, giver, itemName);
-
-                    //give by time selection
-                } else if (args[1].equals("time")) {
-                    giveMethods.giveByTime(giver, args, item, itemName, player);
-
-                    //BELOW IS FOR GIVING ITEMS TO A SINGLE PLAYER
-
-                } else {
-                    Player target = Bukkit.getPlayer(args[1]);
-                    if (target != null) {
-                        String idString = target.getUniqueId().toString();
-                        System.out.println(idString);
-                        giveMethods.giveSinglePlayer(args, item, giver, idString, itemName);
-                    } else {
-                        //target == null
-                        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[1]);
-                        if (offlinePlayer.hasPlayedBefore()) {
-                            String idString = offlinePlayer.getUniqueId().toString();
-                            giveMethods.giveSinglePlayer(args, item, giver, idString, itemName);
-                        } else {
-                            if (player != null) {
-                                player.sendMessage("This player has not logged in before.");
-                            }
-                        }
-                    }
+                StashCmdContents contents = new StashCmdContents(giver, item, itemName, args);
+                if (contents.error != null) {
+                    Bukkit.getLogger().warning(contents.error);
+                    return false;
                 }
+                ReceiverList receiverList = new ReceiverList(contents);
+                if (contents.getQuantity() == 0) {
+                    if (player != null) {
+                        player.sendMessage(ChatColor.RED + "Quantity is invalid");
+                    }
+                    Bukkit.getLogger().warning("Quantity is invalid");
+                    return false;
+                }
+
+                receiverList.addItem();
+
+//                if (receiver.equals("all")) {
+//                    //giveMethods.giveAllPlayers(args, item, giver, itemName);
+//
+//
+//                } else if (receiver.equals("time")) {
+//                    //giveMethods.giveByTime(giver, args, item, itemName, player);
+//                    //BELOW IS FOR GIVING ITEMS TO A SINGLE PLAYER
+//                } else {
+//                    String idString = getMethods.getIdString(contents.getReceiver());
+//                    if (idString == null) {
+//                        player.sendMessage("This player has not logged in before.");
+//                    } else {
+//                        contents.setIdString(idString);
+//                    }
+//                }
             } else {
                 if (player != null) {
-                    player.sendMessage(ChatColor.RED + "You do not have permission.");
+                    player.sendMessage(ChatColor.RED + "Command is not valid");
+                } else {
+                    Bukkit.getLogger().warning("Command is not valid");
                 }
             }
         }

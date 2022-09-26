@@ -1,6 +1,7 @@
 package tech.secretgarden.stash;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.inventory.Inventory;
 
 import java.sql.Connection;
@@ -67,5 +68,15 @@ public class GetMethods {
             }
         }
         return x == 0;
+    }
+
+    public String getIdString(String player) {
+        if (Bukkit.getPlayer(player) != null) {
+            return Bukkit.getPlayer(player).getUniqueId().toString();
+
+        } else if (Bukkit.getOfflinePlayer(player).hasPlayedBefore()) {
+            return Bukkit.getOfflinePlayer(player).getUniqueId().toString();
+        }
+        return null;
     }
 }
