@@ -13,7 +13,6 @@ import org.bukkit.inventory.ItemStack;
 
 public class StashCommand implements CommandExecutor {
 
-    private final GiveMethods giveMethods = new GiveMethods();
     private final GetMethods getMethods = new GetMethods();
 
     @Override
@@ -39,41 +38,64 @@ public class StashCommand implements CommandExecutor {
                 String idString = getMethods.getIdString(p);
                 if (idString == null) {
                     player.sendMessage(ChatColor.RED + "This is not a valid player!");
-                    return false;
                 } else {
                     Inventory otherStash = MapConversion.map.get(idString);
                     player.openInventory(otherStash);
-                    return false;
                 }
+                return false;
             }
         }
-        //GIVE ARGS
+
+        //GIVE ARGS-------------------------------------------------------------------------------------
         Player player = null;
         String giver = null;
 
         if(sender instanceof Player) {
             player = (Player) sender;
             giver = player.getName();
-            if (!player.hasPermission("stash.a")) {
-                player.sendMessage(ChatColor.RED + "you don't have permission");
-                return false;
-            }
         } else {
             giver = "Console";
         }
+
         if (args.length >= 1) {
             if (player != null) {
                 if (!player.hasPermission("stash.a")) {
+                    //Handle player's permission
                     player.sendMessage(ChatColor.RED + "You do not have permission!");
                     return false;
                 }
             }
             if (args[0].equals("give")) {
+
+                //Handle too many args
+                if (args[1].equalsIgnoreCase("time")) {
+                    if (args.length > 5) {
+                        if (player != null) {
+                            player.sendMessage(ChatColor.RED + "Too many args:");
+                            player.sendMessage(ChatColor.RED + "Stash give time <item_name> [quantity] <amount_of_time>");
+                        }
+                        Bukkit.getLogger().warning("Too many args:");
+                        Bukkit.getLogger().warning("Stash give time <item_name> [quantity] <amount_of_time>");
+                        return false;
+                    }
+                } else {
+                    if (args.length > 4) {
+                        if (player != null) {
+                            player.sendMessage(ChatColor.RED + "Too many args:");
+                            player.sendMessage(ChatColor.RED + "Stash give <all/player> <item_name> [quantity]");
+                        }
+                        Bukkit.getLogger().warning("Too many args:");
+                        Bukkit.getLogger().warning("Stash give <all/player> <item_name> [quantity]");
+                        return false;
+                    }
+                }
+
                 Material mat = Material.getMaterial(args[2].toUpperCase());
                 ItemStack item = new ItemStack(mat);
                 String itemName = item.toString();
 
                 StashCmdContents contents = new StashCmdContents(giver, item, itemName, args);
+
                 if (contents.error != null) {
                     Bukkit.getLogger().warning(contents.error);
                     return false;
@@ -87,28 +109,14 @@ public class StashCommand implements CommandExecutor {
                     return false;
                 }
 
+                //no errors, give the item(s)
                 receiverList.addItem();
 
-//                if (receiver.equals("all")) {
-//                    //giveMethods.giveAllPlayers(args, item, giver, itemName);
-//
-//
-//                } else if (receiver.equals("time")) {
-//                    //giveMethods.giveByTime(giver, args, item, itemName, player);
-//                    //BELOW IS FOR GIVING ITEMS TO A SINGLE PLAYER
-//                } else {
-//                    String idString = getMethods.getIdString(contents.getReceiver());
-//                    if (idString == null) {
-//                        player.sendMessage("This player has not logged in before.");
-//                    } else {
-//                        contents.setIdString(idString);
-//                    }
-//                }
             } else {
                 if (player != null) {
-                    player.sendMessage(ChatColor.RED + "Command is not valid");
+                    player.sendMessage(ChatColor.RED + "Command is not valid: stash give ...");
                 } else {
-                    Bukkit.getLogger().warning("Command is not valid");
+                    Bukkit.getLogger().warning("Command is not valid: stash give ...");
                 }
             }
         }

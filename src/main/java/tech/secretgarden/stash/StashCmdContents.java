@@ -25,7 +25,11 @@ public class StashCmdContents {
         this.itemName = itemName;
         this.args = args;
         this.receiver = args[1];
-        this.quantity = initQuantity(args[3]);
+        if (args.length > 3) {
+            this.quantity = initQuantity(args[3]);
+        } else {
+            this.quantity = 1;
+        }
         if (args[1].equalsIgnoreCase("time")) {
             setTimestamp();
         }

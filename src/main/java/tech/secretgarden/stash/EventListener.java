@@ -19,7 +19,6 @@ public class EventListener implements Listener {
 
     private final Database database = new Database();
     private final MapConversion mapConversion = new MapConversion();
-    private final GiveMethods giveMethods = new GiveMethods();
     private final GetMethods getMethods = new GetMethods();
 
     LocalDateTime date = LocalDateTime.now();
@@ -83,52 +82,44 @@ public class EventListener implements Listener {
                 e.setCancelled(true);
                 return;
             } else {
+
                 Inventory stash = e.getView().getTopInventory();
                 Inventory playerInventory = e.getWhoClicked().getInventory();
 
                 String key = getMethods.getMapKey(stash);
-                UUID uuid = UUID.fromString(key);
-                int playerId = getMethods.getPlayerId(key);
-                String owner = getMethods.getName(uuid);
 
-                String name = e.getWhoClicked().getName();
                 String stashStr = mapConversion.inventoryToString(stash);
-
-                String cursorBukkitItemName = cursor.toString();
 
                 if (e.getClickedInventory().equals(stash)) {
                     //clicked stash inventory
                     if (cursor.getType().isAir() && slot != null) {
-                        String slotBukkitItemName = slot.toString();
                         //removing item from stash
-                        int integer = slot.getAmount();
-                        String number = Integer.toString(integer);
-                        if (e.getClick().isShiftClick()) {
-                            if (slot.hasItemMeta()) {
-                                String slotCustomItemName = slot.getItemMeta().getDisplayName();
-                                //custom item
-                                giveMethods.recordItem(name, slotCustomItemName, number, "removed ", owner, playerId);
-                            } else {
-                                giveMethods.recordItem(name, slotBukkitItemName, number, "removed ", owner, playerId);
-                            }
-                        }
-                        giveMethods.updatePlayers(stashStr, key);
+//                        if (e.getClick().isShiftClick()) {
+//                            if (slot.hasItemMeta()) {
+//                                String slotCustomItemName = slot.getItemMeta().getDisplayName();
+//                                //custom item
+//                                giveMethods.recordItem(name, slotCustomItemName, number, "removed ", owner, playerId);
+//                            } else {
+//                                giveMethods.recordItem(name, slotBukkitItemName, number, "removed ", owner, playerId);
+//                            }
+//                        }
+                        updatePlayers(stashStr, key);
                         return;
                     }
 
-                    if (!cursor.getType().isAir() && (slot == null || slot.getType().isAir())) {
+                    if (!cursor.getType().isAir()) {
                         //adding item to stash
                         if (e.getWhoClicked().hasPermission("stash.a")) {
-                            int integer = cursor.getAmount();
-                            String number = Integer.toString(integer);
-                            if (cursor.hasItemMeta()) {
-                                String cursorCustomItemName = cursor.getItemMeta().getDisplayName();
-                                //custom item
-                                giveMethods.recordItem(name, cursorCustomItemName, number, "added ", owner, playerId);
-                            } else {
-                                giveMethods.recordItem(name, cursorBukkitItemName, number, "added ", owner, playerId);
-                            }
-                            giveMethods.updatePlayers(stashStr, key);
+//                            int integer = cursor.getAmount();
+//                            String number = Integer.toString(integer);
+//                            if (cursor.hasItemMeta()) {
+//                                String cursorCustomItemName = cursor.getItemMeta().getDisplayName();
+//                                //custom item
+//                                giveMethods.recordItem(name, cursorCustomItemName, number, "added ", owner, playerId);
+//                            } else {
+//                                giveMethods.recordItem(name, cursorBukkitItemName, number, "added ", owner, playerId);
+//                            }
+                            updatePlayers(stashStr, key);
                         } else {
                             e.setCancelled(true);
                         }
@@ -142,18 +133,18 @@ public class EventListener implements Listener {
                     if (cursor.getType().isAir() && (slot != null)) {
                         //removing item from player inv
                         if (e.getWhoClicked().hasPermission("stash.a")) {
-                            if (e.getClick().isShiftClick()) {
-                                int integer = slot.getAmount();
-                                String number = Integer.toString(integer);
-                                if (slot.hasItemMeta()) {
-                                    String slotCustomItemName = slot.getItemMeta().getDisplayName();
-                                    giveMethods.recordItem(name, slotCustomItemName, number, "added ", owner, playerId);
-                                } else {
-                                    String slotBukkitItemName = slot.toString();
-                                    giveMethods.recordItem(name, slotBukkitItemName, number, "added ", owner, playerId);
-                                }
-                            }
-                            giveMethods.updatePlayers(stashStr, key);
+//                            if (e.getClick().isShiftClick()) {
+//                                int integer = slot.getAmount();
+//                                String number = Integer.toString(integer);
+//                                if (slot.hasItemMeta()) {
+//                                    String slotCustomItemName = slot.getItemMeta().getDisplayName();
+//                                    giveMethods.recordItem(name, slotCustomItemName, number, "added ", owner, playerId);
+//                                } else {
+//                                    String slotBukkitItemName = slot.toString();
+//                                    giveMethods.recordItem(name, slotBukkitItemName, number, "added ", owner, playerId);
+//                                }
+//                            }
+                            updatePlayers(stashStr, key);
                             return;
                         } else {
                             e.setCancelled(true);
@@ -161,23 +152,19 @@ public class EventListener implements Listener {
 
                     }
 
-                    if (!cursor.getType().isAir() && (slot == null || slot.getType().isAir())) {
-                        int integer = cursor.getAmount();
-                        String number = Integer.toString(integer);
-                        if (cursor.hasItemMeta()) {
-                            String cursorCustomItemName = cursor.getItemMeta().getDisplayName();
-                            //custom item
-                            giveMethods.recordItem(name, cursorCustomItemName, number, "removed ", owner, playerId);
-                        } else {
-                            giveMethods.recordItem(name, cursorBukkitItemName, number, "removed ", owner, playerId);
-                        }
-                        giveMethods.updatePlayers(stashStr, key);
+                    if (!cursor.getType().isAir()) {
+//                        if (cursor.hasItemMeta()) {
+//                            String cursorCustomItemName = cursor.getItemMeta().getDisplayName();
+//                            //custom item
+//                            giveMethods.recordItem(name, cursorCustomItemName, number, "removed ", owner, playerId);
+//                        } else {
+//                            giveMethods.recordItem(name, cursorBukkitItemName, number, "removed ", owner, playerId);
+//                        }
+                        updatePlayers(stashStr, key);
                         //adding item to player inv
-                        return;
                     } else {
                         e.setCancelled(true);
                     }
-                    return;
                 }
             }
         }
@@ -188,6 +175,20 @@ public class EventListener implements Listener {
         Inventory stashInv = MapConversion.map.get(e.getWhoClicked().getUniqueId().toString());
         if (stashInv.getViewers().contains(e.getWhoClicked())) {
             e.setCancelled(true);
+        }
+    }
+
+    private void updatePlayers(String stashString, String uuid) {
+
+        try (Connection connection = database.getPool().getConnection();
+             PreparedStatement statement = connection.prepareStatement("UPDATE player " +
+                     "SET inv = ? " +
+                     "WHERE uuid = ?;")) {
+            statement.setString(1, stashString);
+            statement.setString(2, uuid);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 }

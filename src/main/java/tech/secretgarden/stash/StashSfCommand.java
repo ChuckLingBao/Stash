@@ -11,7 +11,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 public class StashSfCommand implements CommandExecutor {
-    private final GiveMethods giveMethods = new GiveMethods();
 
     private final Stash plugin;
     public StashSfCommand(Stash instance) { this.plugin = instance; }
@@ -20,7 +19,7 @@ public class StashSfCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 
         Player player = null;
-        String giver;
+        String giver = null;
 
         if (sender instanceof Player) {
             player = (Player) sender;
@@ -34,36 +33,59 @@ public class StashSfCommand implements CommandExecutor {
         }
                 if (args[0].equals("give")) {
                     if (plugin.getSfAPI() != null) {
+
+                        //Handle permissions
+                        if (player != null) {
+                            if (!player.hasPermission("stash.a")) {
+                                //Handle player's permission
+                                player.sendMessage(ChatColor.RED + "You do not have permission!");
+                                return false;
+                            }
+                        }
+
+                        //Handle too many args
+                        if (args[1].equalsIgnoreCase("time")) {
+                            if (args.length > 5) {
+                                if (player != null) {
+                                    player.sendMessage(ChatColor.RED + "Too many args:");
+                                    player.sendMessage(ChatColor.RED + "Stashsf give time <item_name> [quantity] <amount_of_time>");
+                                }
+                                Bukkit.getLogger().warning("Too many args:");
+                                Bukkit.getLogger().warning("Stashsf give time <item_name> [quantity] <amount_of_time>");
+                                return false;
+                            }
+                        } else {
+                            if (args.length > 4) {
+                                if (player != null) {
+                                    player.sendMessage(ChatColor.RED + "Too many args:");
+                                    player.sendMessage(ChatColor.RED + "Stashsf give <all/player> <item_name> [quantity]");
+                                }
+                                Bukkit.getLogger().warning("Too many args:");
+                                Bukkit.getLogger().warning("Stashsf give <all/player> <item_name> [quantity]");
+                                return false;
+                            }
+                        }
+
                         SlimefunItem sfItem = SlimefunItem.getById(args[2].toUpperCase());
                         ItemStack item = sfItem.getItem();
                         String itemName = item.getItemMeta().getDisplayName();
-                        if (args[1].equals("all")) {
-                            //ALL SF ARGS
-                            giveMethods.giveAllPlayers(args, item, giver, itemName);
-                        } else if (args[1].equals("time")) {
-                            giveMethods.giveByTime(giver, args, item, itemName, player);
+
+                        StashCmdContents contents = new StashCmdContents(giver, item, itemName, args);
+                        if (contents.error != null) {
+                            Bukkit.getLogger().warning(contents.error);
+                            return false;
                         }
-                /*
-                    BELOW IS FOR GIVING ITEMS TO A SINGLE PLAYER
-                     */
-                        else {
-                            Player target = Bukkit.getPlayer(args[1]);
-                            if (target != null) {
-                                String uuid = target.getUniqueId().toString();
-                                giveMethods.giveSinglePlayer(args, item, giver, uuid, itemName);
-                            } else {
-                                //target == null
-                                OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[1]);
-                                if (offlinePlayer.hasPlayedBefore()) {
-                                    String uuid = offlinePlayer.getUniqueId().toString();
-                                    giveMethods.giveSinglePlayer(args, item, giver, uuid, itemName);
-                                } else {
-                                    if (player != null) {
-                                        player.sendMessage("This player has not logged in before.");
-                                    }
-                                }
+                        ReceiverList receiverList = new ReceiverList(contents);
+                        if (contents.getQuantity() == 0) {
+                            if (player != null) {
+                                player.sendMessage(ChatColor.RED + "Quantity is invalid");
                             }
+                            Bukkit.getLogger().warning("Quantity is invalid");
+                            return false;
                         }
+
+                        receiverList.addItem();
+
                     } else {
                         if (player != null) {
                             player.sendMessage(ChatColor.RED + "Cannot get Slimefun instance!");
@@ -72,7 +94,9 @@ public class StashSfCommand implements CommandExecutor {
 
                 } else {
                     if (player != null) {
-                        player.sendMessage(ChatColor.RED + "You do not have permission.");
+                        player.sendMessage(ChatColor.RED + "Command is not valid: stash give ...");
+                    } else {
+                        Bukkit.getLogger().warning("Command is not valid: stash give ...");
                     }
                 }
         return false;

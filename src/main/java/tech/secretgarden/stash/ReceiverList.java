@@ -23,6 +23,7 @@ public class ReceiverList {
     public ReceiverList(StashCmdContents contents) {
         this.contents = contents;
         this.quantity = contents.getQuantity();
+        Timestamp timestamp = contents.getTimestamp();
 
         ArrayList<String> list = new ArrayList<>();
         String receiver = contents.getReceiver();
@@ -34,12 +35,15 @@ public class ReceiverList {
             }
         } else if (receiver.equalsIgnoreCase("time")) {
             //find database timestamps after the one created in contents.
+            System.out.println("time receiver list creation started");
             try (Connection connection = database.getPool().getConnection();
-                 PreparedStatement statement = connection.prepareStatement("SELECT * FROM player WHERE timestamp >= ?")) {
-                statement.setTimestamp(1, contents.getTimestamp());
+                 PreparedStatement statement = connection.prepareStatement("SELECT * FROM player WHERE last_played >= ?")) {
+                statement.setTimestamp(1, timestamp);
                 ResultSet rs = statement.executeQuery();
+                System.out.println("Selected from db");
                 while (rs.next()) {
                     list.add(rs.getString("uuid"));
+                    System.out.println(rs.getString("name"));
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
