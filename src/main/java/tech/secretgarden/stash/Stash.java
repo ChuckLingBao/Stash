@@ -104,7 +104,7 @@ public class Stash extends JavaPlugin {
         } else {
             System.out.println("NexEngine was found");
         }
-        updateLastPlayedPlayers.runTaskTimer(this, 20, 20 * 60);
+        updateLastPlayedPlayers.runTaskTimerAsynchronously(this, 20, 20 * 60);
     }
 
     //slimefun API
