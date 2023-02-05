@@ -86,23 +86,23 @@ public class MapConversion {
             x.printStackTrace();
         }
 
-        try (Connection connection = database.getPool().getConnection();
-             PreparedStatement statement = connection.prepareStatement("SELECT uuid, inv FROM player;")) {
-            ResultSet rs = statement.executeQuery();
-            while (rs.next()) {
-                String key = rs.getString("uuid");
-                String value = rs.getString("inv");
-                stringMap.put(key, value);
-            }
-            for (Map.Entry<String, String> entry : stringMap.entrySet()) {
-                String inventoryData = entry.getValue();
-                Inventory inv = stringToInventory(inventoryData);
-                String uuid = entry.getKey();
-                map.put(uuid, inv);
-            }
-
-        } catch (Exception x) {
-            x.printStackTrace();
-        }
+//        try (Connection connection = database.getPool().getConnection();
+//             PreparedStatement statement = connection.prepareStatement("SELECT uuid, inv FROM player;")) {
+//            ResultSet rs = statement.executeQuery();
+//            while (rs.next()) {
+//                String key = rs.getString("uuid");
+//                String value = rs.getString("inv");
+//                stringMap.put(key, value);
+//            }
+//            for (Map.Entry<String, String> entry : stringMap.entrySet()) {
+//                String inventoryData = entry.getValue();
+//                Inventory inv = stringToInventory(inventoryData);
+//                String uuid = entry.getKey();
+//                map.put(uuid, inv);
+//            }
+//
+//        } catch (Exception x) {
+//            x.printStackTrace();
+//        }
     }
 }

@@ -18,6 +18,8 @@ import java.util.List;
 
 public class Stash extends JavaPlugin {
 
+    public static Stash plugin;
+
     MapConversion mapConversion = new MapConversion();
     Database database = new Database();
     DropletDatabase dropletDatabase = new DropletDatabase();
@@ -46,6 +48,7 @@ public class Stash extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        plugin = this;
         getConfig().options().copyDefaults();
         saveDefaultConfig();
 
@@ -74,6 +77,7 @@ public class Stash extends JavaPlugin {
         getCommand("stashkey").setExecutor(new StashKeyCommand(this));
         getCommand("stashkey").setTabCompleter(new KeyTabCompletion(this));
         getCommand("verify").setExecutor(new VerifyCommand());
+        getCommand("randomspawner").setExecutor(new RandomSpawner());
 
         if (database.isConnected()) {
             mapConversion.loadMap();

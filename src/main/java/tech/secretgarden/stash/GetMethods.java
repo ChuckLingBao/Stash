@@ -71,12 +71,24 @@ public class GetMethods {
     }
 
     public String getIdString(String player) {
-        if (Bukkit.getPlayer(player) != null) {
-            return Bukkit.getPlayer(player).getUniqueId().toString();
 
-        } else if (Bukkit.getOfflinePlayer(player).hasPlayedBefore()) {
-            return Bukkit.getOfflinePlayer(player).getUniqueId().toString();
+        try (Connection connection = database.getPool().getConnection();
+             PreparedStatement statement = connection.prepareStatement("SELECT uuid FROM ranks WHERE gamertag = '" + player + "'")) {
+            ResultSet rs = statement.executeQuery();
+            while (rs.next()) {
+                return rs.getString("uuid");
+            }
+        } catch (SQLException exception) {
+            exception.printStackTrace();
         }
+
+//        if (Bukkit.getPlayer(player) != null) {
+//            return Bukkit.getPlayer(player).getUniqueId().toString();
+//
+//        } else if (Bukkit.getOfflinePlayer(player).hasPlayedBefore()) {
+//            return Bukkit.getOfflinePlayer(player).getUniqueId().toString();
+//        }
+//        return null;
         return null;
     }
 }
