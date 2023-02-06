@@ -10,8 +10,10 @@ import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.tags.ItemTagType;
 import org.bukkit.persistence.PersistentDataType;
+import tech.secretgarden.stash.SpawnerNames.Hostile;
 
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Spawners {
 
@@ -19,18 +21,28 @@ public class Spawners {
     private static ItemStack[] passive = new ItemStack[10];
 
 
-    public ItemStack getSpawner() {
-        NamespacedKey key = new NamespacedKey(Stash.plugin, "hostile");
-        ItemStack testSpawner = new ItemStack(Material.SPAWNER, 1);
+    public ItemStack getSpawner(String type) {
+        NamespacedKey key;
+        // get type of spawner
+        if (type.equalsIgnoreCase("hostile")) {
+            key = new NamespacedKey(Stash.plugin, "hostile");
+        } else {
+            key = new NamespacedKey(Stash.plugin, "passive");
+        }
 
-        ItemMeta meta = testSpawner.getItemMeta();
-        meta.getPersistentDataContainer().set(key, PersistentDataType.STRING, "bat");
+        // get random entity
+        int randNum = ThreadLocalRandom.current().nextInt(0, 18);
+        String entity = Hostile.entityList[randNum];
 
-        meta.setDisplayName(ChatColor.LIGHT_PURPLE + "bat Spawner");
+        // create spawner
+        ItemStack spawner = new ItemStack(Material.SPAWNER, 1);
+        ItemMeta meta = spawner.getItemMeta();
+        meta.getPersistentDataContainer().set(key, PersistentDataType.STRING, entity);
+        meta.setDisplayName(ChatColor.LIGHT_PURPLE + entity + " Spawner");
 
-        testSpawner.setItemMeta(meta);
+        spawner.setItemMeta(meta);
 
-        return testSpawner;
+        return spawner;
     }
 
 

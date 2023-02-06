@@ -2,15 +2,12 @@ package tech.secretgarden.stash;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import su.nightexpress.excellentcrates.ExcellentCrates;
 import su.nightexpress.excellentcrates.ExcellentCratesAPI;
-import su.nightexpress.excellentcrates.api.crate.ICrateKey;
 
 public class StashKeyCommand implements CommandExecutor {
 
@@ -68,9 +65,11 @@ public class StashKeyCommand implements CommandExecutor {
                     }
                 }
 
-                ICrateKey key = ExcellentCratesAPI.getKeyManager().getKeyById(args[2]);
-//                ICrateKey key = ExcellentCrates.getInstance().getKeyManager().getKeyById(args[2]);
-                ItemStack item = key.getItem();
+
+//                ICrateKey key = ExcellentCratesAPI.getKeyManager().getKeyById(args[2]).getItem();
+//                //ICrateKey key = ExcellentCrates.getInstance().getKeyManager().getKeyById(args[2]);
+//                ItemStack item = key.getItem();
+                ItemStack item = ExcellentCratesAPI.getKeyManager().getKeyById(args[2]).getItem();
                 String itemName = item.getItemMeta().getDisplayName();
 
                 StashCmdContents contents = new StashCmdContents(giver, item, itemName, args);

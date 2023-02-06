@@ -10,6 +10,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import su.nexmedia.engine.NexEngine;
 import su.nightexpress.excellentcrates.ExcellentCrates;
+import tech.secretgarden.stash.SpawnerNames.Hostile;
 
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -23,6 +24,7 @@ public class Stash extends JavaPlugin {
     MapConversion mapConversion = new MapConversion();
     Database database = new Database();
     DropletDatabase dropletDatabase = new DropletDatabase();
+    Hostile hostile = new Hostile();
 
     public static ArrayList<String> dbList = new ArrayList<>();
     public ArrayList<String> getDbList() {
@@ -78,6 +80,13 @@ public class Stash extends JavaPlugin {
         getCommand("stashkey").setTabCompleter(new KeyTabCompletion(this));
         getCommand("verify").setExecutor(new VerifyCommand());
         getCommand("randomspawner").setExecutor(new RandomSpawner());
+
+        Hostile.initMap();
+        try {
+            hostile.initList();
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
 
         if (database.isConnected()) {
             mapConversion.loadMap();

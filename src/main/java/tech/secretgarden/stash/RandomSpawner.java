@@ -23,8 +23,8 @@ public class RandomSpawner implements CommandExecutor {
             giver = player.getName();
         }
 
-        // handle not enough args.
-        if (args.length < 3) {
+        // handle wrong args.
+        if (args.length != 3) {
             showUsage(player);
             return false;
         }
@@ -43,10 +43,13 @@ public class RandomSpawner implements CommandExecutor {
         String type = null;
         if (args[2].equalsIgnoreCase("hostile")) { type = "hostile"; }
         else if (args[2].equalsIgnoreCase("passive")) { type = "passive"; }
-        else { return false; }
+        else {
+            showUsage(player);
+            return false;
+        }
 
         // get exact spawner
-        ItemStack spawner = spawners.getSpawner();
+        ItemStack spawner = spawners.getSpawner(type);
         String itemName = spawner.getItemMeta().getDisplayName();
         System.out.println(itemName);
 
@@ -73,9 +76,9 @@ public class RandomSpawner implements CommandExecutor {
 
     private void showUsage(Player player) {
         if (player != null) {
-            player.sendMessage(ChatColor.YELLOW + "/randomspawner give <player> <hostile/passive> [quantity]");
+            player.sendMessage(ChatColor.YELLOW + "/randomspawner give <player> <hostile/passive>");
         } else {
-            Bukkit.getLogger().info("/randomspawner give <player> <hostile/passive> [quantity]");
+            Bukkit.getLogger().info("/randomspawner give <player> <hostile/passive>");
         }
 
     }

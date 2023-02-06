@@ -12,6 +12,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.Inventory;
@@ -19,6 +20,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import tech.secretgarden.stash.SpawnerNames.Hostile;
 
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -49,32 +51,6 @@ public class EventListener implements Listener {
             MapConversion.map.put(uuid, stash);
         }
 
-//        if (!MapConversion.map.containsKey(e.getPlayer().getUniqueId().toString())) {
-//
-//            System.out.println(MapConversion.map.get(uuid));
-//
-//            Inventory inv = Bukkit.createInventory(null, 18, ChatColor.DARK_PURPLE + "Stash");
-//
-//            String player = e.getPlayer().getName();
-//
-//            MapConversion.map.put(uuid, inv);
-//            System.out.println("created inv");
-//            String stash = mapConversion.inventoryToString(inv);
-//
-//            try (Connection connection = database.getPool().getConnection();
-//                 PreparedStatement statement = connection.prepareStatement("INSERT INTO player (uuid, name, inv, timestamp) VALUES (?,?,?,?);")) {
-//                statement.setString(1, uuid);
-//                statement.setString(2, player);
-//                statement.setString(3, stash);
-//                statement.setTimestamp(4, timestamp);
-//                statement.executeUpdate();
-//
-//            } catch (Exception x) {
-//                x.printStackTrace();
-//            }
-//
-//        }
-
         if (!MapConversion.map.get(e.getPlayer().getUniqueId().toString()).isEmpty()) {
             e.getPlayer().sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "You have Items in your Stash, use '/stash' to get your items.");
         }
@@ -93,13 +69,11 @@ public class EventListener implements Listener {
             if (!cursor.getType().isAir() && slot != null) {
                 e.setCancelled(true);
                 return;
-            }
-            if (e.getClick().isRightClick()) {
+            } else if (e.getClick().isRightClick()) {
                 e.setCancelled(true);
                 return;
                 //if user tries to swap item or right click, cancel event regardless of their permissions!
-            }
-            if (e.getClickedInventory() == null) {
+            } else if (e.getClickedInventory() == null) {
                 e.setCancelled(true);
                 return;
             } else {
@@ -115,15 +89,6 @@ public class EventListener implements Listener {
                     //clicked stash inventory
                     if (cursor.getType().isAir() && slot != null) {
                         //removing item from stash
-//                        if (e.getClick().isShiftClick()) {
-//                            if (slot.hasItemMeta()) {
-//                                String slotCustomItemName = slot.getItemMeta().getDisplayName();
-//                                //custom item
-//                                giveMethods.recordItem(name, slotCustomItemName, number, "removed ", owner, playerId);
-//                            } else {
-//                                giveMethods.recordItem(name, slotBukkitItemName, number, "removed ", owner, playerId);
-//                            }
-//                        }
                         updatePlayers(stashStr, key);
                         return;
                     }
@@ -131,15 +96,7 @@ public class EventListener implements Listener {
                     if (!cursor.getType().isAir()) {
                         //adding item to stash
                         if (e.getWhoClicked().hasPermission("stash.a")) {
-//                            int integer = cursor.getAmount();
-//                            String number = Integer.toString(integer);
-//                            if (cursor.hasItemMeta()) {
-//                                String cursorCustomItemName = cursor.getItemMeta().getDisplayName();
-//                                //custom item
-//                                giveMethods.recordItem(name, cursorCustomItemName, number, "added ", owner, playerId);
-//                            } else {
-//                                giveMethods.recordItem(name, cursorBukkitItemName, number, "added ", owner, playerId);
-//                            }
+
                             updatePlayers(stashStr, key);
                         } else {
                             e.setCancelled(true);
@@ -154,33 +111,14 @@ public class EventListener implements Listener {
                     if (cursor.getType().isAir() && (slot != null)) {
                         //removing item from player inv
                         if (e.getWhoClicked().hasPermission("stash.a")) {
-//                            if (e.getClick().isShiftClick()) {
-//                                int integer = slot.getAmount();
-//                                String number = Integer.toString(integer);
-//                                if (slot.hasItemMeta()) {
-//                                    String slotCustomItemName = slot.getItemMeta().getDisplayName();
-//                                    giveMethods.recordItem(name, slotCustomItemName, number, "added ", owner, playerId);
-//                                } else {
-//                                    String slotBukkitItemName = slot.toString();
-//                                    giveMethods.recordItem(name, slotBukkitItemName, number, "added ", owner, playerId);
-//                                }
-//                            }
                             updatePlayers(stashStr, key);
                             return;
                         } else {
                             e.setCancelled(true);
                         }
-
                     }
 
                     if (!cursor.getType().isAir()) {
-//                        if (cursor.hasItemMeta()) {
-//                            String cursorCustomItemName = cursor.getItemMeta().getDisplayName();
-//                            //custom item
-//                            giveMethods.recordItem(name, cursorCustomItemName, number, "removed ", owner, playerId);
-//                        } else {
-//                            giveMethods.recordItem(name, cursorBukkitItemName, number, "removed ", owner, playerId);
-//                        }
                         updatePlayers(stashStr, key);
                         //adding item to player inv
                     } else {
@@ -188,6 +126,18 @@ public class EventListener implements Listener {
                     }
                 }
             }
+        }
+    }
+
+    @EventHandler
+    public void close(InventoryCloseEvent e) {
+        // if player closes stash, update db
+        if (e.getView().getTitle().contains(ChatColor.DARK_PURPLE + "Stash")) {
+            Inventory stash = e.getView().getTopInventory();
+            String stashStr = mapConversion.inventoryToString(stash);
+            String key = getMethods.getMapKey(stash);
+
+            updatePlayers(stashStr, key);
         }
     }
 
@@ -201,18 +151,27 @@ public class EventListener implements Listener {
 
     @EventHandler
     public void place(BlockPlaceEvent e) {
-        System.out.println(e.getItemInHand().getItemMeta().getDisplayName());
         Block block = e.getBlock();
 
         if (block.getType().equals(Material.SPAWNER)) {
             NamespacedKey key = new NamespacedKey(Stash.plugin, "hostile");
 
+
             ItemMeta itemMeta = e.getItemInHand().getItemMeta();
             PersistentDataContainer container = itemMeta.getPersistentDataContainer();
+
+            String data;
+            EntityType entity;
+            BlockState bs = block.getState();
+            CreatureSpawner cs = (CreatureSpawner) bs;
+
             if (container.has(key, PersistentDataType.STRING)) {
-                String data = container.get(key, PersistentDataType.STRING);
+                data = container.get(key, PersistentDataType.STRING);
+                entity = Hostile.entityMap.get(data);
+                cs.setSpawnedType(entity);
                 System.out.println(data);
             } else {
+                // type is passive
                 System.out.println("No Data");
             }
         }
