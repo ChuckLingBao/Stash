@@ -22,17 +22,28 @@ public class Spawners {
 
 
     public ItemStack getSpawner(String type) {
+
+        int randNum;
+        String entity;
+
         NamespacedKey key;
         // get type of spawner
         if (type.equalsIgnoreCase("hostile")) {
+
             key = new NamespacedKey(Stash.plugin, "hostile");
-        } else {
+            // get random entity
+            randNum = ThreadLocalRandom.current().nextInt(0, 18);
+            entity = Hostile.entityList[randNum];
+
+        } else if (type.equalsIgnoreCase("passive")) {
             key = new NamespacedKey(Stash.plugin, "passive");
+            randNum = ThreadLocalRandom.current().nextInt(0, 18);
+            entity = Hostile.entityList[randNum];  // TODO - Change to passive.
+        } else {
+            return null;
         }
 
-        // get random entity
-        int randNum = ThreadLocalRandom.current().nextInt(0, 18);
-        String entity = Hostile.entityList[randNum];
+
 
         // create spawner
         ItemStack spawner = new ItemStack(Material.SPAWNER, 1);

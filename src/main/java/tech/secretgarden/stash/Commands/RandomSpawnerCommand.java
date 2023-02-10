@@ -11,10 +11,11 @@ import org.jetbrains.annotations.NotNull;
 import tech.secretgarden.stash.Data.GetMethods;
 import tech.secretgarden.stash.Spawners;
 
-public class RandomSpawner implements CommandExecutor {
+public class RandomSpawnerCommand implements CommandExecutor {
 
     GetMethods getMethods = new GetMethods();
     Spawners spawners = new Spawners();
+    Give give = new Give();
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
@@ -26,20 +27,20 @@ public class RandomSpawner implements CommandExecutor {
         }
 
         // handle wrong args.
-        if (args.length != 3) {
+        if (args.length < 3 || args.length > 4) {
             showUsage(player);
             return false;
         }
+//
+//        // get the receiver
+//        String receiver = args[1];
+//        String uuid = getMethods.getIdString(receiver);
 
-        // get the receiver
-        String receiver = args[1];
-        String uuid = getMethods.getIdString(receiver);
-
-        // handle receiver does not exist
-        if (uuid == null) {
-            tellReceiverNull(player);
-            return false;
-        }
+//        // handle receiver does not exist
+//        if (uuid == null) {
+//            tellReceiverNull(player);
+//            return false;
+//        }
 
         // get spawner type
         String type = null;
@@ -53,25 +54,26 @@ public class RandomSpawner implements CommandExecutor {
         // get exact spawner
         ItemStack spawner = spawners.getSpawner(type);
         String itemName = spawner.getItemMeta().getDisplayName();
-        System.out.println(itemName);
 
-        StashCmdContents contents = new StashCmdContents(giver, spawner, itemName, args);
+        give.run(sender, args, spawner, itemName);
 
-        if (contents.error != null) {
-            Bukkit.getLogger().warning(contents.error);
-            return false;
-        }
-        ReceiverList receiverList = new ReceiverList(contents);
-        if (contents.getQuantity() == 0) {
-            if (player != null) {
-                player.sendMessage(ChatColor.RED + "Quantity is invalid");
-            }
-            Bukkit.getLogger().warning("Quantity is invalid");
-            return false;
-        }
-
-        //no errors, give the item(s)
-        receiverList.addItem();
+//        StashCmdContents contents = new StashCmdContents(giver, spawner, itemName, args);
+//
+//        if (contents.error != null) {
+//            Bukkit.getLogger().warning(contents.error);
+//            return false;
+//        }
+//        ReceiverList receiverList = new ReceiverList(contents);
+//        if (contents.getQuantity() == 0) {
+//            if (player != null) {
+//                player.sendMessage(ChatColor.RED + "Quantity is invalid");
+//            }
+//            Bukkit.getLogger().warning("Quantity is invalid");
+//            return false;
+//        }
+//
+//        //no errors, give the item(s)
+//        receiverList.addItem();
 
         return false;
     }

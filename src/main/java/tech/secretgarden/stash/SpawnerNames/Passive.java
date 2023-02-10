@@ -5,7 +5,8 @@ import org.bukkit.entity.EntityType;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 
-public class Hostile {
+public class Passive {
+
     public static String BLAZE = "Blaze";
     public static String CREEPER = "Creeper";
     public static String GHAST = "Ghast";
@@ -27,9 +28,7 @@ public class Hostile {
     public static String VEX = "Vex";
     public static String PIGLIN_BRUTE = "Piglin Brute";
 
-    public final static int SIZE = 20;
-
-    public static String[] entityList = new String[SIZE];
+    public static String[] entityList = new String[20];
     public static HashMap<String, EntityType> entityMap = new HashMap<>();
 
     public void initList() throws IllegalAccessException {
@@ -67,4 +66,5 @@ public class Hostile {
         entityMap.put(VEX, EntityType.VEX);
         entityMap.put(PIGLIN_BRUTE, EntityType.PIGLIN_BRUTE);
     }
+
 }

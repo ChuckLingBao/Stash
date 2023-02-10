@@ -83,7 +83,7 @@ public class Stash extends JavaPlugin {
         getCommand("stashkey").setExecutor(new StashKeyCommand(this));
         getCommand("stashkey").setTabCompleter(new KeyTabCompletion(this));
         getCommand("verify").setExecutor(new VerifyCommand());
-        getCommand("randomspawner").setExecutor(new RandomSpawner());
+        getCommand("randomspawner").setExecutor(new RandomSpawnerCommand());
 
         Hostile.initMap();
         try {
