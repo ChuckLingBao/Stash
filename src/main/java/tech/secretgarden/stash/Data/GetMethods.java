@@ -76,7 +76,9 @@ public class GetMethods {
              PreparedStatement statement = connection.prepareStatement("SELECT uuid FROM ranks WHERE gamertag = '" + player + "'")) {
             ResultSet rs = statement.executeQuery();
             while (rs.next()) {
-                return rs.getString("uuid");
+                String uuid = rs.getString("uuid");
+                System.out.println(uuid);
+                return uuid;
             }
         } catch (SQLException exception) {
             exception.printStackTrace();

@@ -61,6 +61,7 @@ public class ReceiverList {
     public void addItem() {
         for (String id : list) {
             Inventory inv = MapConversion.map.get(id);
+//            Inventory inv = getMethods.getStashInv(id);
             for (int i = 0; i < quantity; i++) {
                 inv.addItem(contents.item);
             }

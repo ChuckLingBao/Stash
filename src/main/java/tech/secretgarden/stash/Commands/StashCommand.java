@@ -37,6 +37,7 @@ public class StashCommand implements CommandExecutor {
                 String p = args[0];
 
                 String idString = getMethods.getIdString(p);
+                System.out.println("ID = " + idString);
                 if (idString == null) {
                     player.sendMessage(ChatColor.RED + "This is not a valid player!");
                 } else {
