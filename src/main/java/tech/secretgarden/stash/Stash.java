@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import io.github.thebusybiscuit.exoticgarden.ExoticGarden;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -15,6 +16,8 @@ import tech.secretgarden.stash.Data.Database;
 import tech.secretgarden.stash.Data.DropletDatabase;
 import tech.secretgarden.stash.Data.MapConversion;
 import tech.secretgarden.stash.SpawnerNames.Hostile;
+import tech.secretgarden.stash.SpawnerNames.Passive;
+import tech.secretgarden.stash.SpawnerNames.Rare;
 
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -28,7 +31,12 @@ public class Stash extends JavaPlugin {
     MapConversion mapConversion = new MapConversion();
     Database database = new Database();
     DropletDatabase dropletDatabase = new DropletDatabase();
+
+    // spawner classes
+
     Hostile hostile = new Hostile();
+    Passive passive = new Passive();
+    Rare rare = new Rare();
 
     public static ArrayList<String> dbList = new ArrayList<>();
     public ArrayList<String> getDbList() {
@@ -50,6 +58,7 @@ public class Stash extends JavaPlugin {
         return dropletList;
     }
 
+    // disabled worlds
     public static List<String> worldList = new ArrayList<>();
 
     @Override
@@ -57,6 +66,8 @@ public class Stash extends JavaPlugin {
         plugin = this;
         getConfig().options().copyDefaults();
         saveDefaultConfig();
+        RandomSpawnerCommand randomSpawnerCommand = new RandomSpawnerCommand(this);
+
 
         if (getConfig().getString("HOST") != null && getConfig().getString("DROPLET_HOST") != null) {
             try {
@@ -73,21 +84,30 @@ public class Stash extends JavaPlugin {
         worldList = getConfig().getStringList("disabled_worlds");
 
         System.out.println("Connected to database = " + database.isConnected());
-
         System.out.println("Stash plugin has loaded");
 
-        Bukkit.getPluginManager().registerEvents(new EventListener(), this);
+        Bukkit.getPluginManager().registerEvents(new EventListener(this), this);
         getCommand("stash").setExecutor(new StashCommand());
         getCommand("stashsf").setExecutor(new StashSfCommand(this));
         getCommand("stashsf").setTabCompleter(new SfTabCompletion(this));
         getCommand("stashkey").setExecutor(new StashKeyCommand(this));
         getCommand("stashkey").setTabCompleter(new KeyTabCompletion(this));
         getCommand("verify").setExecutor(new VerifyCommand());
-        getCommand("randomspawner").setExecutor(new RandomSpawnerCommand());
+        getCommand("randomspawner").setExecutor(new RandomSpawnerCommand(this));
 
+        // initialize spawner classes
         Hostile.initMap();
+        Passive.initMap();
+        Rare.initMap();
         try {
-            hostile.initList();
+            randomSpawnerCommand.initList(hostile.getClass(), Hostile.entityList);
+            randomSpawnerCommand.initList(passive.getClass(), Passive.entityList);
+            randomSpawnerCommand.initList(rare.getClass(), Rare.entityList);
+
+//
+//            hostile.initList();
+//            passive.initList();
+//            rare.initList();
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
@@ -98,6 +118,7 @@ public class Stash extends JavaPlugin {
             Bukkit.getPluginManager().disablePlugin(this);
         }
 
+        // check APIs
         if (getSfAPI() == null) {
             System.out.println("sf4 not found");
         } else {
@@ -124,7 +145,7 @@ public class Stash extends JavaPlugin {
         updateLastPlayedPlayers.runTaskTimerAsynchronously(this, 20, 20 * 60);
     }
 
-    //slimefun API
+    // slimefun API
     public Slimefun getSfAPI() {
         Plugin sfPlugin = Bukkit.getServer().getPluginManager().getPlugin("Slimefun");
         if (sfPlugin instanceof Slimefun) {
@@ -134,7 +155,7 @@ public class Stash extends JavaPlugin {
         }
     }
 
-    //exotic gardens API
+    // exotic gardens API
     public ExoticGarden getEgAPI() {
         Plugin egPlugin = Bukkit.getServer().getPluginManager().getPlugin("ExoticGarden");
         if (egPlugin instanceof ExoticGarden) {
@@ -144,7 +165,7 @@ public class Stash extends JavaPlugin {
         }
     }
 
-    //golden crates API
+    // excellent crates API
     public ExcellentCrates getEcAPI() {
         Plugin ecPlugin = Bukkit.getServer().getPluginManager().getPlugin("ExcellentCrates");
         if (ecPlugin instanceof ExcellentCrates) {
@@ -154,7 +175,7 @@ public class Stash extends JavaPlugin {
         }
     }
 
-    //nex engine API
+    // nex engine API
     public NexEngine getNeAPI() {
         Plugin nePlugin = Bukkit.getServer().getPluginManager().getPlugin("NexEngine");
         if (nePlugin instanceof NexEngine) {
@@ -164,6 +185,10 @@ public class Stash extends JavaPlugin {
         }
     }
 
+    public NamespacedKey getKey(String data) {
+        return new NamespacedKey(this, data);
+    }
+
 
     @Override
     public void onDisable() {
@@ -171,6 +196,7 @@ public class Stash extends JavaPlugin {
         database.disconnect();
 
     }
+
     BukkitRunnable updateLastPlayedPlayers = new BukkitRunnable() {
         @Override
         public void run() {

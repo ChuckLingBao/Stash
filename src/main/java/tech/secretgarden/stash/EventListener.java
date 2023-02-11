@@ -24,11 +24,16 @@ import tech.secretgarden.stash.Data.GetMethods;
 import tech.secretgarden.stash.Data.InsertData;
 import tech.secretgarden.stash.Data.MapConversion;
 import tech.secretgarden.stash.SpawnerNames.Hostile;
+import tech.secretgarden.stash.SpawnerNames.Passive;
+import tech.secretgarden.stash.SpawnerNames.Rare;
 
 import java.sql.*;
 import java.time.LocalDateTime;
 
 public class EventListener implements Listener {
+
+    private final Stash plugin;
+    public EventListener(Stash instance) { this.plugin = instance; }
 
     private final Database database = new Database();
     private final MapConversion mapConversion = new MapConversion();
@@ -152,11 +157,10 @@ public class EventListener implements Listener {
 
     @EventHandler
     public void place(BlockPlaceEvent e) {
+
         Block block = e.getBlock();
 
         if (block.getType().equals(Material.SPAWNER)) {
-            NamespacedKey key = new NamespacedKey(Stash.plugin, "hostile");
-
 
             ItemMeta itemMeta = e.getItemInHand().getItemMeta();
             PersistentDataContainer container = itemMeta.getPersistentDataContainer();
@@ -166,19 +170,30 @@ public class EventListener implements Listener {
             BlockState bs = block.getState();
             CreatureSpawner cs = (CreatureSpawner) bs;
 
-            if (container.has(key, PersistentDataType.STRING)) {
-                data = container.get(key, PersistentDataType.STRING);
+            if (container.has(plugin.getKey("hostile"), PersistentDataType.STRING)) {
+                data = container.get(plugin.getKey("hostile"), PersistentDataType.STRING);
                 entity = Hostile.entityMap.get(data);
                 cs.setSpawnedType(entity);
                 System.out.println(data);
-            } else {
-                // type is passive
-                System.out.println("No Data");
+
+            } else if (container.has(plugin.getKey("passive"), PersistentDataType.STRING)) {
+
+                // passive
+                data = container.get(plugin.getKey("passive"), PersistentDataType.STRING);
+                entity = Passive.entityMap.get(data);
+                cs.setSpawnedType(entity);
+                System.out.println(data);
+
+            } else if (container.has(plugin.getKey("rare"), PersistentDataType.STRING)) {
+
+                // rare
+                data = container.get(plugin.getKey("rare"), PersistentDataType.STRING);
+                entity = Rare.entityMap.get(data);
+                cs.setSpawnedType(entity);
+                System.out.println(data);
+
             }
         }
-        /*
-        TODO
-         */
 
 
 

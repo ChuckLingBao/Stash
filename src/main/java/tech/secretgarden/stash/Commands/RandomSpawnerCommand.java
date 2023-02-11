@@ -9,9 +9,19 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import tech.secretgarden.stash.Data.GetMethods;
+import tech.secretgarden.stash.SpawnerNames.Hostile;
+import tech.secretgarden.stash.SpawnerNames.Passive;
 import tech.secretgarden.stash.Spawners;
+import tech.secretgarden.stash.Stash;
+
+import java.lang.reflect.Field;
 
 public class RandomSpawnerCommand implements CommandExecutor {
+
+    Stash plugin;
+    public RandomSpawnerCommand(Stash instance) {
+        this.plugin = instance;
+    }
 
     GetMethods getMethods = new GetMethods();
     Spawners spawners = new Spawners();
@@ -43,9 +53,11 @@ public class RandomSpawnerCommand implements CommandExecutor {
 //        }
 
         // get spawner type
-        String type = null;
+        String type;
         if (args[2].equalsIgnoreCase("hostile")) { type = "hostile"; }
         else if (args[2].equalsIgnoreCase("passive")) { type = "passive"; }
+        else if (args[2].equalsIgnoreCase("rare")) { type = "rare"; }
+        else if (args[2].equalsIgnoreCase("both")) { type = "both"; }
         else {
             showUsage(player);
             return false;
@@ -85,6 +97,19 @@ public class RandomSpawnerCommand implements CommandExecutor {
             Bukkit.getLogger().info("/randomspawner give <player> <hostile/passive>");
         }
 
+    }
+
+    public void initList(Class<?> instance, String[] entityList) throws IllegalAccessException {
+
+        Field[] fields = instance.getFields();
+
+        for (int i = 0; i < fields.length; i++) {
+            Class<?> type = fields[i].getType();
+            Object value = fields[i].get(instance);
+            if (type.isAssignableFrom(String.class)) {
+                entityList[i] = (String) value;
+            }
+        }
     }
 
     private void tellReceiverNull(Player player) {

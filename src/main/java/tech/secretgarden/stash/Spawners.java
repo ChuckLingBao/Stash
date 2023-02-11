@@ -10,40 +10,62 @@ import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.tags.ItemTagType;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.plugin.java.JavaPlugin;
 import tech.secretgarden.stash.SpawnerNames.Hostile;
+import tech.secretgarden.stash.SpawnerNames.Passive;
+import tech.secretgarden.stash.SpawnerNames.Rare;
 
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Spawners {
 
-    private static ItemStack[] hostile = new ItemStack[10];
-    private static ItemStack[] passive = new ItemStack[10];
+    Stash plugin = Stash.plugin;
+
+
+
+//
+//    public NamespacedKey HOSTILE_KEY = new NamespacedKey(plugin, "hostile");
+//    public NamespacedKey PASSIVE_KEY = new NamespacedKey(plugin, "passive");
+//    public NamespacedKey RARE_KEY = new NamespacedKey(plugin, "rare");
 
 
     public ItemStack getSpawner(String type) {
 
-        int randNum;
         String entity;
 
         NamespacedKey key;
         // get type of spawner
         if (type.equalsIgnoreCase("hostile")) {
 
-            key = new NamespacedKey(Stash.plugin, "hostile");
-            // get random entity
-            randNum = ThreadLocalRandom.current().nextInt(0, 18);
-            entity = Hostile.entityList[randNum];
+            key = plugin.getKey("hostile");
+            entity = getHostileEntity();
 
         } else if (type.equalsIgnoreCase("passive")) {
-            key = new NamespacedKey(Stash.plugin, "passive");
-            randNum = ThreadLocalRandom.current().nextInt(0, 18);
-            entity = Hostile.entityList[randNum];  // TODO - Change to passive.
+
+            key = plugin.getKey("passive");
+            entity = getPassiveEntity();
+
+        } else if (type.equalsIgnoreCase("rare")) {
+
+            key = plugin.getKey("rare");
+            entity = getRareEntity();
+
+        } else if (type.equalsIgnoreCase("both")) {
+
+            // pick hostile or passive spawners
+            int picker = ThreadLocalRandom.current().nextInt(0, 2);
+            if (picker == 0) {
+                key = plugin.getKey("hostile");
+                entity = getHostileEntity();
+            } else {
+                key = plugin.getKey("passive");
+                entity = getPassiveEntity();
+            }
+
         } else {
             return null;
         }
-
-
 
         // create spawner
         ItemStack spawner = new ItemStack(Material.SPAWNER, 1);
@@ -54,6 +76,21 @@ public class Spawners {
         spawner.setItemMeta(meta);
 
         return spawner;
+    }
+
+    private String getHostileEntity() {
+        int randNum = ThreadLocalRandom.current().nextInt(0, Hostile.SIZE);
+        return Hostile.entityList[randNum];
+    }
+
+    private String getPassiveEntity() {
+        int randNum = ThreadLocalRandom.current().nextInt(0, Passive.SIZE);
+        return Passive.entityList[randNum];
+    }
+
+    private String getRareEntity() {
+        int randNum = ThreadLocalRandom.current().nextInt(0, Rare.SIZE);
+        return Rare.entityList[randNum];
     }
 
 
