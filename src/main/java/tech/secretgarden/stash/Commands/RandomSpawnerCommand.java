@@ -9,8 +9,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import tech.secretgarden.stash.Data.GetMethods;
-import tech.secretgarden.stash.SpawnerNames.Hostile;
-import tech.secretgarden.stash.SpawnerNames.Passive;
 import tech.secretgarden.stash.Spawners;
 import tech.secretgarden.stash.Stash;
 
@@ -41,16 +39,6 @@ public class RandomSpawnerCommand implements CommandExecutor {
             showUsage(player);
             return false;
         }
-//
-//        // get the receiver
-//        String receiver = args[1];
-//        String uuid = getMethods.getIdString(receiver);
-
-//        // handle receiver does not exist
-//        if (uuid == null) {
-//            tellReceiverNull(player);
-//            return false;
-//        }
 
         // get spawner type
         String type;
@@ -68,25 +56,6 @@ public class RandomSpawnerCommand implements CommandExecutor {
         String itemName = spawner.getItemMeta().getDisplayName();
 
         give.run(sender, args, spawner, itemName);
-
-//        StashCmdContents contents = new StashCmdContents(giver, spawner, itemName, args);
-//
-//        if (contents.error != null) {
-//            Bukkit.getLogger().warning(contents.error);
-//            return false;
-//        }
-//        ReceiverList receiverList = new ReceiverList(contents);
-//        if (contents.getQuantity() == 0) {
-//            if (player != null) {
-//                player.sendMessage(ChatColor.RED + "Quantity is invalid");
-//            }
-//            Bukkit.getLogger().warning("Quantity is invalid");
-//            return false;
-//        }
-//
-//        //no errors, give the item(s)
-//        receiverList.addItem();
-
         return false;
     }
 

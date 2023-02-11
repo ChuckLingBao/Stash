@@ -104,10 +104,6 @@ public class Stash extends JavaPlugin {
             randomSpawnerCommand.initList(passive.getClass(), Passive.entityList);
             randomSpawnerCommand.initList(rare.getClass(), Rare.entityList);
 
-//
-//            hostile.initList();
-//            passive.initList();
-//            rare.initList();
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
@@ -194,7 +190,6 @@ public class Stash extends JavaPlugin {
     public void onDisable() {
         System.out.println("Stash has unloaded");
         database.disconnect();
-
     }
 
     BukkitRunnable updateLastPlayedPlayers = new BukkitRunnable() {

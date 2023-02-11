@@ -42,19 +42,6 @@ public class Passive {
     public static String[] entityList = new String[SIZE];
     public static HashMap<String, EntityType> entityMap = new HashMap<>();
 
-//    public void initList() throws IllegalAccessException {
-//        Passive passive = new Hostile();
-//        Field[] fields = hostile.getClass().getFields();
-//
-//        for (int i = 0; i < fields.length; i++) {
-//            Class type = fields[i].getType();
-//            Object value = fields[i].get(hostile);
-//            if (type.isAssignableFrom(String.class)) {
-//                entityList[i] = (String) value;
-//            }
-//        }
-//    }
-
     public static void initMap() {
         entityMap.put(AXOLOTL, EntityType.AXOLOTL);
         entityMap.put(BEE, EntityType.BEE);

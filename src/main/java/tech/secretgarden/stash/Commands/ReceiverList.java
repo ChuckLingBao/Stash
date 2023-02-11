@@ -16,11 +16,9 @@ public class ReceiverList {
     GetMethods getMethods = new GetMethods();
     MapConversion mapConversion = new MapConversion();
 
-
     ArrayList<String> list = null;
     StashCmdContents contents = null;
     int quantity = 0;
-
 
     public ReceiverList(StashCmdContents contents) {
         this.contents = contents;
@@ -29,7 +27,6 @@ public class ReceiverList {
 
         ArrayList<String> list = new ArrayList<>();
         String receiver = contents.getReceiver();
-
 
         if (receiver.equalsIgnoreCase("all")) {
             for (Map.Entry<String, Inventory> entry : MapConversion.map.entrySet()) {

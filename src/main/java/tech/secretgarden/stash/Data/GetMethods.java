@@ -84,13 +84,6 @@ public class GetMethods {
             exception.printStackTrace();
         }
 
-//        if (Bukkit.getPlayer(player) != null) {
-//            return Bukkit.getPlayer(player).getUniqueId().toString();
-//
-//        } else if (Bukkit.getOfflinePlayer(player).hasPlayedBefore()) {
-//            return Bukkit.getOfflinePlayer(player).getUniqueId().toString();
-//        }
-//        return null;
         return null;
     }
 }

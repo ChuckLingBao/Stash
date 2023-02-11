@@ -18,16 +18,7 @@ public class StashKeyCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 
-        //ICrateKey key = ExcellentCratesAPI.getKeyManager().getKeyById(args[2]).getItem();
-        //ICrateKey key = ExcellentCrates.getInstance().getKeyManager().getKeyById(args[2]);
-
-
         if (plugin.getEcAPI() != null && plugin.getNeAPI() != null) {
-//            ItemStack item = ExcellentCratesAPI.getKeyManager().getKeyById(args[2]).getItem();
-
-//            CrateKey key = ExcellentCratesAPI.getKeyManager().getKeyById(args[2]);
-//            ItemStack item = key.getItem();
-//            String itemName = item.getItemMeta().getDisplayName();
 
             CrateKey key = new CrateKey(plugin.getEcAPI(), args[2]);
             ItemStack item = key.getItem();

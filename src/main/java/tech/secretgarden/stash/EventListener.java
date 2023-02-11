@@ -2,7 +2,6 @@ package tech.secretgarden.stash;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.CreatureSpawner;
@@ -194,16 +193,6 @@ public class EventListener implements Listener {
 
             }
         }
-
-
-
-
-//        if (block.getType().equals(Material.SPAWNER)) {
-//            BlockState bs = block.getState();
-//            CreatureSpawner cs = (CreatureSpawner) bs;
-//            cs.setSpawnedType(EntityType.BAT);
-//            System.out.println("placed bat");
-//        }
     }
 
     private void updatePlayers(String stashString, String uuid) {
