@@ -28,6 +28,7 @@ import tech.secretgarden.stash.SpawnerNames.Rare;
 
 import java.sql.*;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 public class EventListener implements Listener {
 
@@ -49,7 +50,7 @@ public class EventListener implements Listener {
         String name = e.getPlayer().getName();
 
         if (getMethods.getPlayerId(uuid) == 0) {
-            insertData.addPlayer(uuid, name, timestamp);
+            insertData.addPlayer(uuid, name, timestamp).runTaskAsynchronously(plugin);
         } else {
             // player exists in db
             Inventory stash = getMethods.getStashInv(uuid);
@@ -71,65 +72,35 @@ public class EventListener implements Listener {
             ItemStack cursor = e.getCursor();
             ItemStack slot = e.getCurrentItem();
 
-            if (!cursor.getType().isAir() && slot != null) {
-                e.setCancelled(true);
-                return;
-            } else if (e.getClick().isRightClick()) {
-                e.setCancelled(true);
-                return;
-                //if user tries to swap item or right click, cancel event regardless of their permissions!
-            } else if (e.getClickedInventory() == null) {
-                e.setCancelled(true);
-                return;
-            } else {
+            Inventory stash = e.getView().getTopInventory();
+//            Inventory playerInventory = e.getWhoClicked().getInventory();
+            Inventory playerInventory = e.getView().getBottomInventory();
 
-                Inventory stash = e.getView().getTopInventory();
-                Inventory playerInventory = e.getWhoClicked().getInventory();
-
-                String key = getMethods.getMapKey(stash);
-
-                String stashStr = mapConversion.inventoryToString(stash);
-
-                if (e.getClickedInventory().equals(stash)) {
-                    //clicked stash inventory
-                    if (cursor.getType().isAir() && slot != null) {
-                        //removing item from stash
-                        updatePlayers(stashStr, key);
-                        return;
-                    }
-
-                    if (!cursor.getType().isAir()) {
-                        //adding item to stash
-                        if (e.getWhoClicked().hasPermission("stash.a")) {
-
-                            updatePlayers(stashStr, key);
-                        } else {
-                            e.setCancelled(true);
-                        }
-                        return;
-                    }
+            if (e.getWhoClicked().hasPermission(("stash.a"))) {     // is admin
+                e.setCancelled(false);
+            } else if (e.getClickedInventory().equals(playerInventory)) {   // clicked player inv
+                //clicked player inventory
+                if (cursor.getType().isAir() || (slot != null)) {
+                    //removing item from player inv
+                    e.setCancelled(true);
+                }
+            } else if (e.getClickedInventory().equals(stash)) {             // clicked stash inv
+                //clicked stash inventory
+                if (cursor.getType().isAir() && slot != null) {
+                    //removing item from stash
                     return;
                 }
 
-                if (e.getClickedInventory().equals(playerInventory)) {
-                    //clicked player inventory
-                    if (cursor.getType().isAir() && (slot != null)) {
-                        //removing item from player inv
-                        if (e.getWhoClicked().hasPermission("stash.a")) {
-                            updatePlayers(stashStr, key);
-                            return;
-                        } else {
-                            e.setCancelled(true);
-                        }
-                    }
-
-                    if (!cursor.getType().isAir()) {
-                        updatePlayers(stashStr, key);
-                        //adding item to player inv
-                    } else {
-                        e.setCancelled(true);
-                    }
+                if (!cursor.getType().isAir()) {
+                    //adding item to stash
+                    e.setCancelled(true);
                 }
+            } else if (!cursor.getType().isAir() && slot != null) { // swap ItemStacks
+                e.setCancelled(true);
+            } else if (e.getClick().isRightClick()) {               // right click
+                e.setCancelled(true);
+            } else if (e.getClickedInventory() == null) {           // clicked outside of inv
+                e.setCancelled(true);
             }
         }
     }
@@ -148,9 +119,18 @@ public class EventListener implements Listener {
 
     @EventHandler
     public void drag(InventoryDragEvent e) {
+
         Inventory stashInv = MapConversion.map.get(e.getWhoClicked().getUniqueId().toString());
         if (stashInv.getViewers().contains(e.getWhoClicked())) {
-            e.setCancelled(true);
+
+            Set<Integer> slots = e.getRawSlots();
+
+            for (Integer num : slots) {
+                if (num < 18) {
+                    e.setCancelled(true);
+                    return;
+                }
+            }
         }
     }
 
@@ -190,7 +170,6 @@ public class EventListener implements Listener {
                 entity = Rare.entityMap.get(data);
                 cs.setSpawnedType(entity);
                 System.out.println(data);
-
             }
         }
     }
