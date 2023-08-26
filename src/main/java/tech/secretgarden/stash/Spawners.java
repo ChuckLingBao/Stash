@@ -3,6 +3,9 @@ package tech.secretgarden.stash;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.block.CreatureSpawner;
+import org.bukkit.entity.EntityType;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
@@ -56,6 +59,9 @@ public class Spawners {
         // create spawner
         ItemStack spawner = new ItemStack(Material.SPAWNER, 1);
         ItemMeta meta = spawner.getItemMeta();
+
+        meta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
+
         meta.getPersistentDataContainer().set(key, PersistentDataType.STRING, entity);
         meta.setDisplayName(ChatColor.LIGHT_PURPLE + entity + " Spawner");
 

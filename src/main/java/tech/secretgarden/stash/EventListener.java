@@ -171,6 +171,8 @@ public class EventListener implements Listener {
                 cs.setSpawnedType(entity);
                 System.out.println(data);
             }
+
+            cs.update();
         }
     }
 
