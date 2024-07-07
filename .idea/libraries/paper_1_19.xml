@@ -1,13 +1,13 @@
 <component name="libraryTable">
   <library name="paper-1.19">
     <CLASSES>
-      <root url="file://$USER_HOME$/OneDrive/Documents/Games/Minecraft/PluginDepends" />
+      <root url="file://$PROJECT_DIR$/PluginDependencies" />
     </CLASSES>
     <JAVADOC>
       <root url="https://hub.spigotmc.org/javadocs/spigot/" />
       <root url="https://slimefun.github.io/javadocs/Slimefun4/docs/index-all.html" />
     </JAVADOC>
     <SOURCES />
-    <jarDirectory url="file://$USER_HOME$/OneDrive/Documents/Games/Minecraft/PluginDepends" recursive="false" />
+    <jarDirectory url="file://$PROJECT_DIR$/PluginDependencies" recursive="false" />
   </library>
 </component>
