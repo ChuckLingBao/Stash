@@ -116,27 +116,27 @@ public class StashPlugin extends JavaPlugin {
 
         // check APIs
         if (getSfAPI() == null) {
-            System.out.println("sf4 not found");
+            Bukkit.getLogger().info("sf4 not found");
         } else {
-            System.out.println("sf4 was found");
+            Bukkit.getLogger().info("sf4 was found");
         }
 
         if (getEgAPI() == null) {
-            System.out.println("ExoticGardens was not found");
+            Bukkit.getLogger().info("ExoticGardens was not found");
         } else {
-            System.out.println("ExoticGardens was found");
+            Bukkit.getLogger().info("ExoticGardens was found");
         }
 
         if (getEcAPI() == null) {
-            System.out.println("GoldenCrates was not found");
+            Bukkit.getLogger().info("GoldenCrates was not found");
         } else {
-            System.out.println("GoldenCrates was found");
+            Bukkit.getLogger().info("GoldenCrates was found");
         }
 
         if (getNeAPI() == null) {
-            System.out.println("NexEngine was not found");
+            Bukkit.getLogger().info("NexEngine was not found");
         } else {
-            System.out.println("NexEngine was found");
+            Bukkit.getLogger().info("NexEngine was found");
         }
         updateLastPlayedPlayers.runTaskTimerAsynchronously(this, 20, 20 * 60);
     }
@@ -199,14 +199,14 @@ public class StashPlugin extends JavaPlugin {
             for (Player player : onlinePlayerList) {
                 String uuid = player.getUniqueId().toString();
                 try (Connection connection = database.getPool().getConnection();
-                     PreparedStatement statement = connection.prepareStatement("UPDATE player SET last_played = ? WHERE uuid = '" + uuid + "'")) {
+                     PreparedStatement statement = connection.prepareStatement("UPDATE stashes SET last_played = ? WHERE uuid = '" + uuid + "'")) {
                     statement.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
                     statement.executeUpdate();
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
             }
-            getLogger().info("updated players");
+            getLogger().info("updated stashes");
         }
     };
 }

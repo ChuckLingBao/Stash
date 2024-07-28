@@ -1,13 +1,15 @@
 <component name="libraryTable">
   <library name="paper-1.19">
     <CLASSES>
-      <root url="file://$PROJECT_DIR$/PluginDependencies" />
+      <root url="jar://$PROJECT_DIR$/PluginDependencies/ExcellentCrates-4.3.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/PluginDependencies/ExoticGarden - DEV 78 (git 7f9a5).jar!/" />
+      <root url="jar://$PROJECT_DIR$/PluginDependencies/NexEngine.jar!/" />
+      <root url="jar://$PROJECT_DIR$/PluginDependencies/Slimefun4 - DEV 1061 (git 79e05).jar!/" />
     </CLASSES>
     <JAVADOC>
       <root url="https://hub.spigotmc.org/javadocs/spigot/" />
       <root url="https://slimefun.github.io/javadocs/Slimefun4/docs/index-all.html" />
     </JAVADOC>
     <SOURCES />
-    <jarDirectory url="file://$PROJECT_DIR$/PluginDependencies" recursive="false" />
   </library>
 </component>

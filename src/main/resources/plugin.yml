@@ -1,8 +1,8 @@
-main: tech.secretgarden.stash.Stash
+main: tech.secretgarden.stash.StashPlugin
 name: Stash
 author: ChuckLingBao
 version: '${project.version}'
-api-version: 1.19
+api-version: '1.20'
 commands:
   stash:
     description: This is where your rewards are.

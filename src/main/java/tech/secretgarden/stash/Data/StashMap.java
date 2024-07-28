@@ -52,7 +52,7 @@ public class StashMap {
 
     public BukkitRunnable addPlayer(String uuid, String name, Timestamp timestamp) {
 
-        Stash stash = new Stash();
+        Stash stash = new Stash(uuid);
         map.put(uuid, stash);
 
         BukkitRunnable add = new BukkitRunnable() {
@@ -62,7 +62,7 @@ public class StashMap {
                 String stashString = serializeStash(stash);
 
                 try (Connection connection = database.getPool().getConnection();
-                     PreparedStatement statement = connection.prepareStatement("INSERT INTO player (uuid, name, stash, timestamp) VALUES (?,?,?,?);")) {
+                     PreparedStatement statement = connection.prepareStatement("INSERT INTO stashes (uuid, name, stash, timestamp) VALUES (?,?,?,?);")) {
                     statement.setString(1, uuid);
                     statement.setString(2, name);
                     statement.setString(3, stashString);
@@ -80,7 +80,7 @@ public class StashMap {
     public void loadMap() {
 
         try (Connection connection = database.getPool().getConnection();
-             PreparedStatement statement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS stash_player_items (" +
+             PreparedStatement statement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS stashes (" +
                      "id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, " +
                      "uuid VARCHAR(36), " +
                      "name VARCHAR(99), " +
@@ -100,14 +100,14 @@ public class StashMap {
                      "timestamp TIMESTAMP NOT NULL, " +
                      "owner VARCHAR(255), " +
                      "player_key INT, " +
-                     "FOREIGN KEY (player_key) REFERENCES player(id));")) {
+                     "FOREIGN KEY (player_key) REFERENCES stashes(id));")) {
             statement.executeUpdate();
         } catch (Exception x) {
             x.printStackTrace();
         }
 
         try (Connection connection = database.getPool().getConnection();
-             PreparedStatement statement = connection.prepareStatement("SELECT uuid, inv FROM stash_player_items;")) {
+             PreparedStatement statement = connection.prepareStatement("SELECT uuid, stash FROM stashes;")) {
             ResultSet rs = statement.executeQuery();
             while (rs.next()) {
                 String key = rs.getString("uuid");

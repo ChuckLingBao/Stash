@@ -6,7 +6,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import tech.secretgarden.stash.Data.StashAPI;
 import tech.secretgarden.stash.Data.StashMap;
@@ -27,7 +26,8 @@ public class StashCommand implements CommandExecutor {
                 Stash senderStash = StashMap.map.get(player.getUniqueId().toString());
                 //opens your own stash
                 if (args.length == 0) {
-                    player.openInventory(senderStash);
+                    player.openInventory(senderStash.createInventory());
+                    senderStash.populateInventoryPage(0);
                     return false;
                 }
             } else {
@@ -42,8 +42,9 @@ public class StashCommand implements CommandExecutor {
                 if (idString == null) {
                     player.sendMessage(ChatColor.RED + "This is not a valid player!");
                 } else {
-                    Inventory otherStash = StashMap.map.get(idString);
-                    player.openInventory(otherStash);
+                    Stash otherStash = StashMap.map.get(idString);
+                    player.openInventory(otherStash.createInventory(true));
+                    otherStash.populateInventoryPage(0);
                 }
                 return false;
             }

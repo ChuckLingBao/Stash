@@ -4,6 +4,7 @@ import org.bukkit.inventory.ItemStack;
 import tech.secretgarden.stash.Data.Database;
 import tech.secretgarden.stash.Data.StashAPI;
 import tech.secretgarden.stash.Data.StashMap;
+import tech.secretgarden.stash.Stash;
 
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -29,14 +30,14 @@ public class ReceiverList {
         String receiver = contents.getReceiver();
 
         if (receiver.equalsIgnoreCase("all")) {
-            for (Map.Entry<String, ArrayList<ItemStack>> entry : StashMap.map.entrySet()) {
+            for (Map.Entry<String, Stash> entry : StashMap.map.entrySet()) {
                 list.add(entry.getKey());
             }
         } else if (receiver.equalsIgnoreCase("time")) {
             //find database timestamps after the one created in contents.
             System.out.println("time receiver list creation started");
             try (Connection connection = database.getPool().getConnection();
-                 PreparedStatement statement = connection.prepareStatement("SELECT * FROM player WHERE last_played >= ?")) {
+                 PreparedStatement statement = connection.prepareStatement("SELECT * FROM stashes WHERE last_played >= ?")) {
                 statement.setTimestamp(1, timestamp);
                 ResultSet rs = statement.executeQuery();
                 System.out.println("Selected from db");
@@ -57,7 +58,7 @@ public class ReceiverList {
 
     public void addItem() {
         for (String id : list) {
-            ArrayList<ItemStack> stash = StashMap.map.get(id);
+            Stash stash = StashMap.map.get(id);
 //            Inventory inv = getMethods.getStashInv(id);
             for (int i = 0; i < quantity; i++) {
                 stash.add(contents.item);
@@ -67,10 +68,10 @@ public class ReceiverList {
         }
     }
 
-    private void updatePlayers(ArrayList<ItemStack> stash, String uuid) {
+    private void updatePlayers(Stash stash, String uuid) {
         String stashString = stashMap.serializeStash(stash);
         try (Connection connection = database.getPool().getConnection();
-             PreparedStatement statement = connection.prepareStatement("UPDATE player " +
+             PreparedStatement statement = connection.prepareStatement("UPDATE stashes " +
                      "SET stash = ? " +
                      "WHERE uuid = ?;")) {
             statement.setString(1, stashString);

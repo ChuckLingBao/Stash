@@ -1,14 +1,13 @@
 C:\Users\bithe\GitHub\Stash\src\main\java\tech\secretgarden\stash\EventListener.java
 C:\Users\bithe\GitHub\Stash\src\main\java\tech\secretgarden\stash\Stash.java
-C:\Users\bithe\GitHub\Stash\src\main\java\tech\secretgarden\stash\Data\GetMethods.java
 C:\Users\bithe\GitHub\Stash\src\main\java\tech\secretgarden\stash\SpawnerNames\Rare.java
 C:\Users\bithe\GitHub\Stash\src\main\java\tech\secretgarden\stash\Commands\KeyTabCompletion.java
 C:\Users\bithe\GitHub\Stash\src\main\java\tech\secretgarden\stash\Commands\SfTabCompletion.java
-C:\Users\bithe\GitHub\Stash\src\main\java\tech\secretgarden\stash\Data\MapConversion.java
 C:\Users\bithe\GitHub\Stash\src\main\java\tech\secretgarden\stash\Commands\StashCmdContents.java
 C:\Users\bithe\GitHub\Stash\src\main\java\tech\secretgarden\stash\Commands\StashKeyCommand.java
+C:\Users\bithe\GitHub\Stash\src\main\java\tech\secretgarden\stash\Data\StashMap.java
 C:\Users\bithe\GitHub\Stash\src\main\java\tech\secretgarden\stash\Data\Database.java
-C:\Users\bithe\GitHub\Stash\src\main\java\tech\secretgarden\stash\Data\InsertData.java
+C:\Users\bithe\GitHub\Stash\src\main\java\tech\secretgarden\stash\Data\StashAPI.java
 C:\Users\bithe\GitHub\Stash\src\main\java\tech\secretgarden\stash\SpawnerNames\Hostile.java
 C:\Users\bithe\GitHub\Stash\src\main\java\tech\secretgarden\stash\Commands\StashSfCommand.java
 C:\Users\bithe\GitHub\Stash\src\main\java\tech\secretgarden\stash\Commands\VerifyCommand.java
@@ -19,3 +18,4 @@ C:\Users\bithe\GitHub\Stash\src\main\java\tech\secretgarden\stash\Spawners.java
 C:\Users\bithe\GitHub\Stash\src\main\java\tech\secretgarden\stash\Commands\StashCommand.java
 C:\Users\bithe\GitHub\Stash\src\main\java\tech\secretgarden\stash\Commands\Give.java
 C:\Users\bithe\GitHub\Stash\src\main\java\tech\secretgarden\stash\Commands\RandomSpawnerCommand.java
+C:\Users\bithe\GitHub\Stash\src\main\java\tech\secretgarden\stash\StashPlugin.java

@@ -2,10 +2,12 @@ package tech.secretgarden.stash;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -27,6 +29,8 @@ import tech.secretgarden.stash.SpawnerNames.Rare;
 
 import java.sql.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Set;
 
 public class EventListener implements Listener {
@@ -57,17 +61,59 @@ public class EventListener implements Listener {
 
     @EventHandler
     public void invClick(InventoryClickEvent e) {
-//TODO: modify array when getting items. update db on inv close.
         String title = e.getView().getTitle();
 
         if (title.contains(ChatColor.DARK_PURPLE + "Stash")) {
             //top inv title includes "stash"
             ItemStack cursor = e.getCursor();
             ItemStack slot = e.getCurrentItem();
-
-            Inventory stash = e.getView().getTopInventory();
-//            Inventory playerInventory = e.getWhoClicked().getInventory();
+            int slotIndex = e.getRawSlot();
+            Inventory stashInventory = e.getView().getTopInventory();
             Inventory playerInventory = e.getView().getBottomInventory();
+
+            if (e.getClickedInventory() == null) {           // clicked outside of inv
+                e.setCancelled(true);
+                return;
+            }
+
+            // get stash object
+            String uuid = stashAPI.getStashViewOwner(e.getView(), (Player) e.getWhoClicked());
+            Stash stash = StashMap.map.get(uuid);
+            int stashPage = stash.getPage();
+            ArrayList<ItemStack> stashItems = stash.getList();
+
+
+            // handle navButton clicks
+            if (slotIndex == 45) { stash.populateInventoryPage(stashPage - 1); }
+            else if (slotIndex == 53) { stash.populateInventoryPage(stashPage + 1); }
+
+
+            // handle inventory management
+//            if (!e.getWhoClicked().hasPermission(("stash.a"))) { // not admin
+                e.setCancelled(true);
+
+                if (e.getClickedInventory().equals(stashInventory) && !slot.getType().isAir()) {
+                    if (playerInventory.firstEmpty() != -1) {
+                        //player has space; fill inventory as good as possible
+                        HashMap<Integer, ItemStack> returnedItems = playerInventory.addItem(slot);
+                        if (returnedItems.isEmpty()) {
+                            stashInventory.clear(slotIndex);
+                            ItemStack air = new ItemStack(Material.AIR);
+                            stashItems.set(stashPage * stash.ITEM_SLOTS + slotIndex, air);
+                        } else {
+                            for (int item : returnedItems.keySet()) {
+                                ItemStack returnedItem = returnedItems.get(item);
+                                slot.setAmount(returnedItem.getAmount());
+                                stashItems.set(stashPage * stash.ITEM_SLOTS + slotIndex, returnedItem);
+                            }
+                        }
+                    }
+                }
+
+//            } else { // admin
+//
+//            }
+
 
 //            if (e.getWhoClicked().hasPermission(("stash.a"))) {     // is admin
 //                e.setCancelled(false);
@@ -92,8 +138,6 @@ public class EventListener implements Listener {
 //                e.setCancelled(true);
 //            } else if (e.getClick().isRightClick()) {               // right click
 //                e.setCancelled(true);
-//            } else if (e.getClickedInventory() == null) {           // clicked outside of inv
-//                e.setCancelled(true);
 //            }
         }
     }
@@ -102,30 +146,29 @@ public class EventListener implements Listener {
     public void close(InventoryCloseEvent e) {
         // if player closes stash, update db
         if (e.getView().getTitle().contains(ChatColor.DARK_PURPLE + "Stash")) {
-            Inventory stash = e.getView().getTopInventory();
+            String uuid = stashAPI.getStashViewOwner(e.getView(), (Player) e.getPlayer());
+            Stash stash = StashMap.map.get(uuid);
             String stashStr = stashMap.serializeStash(stash);
-//            String key = stashAPI.getMapKey(stash);
-            String key = e.getPlayer().getUniqueId().toString();
-            updatePlayers(stashStr, key);
+            updatePlayers(stashStr, uuid);
         }
     }
 
-    @EventHandler
-    public void drag(InventoryDragEvent e) {
-// TODO: whats going on here?
-        Inventory stashInv = StashMap.map.get(e.getWhoClicked().getUniqueId().toString());
-        if (stashInv.getViewers().contains(e.getWhoClicked())) {
-
-            Set<Integer> slots = e.getRawSlots();
-
-            for (Integer num : slots) {
-                if (num < 18) {
-                    e.setCancelled(true);
-                    return;
-                }
-            }
-        }
-    }
+//    @EventHandler
+//    public void drag(InventoryDragEvent e) {
+//// TODO: whats going on here?
+//        Inventory stashInv = StashMap.map.get(e.getWhoClicked().getUniqueId().toString());
+//        if (stashInv.getViewers().contains(e.getWhoClicked())) {
+//
+//            Set<Integer> slots = e.getRawSlots();
+//
+//            for (Integer num : slots) {
+//                if (num < 18) {
+//                    e.setCancelled(true);
+//                    return;
+//                }
+//            }
+//        }
+//    }
 
     @EventHandler
     public void place(BlockPlaceEvent e) {
@@ -172,8 +215,8 @@ public class EventListener implements Listener {
     private void updatePlayers(String stashString, String uuid) {
 
         try (Connection connection = database.getPool().getConnection();
-             PreparedStatement statement = connection.prepareStatement("UPDATE player " +
-                     "SET inv = ? " +
+             PreparedStatement statement = connection.prepareStatement("UPDATE stashes " +
+                     "SET stash = ? " +
                      "WHERE uuid = ?;")) {
             statement.setString(1, stashString);
             statement.setString(2, uuid);
