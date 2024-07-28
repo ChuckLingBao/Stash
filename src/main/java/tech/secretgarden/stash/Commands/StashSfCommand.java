@@ -5,12 +5,12 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.inventory.ItemStack;
-import tech.secretgarden.stash.Stash;
+import tech.secretgarden.stash.StashPlugin;
 
 public class StashSfCommand implements CommandExecutor {
 
-    private final Stash plugin;
-    public StashSfCommand(Stash instance) { this.plugin = instance; }
+    private final StashPlugin plugin;
+    public StashSfCommand(StashPlugin instance) { this.plugin = instance; }
 
     Give give = new Give();
 

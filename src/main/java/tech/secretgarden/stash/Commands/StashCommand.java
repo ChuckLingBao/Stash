@@ -8,12 +8,13 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import tech.secretgarden.stash.Data.GetMethods;
-import tech.secretgarden.stash.Data.MapConversion;
+import tech.secretgarden.stash.Data.StashAPI;
+import tech.secretgarden.stash.Data.StashMap;
+import tech.secretgarden.stash.Stash;
 
 public class StashCommand implements CommandExecutor {
 
-    private final GetMethods getMethods = new GetMethods();
+    private final StashAPI stashAPI = new StashAPI();
     Give give = new Give();
 
     @Override
@@ -22,8 +23,8 @@ public class StashCommand implements CommandExecutor {
         if (sender instanceof Player) {
             Player player = (Player) sender;
             String world = player.getWorld().getName();
-            if (getMethods.getWorld(world)) {
-                Inventory senderStash = MapConversion.map.get(player.getUniqueId().toString());
+            if (stashAPI.getWorld(world)) {
+                Stash senderStash = StashMap.map.get(player.getUniqueId().toString());
                 //opens your own stash
                 if (args.length == 0) {
                     player.openInventory(senderStash);
@@ -36,12 +37,12 @@ public class StashCommand implements CommandExecutor {
                 //opens a different player's stash
                 String p = args[0];
 
-                String idString = getMethods.getIdString(p);
+                String idString = stashAPI.getIdString(p);
                 System.out.println("ID = " + idString);
                 if (idString == null) {
                     player.sendMessage(ChatColor.RED + "This is not a valid player!");
                 } else {
-                    Inventory otherStash = MapConversion.map.get(idString);
+                    Inventory otherStash = StashMap.map.get(idString);
                     player.openInventory(otherStash);
                 }
                 return false;

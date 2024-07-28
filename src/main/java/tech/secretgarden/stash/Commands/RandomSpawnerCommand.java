@@ -8,20 +8,20 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import tech.secretgarden.stash.Data.GetMethods;
+import tech.secretgarden.stash.Data.StashAPI;
 import tech.secretgarden.stash.Spawners;
-import tech.secretgarden.stash.Stash;
+import tech.secretgarden.stash.StashPlugin;
 
 import java.lang.reflect.Field;
 
 public class RandomSpawnerCommand implements CommandExecutor {
 
-    Stash plugin;
-    public RandomSpawnerCommand(Stash instance) {
+    StashPlugin plugin;
+    public RandomSpawnerCommand(StashPlugin instance) {
         this.plugin = instance;
     }
 
-    GetMethods getMethods = new GetMethods();
+    StashAPI stashAPI = new StashAPI();
     Spawners spawners = new Spawners();
     Give give = new Give();
 

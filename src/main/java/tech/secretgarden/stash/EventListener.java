@@ -19,9 +19,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import tech.secretgarden.stash.Data.Database;
-import tech.secretgarden.stash.Data.GetMethods;
-import tech.secretgarden.stash.Data.InsertData;
-import tech.secretgarden.stash.Data.MapConversion;
+import tech.secretgarden.stash.Data.StashAPI;
+import tech.secretgarden.stash.Data.StashMap;
 import tech.secretgarden.stash.SpawnerNames.Hostile;
 import tech.secretgarden.stash.SpawnerNames.Passive;
 import tech.secretgarden.stash.SpawnerNames.Rare;
@@ -32,13 +31,12 @@ import java.util.Set;
 
 public class EventListener implements Listener {
 
-    private final Stash plugin;
-    public EventListener(Stash instance) { this.plugin = instance; }
+    private final StashPlugin plugin;
+    public EventListener(StashPlugin instance) { this.plugin = instance; }
 
     private final Database database = new Database();
-    private final MapConversion mapConversion = new MapConversion();
-    private final GetMethods getMethods = new GetMethods();
-    private final InsertData insertData = new InsertData();
+    private final StashMap stashMap = new StashMap();
+    private final StashAPI stashAPI = new StashAPI();
 
     LocalDateTime date = LocalDateTime.now();
     Timestamp timestamp = Timestamp.valueOf(date);
@@ -49,22 +47,17 @@ public class EventListener implements Listener {
         String uuid = e.getPlayer().getUniqueId().toString();
         String name = e.getPlayer().getName();
 
-        if (getMethods.getPlayerId(uuid) == 0) {
-            insertData.addPlayer(uuid, name, timestamp).runTaskAsynchronously(plugin);
-        } else {
-            // player exists in db
-            Inventory stash = getMethods.getStashInv(uuid);
-            MapConversion.map.put(uuid, stash);
-        }
-
-        if (!MapConversion.map.get(e.getPlayer().getUniqueId().toString()).isEmpty()) {
+        // search db for player
+        if (!StashMap.map.containsKey(uuid)) {
+            stashMap.addPlayer(uuid, name, timestamp).runTaskAsynchronously(plugin);
+        } else if (!StashMap.map.get(e.getPlayer().getUniqueId().toString()).isEmpty()) {
             e.getPlayer().sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "You have Items in your Stash, use '/stash' to get your items.");
         }
     }
 
     @EventHandler
     public void invClick(InventoryClickEvent e) {
-
+//TODO: modify array when getting items. update db on inv close.
         String title = e.getView().getTitle();
 
         if (title.contains(ChatColor.DARK_PURPLE + "Stash")) {
@@ -76,32 +69,32 @@ public class EventListener implements Listener {
 //            Inventory playerInventory = e.getWhoClicked().getInventory();
             Inventory playerInventory = e.getView().getBottomInventory();
 
-            if (e.getWhoClicked().hasPermission(("stash.a"))) {     // is admin
-                e.setCancelled(false);
-            } else if (e.getClickedInventory().equals(playerInventory)) {   // clicked player inv
-                //clicked player inventory
-                if (cursor.getType().isAir() || (slot != null)) {
-                    //removing item from player inv
-                    e.setCancelled(true);
-                }
-            } else if (e.getClickedInventory().equals(stash)) {             // clicked stash inv
-                //clicked stash inventory
-                if (cursor.getType().isAir() && slot != null) {
-                    //removing item from stash
-                    return;
-                }
-
-                if (!cursor.getType().isAir()) {
-                    //adding item to stash
-                    e.setCancelled(true);
-                }
-            } else if (!cursor.getType().isAir() && slot != null) { // swap ItemStacks
-                e.setCancelled(true);
-            } else if (e.getClick().isRightClick()) {               // right click
-                e.setCancelled(true);
-            } else if (e.getClickedInventory() == null) {           // clicked outside of inv
-                e.setCancelled(true);
-            }
+//            if (e.getWhoClicked().hasPermission(("stash.a"))) {     // is admin
+//                e.setCancelled(false);
+//            } else if (e.getClickedInventory().equals(playerInventory)) {   // clicked player inv
+//                //clicked player inventory
+//                if (cursor.getType().isAir() || (slot != null)) {
+//                    //removing item from player inv
+//                    e.setCancelled(true);
+//                }
+//            } else if (e.getClickedInventory().equals(stash)) {             // clicked stash inv
+//                //clicked stash inventory
+//                if (cursor.getType().isAir() && slot != null) {
+//                    //removing item from stash
+//                    return;
+//                }
+//
+//                if (!cursor.getType().isAir()) {
+//                    //adding item to stash
+//                    e.setCancelled(true);
+//                }
+//            } else if (!cursor.getType().isAir() && slot != null) { // swap ItemStacks
+//                e.setCancelled(true);
+//            } else if (e.getClick().isRightClick()) {               // right click
+//                e.setCancelled(true);
+//            } else if (e.getClickedInventory() == null) {           // clicked outside of inv
+//                e.setCancelled(true);
+//            }
         }
     }
 
@@ -110,17 +103,17 @@ public class EventListener implements Listener {
         // if player closes stash, update db
         if (e.getView().getTitle().contains(ChatColor.DARK_PURPLE + "Stash")) {
             Inventory stash = e.getView().getTopInventory();
-            String stashStr = mapConversion.inventoryToString(stash);
-            String key = getMethods.getMapKey(stash);
-
+            String stashStr = stashMap.serializeStash(stash);
+//            String key = stashAPI.getMapKey(stash);
+            String key = e.getPlayer().getUniqueId().toString();
             updatePlayers(stashStr, key);
         }
     }
 
     @EventHandler
     public void drag(InventoryDragEvent e) {
-
-        Inventory stashInv = MapConversion.map.get(e.getWhoClicked().getUniqueId().toString());
+// TODO: whats going on here?
+        Inventory stashInv = StashMap.map.get(e.getWhoClicked().getUniqueId().toString());
         if (stashInv.getViewers().contains(e.getWhoClicked())) {
 
             Set<Integer> slots = e.getRawSlots();

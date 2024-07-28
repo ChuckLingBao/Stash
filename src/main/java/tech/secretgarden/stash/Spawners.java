@@ -3,8 +3,6 @@ package tech.secretgarden.stash;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.block.CreatureSpawner;
-import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -17,7 +15,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class Spawners {
 
-    Stash plugin = Stash.plugin;
+    StashPlugin plugin = StashPlugin.plugin;
 
     public ItemStack getSpawner(String type) {
 

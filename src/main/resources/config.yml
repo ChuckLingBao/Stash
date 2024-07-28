@@ -1,4 +1,11 @@
 #DATABASE CONNECTION CONFIGURATION
+
+#HOST: localhost
+#PORT: "3306"
+#DATABASE: secretgarden
+#USERNAME: admin
+#PASSWORD: password
+
 HOST:
 PORT: "3306"
 DATABASE:

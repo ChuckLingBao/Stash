@@ -1,20 +1,22 @@
 package tech.secretgarden.stash.Data;
 
 import org.bukkit.Bukkit;
-import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import tech.secretgarden.stash.Stash;
+import tech.secretgarden.stash.StashPlugin;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.UUID;
 
-public class GetMethods {
+public class StashAPI {
 
     private final Database database = new Database();
-    private final MapConversion mapConversion = new MapConversion();
+    private final StashMap stashMap = new StashMap();
 
     public String getName(UUID id) {
         if (Bukkit.getPlayer(id) != null) {
@@ -24,8 +26,8 @@ public class GetMethods {
         }
     }
 
-    public String getMapKey(Inventory stash) {
-        for (Map.Entry<String, Inventory> entry : MapConversion.map.entrySet()) {
+    public String getMapKey(ArrayList<ItemStack> stash) {
+        for (Map.Entry<String, ArrayList<ItemStack>> entry : StashMap.map.entrySet()) {
             if (stash.equals(entry.getValue())) {
                 return entry.getKey();
             }
@@ -33,36 +35,39 @@ public class GetMethods {
         return null;
     }
 
-    public int getPlayerId(String uuid) {
-        try (Connection connection = database.getPool().getConnection();
-             PreparedStatement statement = connection.prepareStatement("SELECT id FROM player WHERE uuid = '" + uuid + "'")) {
-            ResultSet rs = statement.executeQuery();
-            while (rs.next()) {
-                return rs.getInt("id");
-            }
-        } catch (SQLException exception) {
-            exception.printStackTrace();
-        }
-        return 0;
-    }
+//    public int getPlayerId(String uuid) {
+//        try (Connection connection = database.getPool().getConnection();
+//             PreparedStatement statement = connection.prepareStatement("SELECT id FROM player WHERE uuid = '" + uuid + "'")) {
+//            ResultSet rs = statement.executeQuery();
+//            while (rs.next()) {
+//                return rs.getInt("id");
+//            }
+//        } catch (SQLException exception) {
+//            exception.printStackTrace();
+//        }
+//        return 0;
+//    }
 
-    public Inventory getStashInv(String uuid) {
+    public Stash getStash(String uuid) {
         try (Connection connection = database.getPool().getConnection();
-            PreparedStatement statement = connection.prepareStatement("SELECT inv FROM player where uuid = '" + uuid + "'")) {
+            PreparedStatement statement = connection.prepareStatement("SELECT stash FROM player where uuid = '" + uuid + "'")) {
             ResultSet rs = statement.executeQuery();
-            while(rs.next()) {
-                String invString = rs.getString("inv");
-                return mapConversion.stringToInventory(invString);
-            }
+            String stashString = rs.getString("inv");
+            return stashMap.deserializeStash(stashString);
+
         } catch (SQLException exception) {
             exception.printStackTrace();
         }
         return null;
     }
 
+//    public Inventory getStashInv(String uuid, int pageNum) {
+//        ArrayList<ItemStack> stashItems = getStashArray(uuid);
+//    }
+
     public boolean getWorld(String world) {
         int x = 0;
-        for (String entry : Stash.worldList) {
+        for (String entry : StashPlugin.worldList) {
             if (entry.equalsIgnoreCase(world)) {
                 x = x + 1;
             }

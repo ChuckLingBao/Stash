@@ -5,14 +5,14 @@ import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
-import tech.secretgarden.stash.Stash;
+import tech.secretgarden.stash.StashPlugin;
 
 import javax.annotation.Nonnull;
 import java.util.*;
 
 public class SfTabCompletion implements TabCompleter {
-    private final Stash plugin;
-    public SfTabCompletion(Stash instance) { this.plugin = instance; }
+    private final StashPlugin plugin;
+    public SfTabCompletion(StashPlugin instance) { this.plugin = instance; }
     private static final int MAX_SUGGESTIONS = 80;
 
     @Override

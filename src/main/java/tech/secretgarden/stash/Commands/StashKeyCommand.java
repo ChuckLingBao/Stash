@@ -6,12 +6,12 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.inventory.ItemStack;
 import su.nightexpress.excellentcrates.ExcellentCratesAPI;
 import su.nightexpress.excellentcrates.key.CrateKey;
-import tech.secretgarden.stash.Stash;
+import tech.secretgarden.stash.StashPlugin;
 
 public class StashKeyCommand implements CommandExecutor {
 
-    private final Stash plugin;
-    public StashKeyCommand(Stash instance) { this.plugin = instance; }
+    private final StashPlugin plugin;
+    public StashKeyCommand(StashPlugin instance) { this.plugin = instance; }
 
     Give give = new Give();
 

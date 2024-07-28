@@ -1,14 +1,14 @@
 package tech.secretgarden.stash.Data;
 
 import com.zaxxer.hikari.HikariDataSource;
-import tech.secretgarden.stash.Stash;
+import tech.secretgarden.stash.StashPlugin;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class DropletDatabase {
     public static HikariDataSource pool;
-    private static final ArrayList<String> list = Stash.dropletList;
+    private static final ArrayList<String> list = StashPlugin.dropletList;
 
     public void connect() throws SQLException {
 

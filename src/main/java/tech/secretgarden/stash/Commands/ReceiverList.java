@@ -1,9 +1,9 @@
 package tech.secretgarden.stash.Commands;
 
-import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import tech.secretgarden.stash.Data.Database;
-import tech.secretgarden.stash.Data.GetMethods;
-import tech.secretgarden.stash.Data.MapConversion;
+import tech.secretgarden.stash.Data.StashAPI;
+import tech.secretgarden.stash.Data.StashMap;
 
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -13,8 +13,8 @@ import java.util.Map;
 public class ReceiverList {
 
     Database database = new Database();
-    GetMethods getMethods = new GetMethods();
-    MapConversion mapConversion = new MapConversion();
+    StashAPI stashAPI = new StashAPI();
+    StashMap stashMap = new StashMap();
 
     ArrayList<String> list = null;
     StashCmdContents contents = null;
@@ -29,7 +29,7 @@ public class ReceiverList {
         String receiver = contents.getReceiver();
 
         if (receiver.equalsIgnoreCase("all")) {
-            for (Map.Entry<String, Inventory> entry : MapConversion.map.entrySet()) {
+            for (Map.Entry<String, ArrayList<ItemStack>> entry : StashMap.map.entrySet()) {
                 list.add(entry.getKey());
             }
         } else if (receiver.equalsIgnoreCase("time")) {
@@ -49,7 +49,7 @@ public class ReceiverList {
             }
         } else {
             //single player list
-            String uuid = getMethods.getIdString(receiver);
+            String uuid = stashAPI.getIdString(receiver);
             list.add(uuid);
         }
         this.list = list;
@@ -57,21 +57,21 @@ public class ReceiverList {
 
     public void addItem() {
         for (String id : list) {
-            Inventory inv = MapConversion.map.get(id);
+            ArrayList<ItemStack> stash = StashMap.map.get(id);
 //            Inventory inv = getMethods.getStashInv(id);
             for (int i = 0; i < quantity; i++) {
-                inv.addItem(contents.item);
+                stash.add(contents.item);
             }
-            updatePlayers(inv, id);
+            updatePlayers(stash, id);
             recordItem(true, id);
         }
     }
 
-    private void updatePlayers(Inventory inv, String uuid) {
-        String stashString = mapConversion.inventoryToString(inv);
+    private void updatePlayers(ArrayList<ItemStack> stash, String uuid) {
+        String stashString = stashMap.serializeStash(stash);
         try (Connection connection = database.getPool().getConnection();
              PreparedStatement statement = connection.prepareStatement("UPDATE player " +
-                     "SET inv = ? " +
+                     "SET stash = ? " +
                      "WHERE uuid = ?;")) {
             statement.setString(1, stashString);
             statement.setString(2, uuid);
@@ -82,7 +82,7 @@ public class ReceiverList {
     }
 
     private void recordItem(boolean added, String id) {
-        int playerKey = getMethods.getPlayerId(id);
+        int playerKey = stashAPI.getPlayerId(id);
         LocalDateTime date = LocalDateTime.now();
         Timestamp timestamp = Timestamp.valueOf(date);
         String addOrRemove = null;

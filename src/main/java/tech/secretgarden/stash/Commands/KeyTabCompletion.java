@@ -4,15 +4,15 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.jetbrains.annotations.NotNull;
-import tech.secretgarden.stash.Stash;
+import tech.secretgarden.stash.StashPlugin;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class KeyTabCompletion implements TabCompleter {
 
-    private final Stash plugin;
-    public KeyTabCompletion(Stash instance) {
+    private final StashPlugin plugin;
+    public KeyTabCompletion(StashPlugin instance) {
         this.plugin = instance;
     }
 

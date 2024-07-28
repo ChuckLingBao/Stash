@@ -1,217 +1,70 @@
 package tech.secretgarden.stash;
 
-import com.google.common.collect.ImmutableList;
-import io.github.thebusybiscuit.exoticgarden.ExoticGarden;
-import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import org.bukkit.Bukkit;
-import org.bukkit.NamespacedKey;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
-import su.nexmedia.engine.NexEngine;
-import su.nightexpress.excellentcrates.ExcellentCrates;
-import tech.secretgarden.stash.Commands.*;
-import tech.secretgarden.stash.Data.Database;
-import tech.secretgarden.stash.Data.DropletDatabase;
-import tech.secretgarden.stash.Data.MapConversion;
-import tech.secretgarden.stash.SpawnerNames.Hostile;
-import tech.secretgarden.stash.SpawnerNames.Passive;
-import tech.secretgarden.stash.SpawnerNames.Rare;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
-import java.sql.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.List;
 
-public class Stash extends JavaPlugin {
+public class Stash {
 
-    public static Stash plugin;
+    ArrayList<ItemStack> items;
+    Inventory stash;
 
-    MapConversion mapConversion = new MapConversion();
-    Database database = new Database();
-    DropletDatabase dropletDatabase = new DropletDatabase();
-
-    // spawner classes
-
-    Hostile hostile = new Hostile();
-    Passive passive = new Passive();
-    Rare rare = new Rare();
-
-    public static ArrayList<String> dbList = new ArrayList<>();
-    public ArrayList<String> getDbList() {
-        dbList.add(getConfig().getString("HOST"));
-        dbList.add(getConfig().getString("PORT"));
-        dbList.add(getConfig().getString("DATABASE"));
-        dbList.add(getConfig().getString("USERNAME"));
-        dbList.add(getConfig().getString("PASSWORD"));
-        return dbList;
+    public Stash() {
+        this.items = new ArrayList<>();
+        initStash();
     }
 
-    public static ArrayList<String> dropletList = new ArrayList<>();
-    public ArrayList<String> getDropletList() {
-        dropletList.add(getConfig().getString("DROPLET_HOST"));
-        dropletList.add(getConfig().getString("DROPLET_PORT"));
-        dropletList.add(getConfig().getString("DROPLET_DATABASE"));
-        dropletList.add(getConfig().getString("DROPLET_USERNAME"));
-        dropletList.add(getConfig().getString("DROPLET_PASSWORD"));
-        return dropletList;
+    public Stash(ArrayList<ItemStack> items) {
+        this.items = items;
+        initStash();
     }
 
-    // disabled worlds
-    public static List<String> worldList = new ArrayList<>();
+    // populate stash inventory
+    private void initStash() {
+    }
 
-    @Override
-    public void onEnable() {
-        plugin = this;
-        getConfig().options().copyDefaults();
-        saveDefaultConfig();
-        RandomSpawnerCommand randomSpawnerCommand = new RandomSpawnerCommand(this);
+    public Inventory getStash(int pageNum) {
+        this.stash = Bukkit.createInventory(null, 54, ChatColor.LIGHT_PURPLE + "Stash");
+        int startIndex = 45 * pageNum;
 
+        // add previous button
+        if (pageNum > 0) {
+            ItemStack prevButton = navButton(pageNum, false);
+            this.stash.setItem(45, prevButton);
+        }
 
-        if (getConfig().getString("HOST") != null && getConfig().getString("DROPLET_HOST") != null) {
-            try {
-                getDbList();
-                getDropletList();
-                database.connect();
-                dropletDatabase.connect();
-            } catch (SQLException e) {
-                e.printStackTrace();
+        for (int i = startIndex; i < startIndex + 45; i++) {
+            if (i >= items.size()) {
+                break;
             }
+            this.stash.addItem(this.items.get(i));
         }
-
-        //list of disabled worlds set in config
-        worldList = getConfig().getStringList("disabled_worlds");
-
-        System.out.println("Connected to database = " + database.isConnected());
-        System.out.println("Stash plugin has loaded");
-
-        Bukkit.getPluginManager().registerEvents(new EventListener(this), this);
-        getCommand("stash").setExecutor(new StashCommand());
-        getCommand("stashsf").setExecutor(new StashSfCommand(this));
-        getCommand("stashsf").setTabCompleter(new SfTabCompletion(this));
-        getCommand("stashkey").setExecutor(new StashKeyCommand(this));
-        getCommand("stashkey").setTabCompleter(new KeyTabCompletion(this));
-        getCommand("verify").setExecutor(new VerifyCommand());
-        getCommand("randomspawner").setExecutor(new RandomSpawnerCommand(this));
-
-        // initialize spawner classes
-        Hostile.initMap();
-        Passive.initMap();
-        Rare.initMap();
-        try {
-            randomSpawnerCommand.initList(hostile.getClass(), Hostile.entityList);
-            randomSpawnerCommand.initList(passive.getClass(), Passive.entityList);
-            randomSpawnerCommand.initList(rare.getClass(), Rare.entityList);
-
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-
-        if (database.isConnected()) {
-            mapConversion.loadMap();
-        } else {
-            Bukkit.getPluginManager().disablePlugin(this);
-        }
-
-        // check APIs
-        if (getSfAPI() == null) {
-            System.out.println("sf4 not found");
-        } else {
-            System.out.println("sf4 was found");
-        }
-
-        if (getEgAPI() == null) {
-            System.out.println("ExoticGardens was not found");
-        } else {
-            System.out.println("ExoticGardens was found");
-        }
-
-        if (getEcAPI() == null) {
-            System.out.println("GoldenCrates was not found");
-        } else {
-            System.out.println("GoldenCrates was found");
-        }
-
-        if (getNeAPI() == null) {
-            System.out.println("NexEngine was not found");
-        } else {
-            System.out.println("NexEngine was found");
-        }
-        updateLastPlayedPlayers.runTaskTimerAsynchronously(this, 20, 20 * 60);
+        return stash;
     }
 
-    // slimefun API
-    public Slimefun getSfAPI() {
-        Plugin sfPlugin = Bukkit.getServer().getPluginManager().getPlugin("Slimefun");
-        if (sfPlugin instanceof Slimefun) {
-            return (Slimefun) sfPlugin;
-        } else {
-            return null;
-        }
+    private ItemStack navButton(int pageNum, boolean increasing) {
+
+        int newPageNum;
+        ItemStack button = new ItemStack(Material.NETHER_STAR);
+
+        ItemMeta meta = button.getItemMeta();
+        meta.setDisplayName(direction);
+        ArrayList<String> lore = new ArrayList<>();
+
+        if (increasing) { newPageNum = pageNum + 1; }
+        else { newPageNum = pageNum - 1; }
+
+        lore.add("Go to page " + newPageNum);
+        meta.setLore(lore);
+        return button;
     }
 
-    // exotic gardens API
-    public ExoticGarden getEgAPI() {
-        Plugin egPlugin = Bukkit.getServer().getPluginManager().getPlugin("ExoticGarden");
-        if (egPlugin instanceof ExoticGarden) {
-            return (ExoticGarden) egPlugin;
-        } else {
-            return null;
-        }
+    public boolean isEmpty() {
+        return this.items.isEmpty();
     }
-
-    // excellent crates API
-    public ExcellentCrates getEcAPI() {
-        Plugin ecPlugin = Bukkit.getServer().getPluginManager().getPlugin("ExcellentCrates");
-        if (ecPlugin instanceof ExcellentCrates) {
-            return (ExcellentCrates) ecPlugin;
-        } else {
-            return null;
-        }
-    }
-
-    // nex engine API
-    public NexEngine getNeAPI() {
-        Plugin nePlugin = Bukkit.getServer().getPluginManager().getPlugin("NexEngine");
-        if (nePlugin instanceof NexEngine) {
-            return (NexEngine) nePlugin;
-        } else {
-            return null;
-        }
-    }
-
-    public NamespacedKey getKey(String data) {
-        return new NamespacedKey(this, data);
-    }
-
-
-    @Override
-    public void onDisable() {
-        System.out.println("Stash has unloaded");
-        database.disconnect();
-    }
-
-    BukkitRunnable updateLastPlayedPlayers = new BukkitRunnable() {
-        @Override
-        public void run() {
-            ImmutableList<Player> onlinePlayerList = ImmutableList.copyOf(Bukkit.getOnlinePlayers());
-            for (Player player : onlinePlayerList) {
-                String uuid = player.getUniqueId().toString();
-                try (Connection connection = database.getPool().getConnection();
-                     PreparedStatement statement = connection.prepareStatement("UPDATE player SET last_played = ? WHERE uuid = '" + uuid + "'")) {
-                    statement.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
-                    statement.executeUpdate();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            getLogger().info("updated players");
-        }
-    };
 }
-
-
-
-
-
