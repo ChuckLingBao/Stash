@@ -1,5 +1,6 @@
 package tech.secretgarden.stash.Data;
 
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.io.BukkitObjectInputStream;
@@ -11,6 +12,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
@@ -26,11 +28,13 @@ public class StashMap {
 
     public String serializeStash(Stash stash) {
         try {
-            ByteArrayOutputStream str = new ByteArrayOutputStream();
-            BukkitObjectOutputStream data = new BukkitObjectOutputStream(str);
-            data.writeObject(stash);
-            data.close();
-            return Base64.getEncoder().encodeToString(str.toByteArray());
+//            ByteArrayOutputStream str = new ByteArrayOutputStream();
+//            BukkitObjectOutputStream data = new BukkitObjectOutputStream(str);
+//            data.writeObject(stash);
+//            data.close();
+//            return Base64.getEncoder().encodeToString(str.toByteArray());
+            XmlMapper xmlMapper = new XmlMapper();
+            return xmlMapper.writeValueAsString(stash);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -39,11 +43,13 @@ public class StashMap {
 
     public Stash deserializeStash(String stashData) {
         try {
-            ByteArrayInputStream stream = new ByteArrayInputStream(Base64.getDecoder().decode(stashData));
-            BukkitObjectInputStream data = new BukkitObjectInputStream(stream);
-            Stash stash = (Stash) data.readObject();
-            data.close();
-            return stash;
+//            ByteArrayInputStream stream = new ByteArrayInputStream(Base64.getDecoder().decode(stashData));
+//            BukkitObjectInputStream data = new BukkitObjectInputStream(stream);
+//            Stash stash = (Stash) data.readObject();
+//            data.close();
+//            return stash;
+            XmlMapper xmlMapper = new XmlMapper();
+            return xmlMapper.readValue(stashData, Stash.class);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -62,11 +68,12 @@ public class StashMap {
                 String stashString = serializeStash(stash);
 
                 try (Connection connection = database.getPool().getConnection();
-                     PreparedStatement statement = connection.prepareStatement("INSERT INTO stashes (uuid, name, stash, timestamp) VALUES (?,?,?,?);")) {
+                     PreparedStatement statement = connection.prepareStatement("INSERT INTO stashes (uuid, name, stash, timestamp, last_played) VALUES (?,?,?,?,?);")) {
                     statement.setString(1, uuid);
                     statement.setString(2, name);
                     statement.setString(3, stashString);
                     statement.setTimestamp(4, timestamp);
+                    statement.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now()));
                     statement.executeUpdate();
 
                 } catch (Exception x) {

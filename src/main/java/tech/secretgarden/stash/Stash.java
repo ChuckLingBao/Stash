@@ -10,8 +10,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.TreeMap;
+import java.util.UUID;
 
 public class Stash {
 
@@ -19,7 +18,7 @@ public class Stash {
     NamespacedKey key = plugin.getKey("stash_page");
 
     ArrayList<ItemStack> items;
-    HashMap<Integer, Inventory> inventoryMap = new HashMap<>();
+//    HashMap<Integer, Inventory> inventoryMap = new HashMap<>();
     Inventory inventory;
     String ownerUUID;
     int INVENTORY_SIZE = 54;
@@ -28,11 +27,13 @@ public class Stash {
     public Stash(String uuid) {
         this.items = new ArrayList<>();
         this.ownerUUID = uuid;
+        this.inventory = Bukkit.createInventory(null, INVENTORY_SIZE, ChatColor.DARK_PURPLE + "Stash");
     }
 
     public Stash(ArrayList<ItemStack> items, String uuid) {
         this.items = items;
         this.ownerUUID = uuid;
+        this.inventory = Bukkit.createInventory(null, INVENTORY_SIZE, ChatColor.DARK_PURPLE + "Stash");
     }
 
     public ArrayList<ItemStack> getList() {
@@ -45,7 +46,7 @@ public class Stash {
 
     public Inventory createInventory(boolean otherStash) {
 
-        String name = Bukkit.getPlayer(ownerUUID).getName();
+        String name = Bukkit.getPlayer(UUID.fromString(ownerUUID)).getName();
 
         if (otherStash) {
             this.inventory = Bukkit.createInventory(null, INVENTORY_SIZE, ChatColor.DARK_PURPLE + name + " Stash");
@@ -141,13 +142,12 @@ public class Stash {
     }
 
     public int getPage() {
-        if (this.inventory.getItem(ITEM_SLOTS).getType() != Material.AIR) {
-
+        if (this.inventory.getItem(ITEM_SLOTS) != null) {
             ItemStack navButton = this.inventory.getItem(ITEM_SLOTS);
             ItemMeta meta = navButton.getItemMeta();
             return meta.getPersistentDataContainer().get(key, PersistentDataType.INTEGER);
 
-        } else if (this.inventory.getItem(INVENTORY_SIZE - 1).getType() != Material.AIR) {
+        } else if (this.inventory.getItem(INVENTORY_SIZE - 1) != null) {
 
             ItemStack navButton = this.inventory.getItem(INVENTORY_SIZE - 1);
             ItemMeta meta = navButton.getItemMeta();
